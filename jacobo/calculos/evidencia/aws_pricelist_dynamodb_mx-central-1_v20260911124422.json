@@ -1,0 +1,1068 @@
+{
+  "formatVersion" : "v1.0",
+  "disclaimer" : "This pricing list is for informational purposes only. All prices are subject to the additional terms included in the pricing pages on http://aws.amazon.com. All Free Tier prices are also subject to the terms included at https://aws.amazon.com/free/",
+  "offerCode" : "AmazonDynamoDB",
+  "version" : "20260911124422",
+  "publicationDate" : "2026-09-11T12:44:22Z",
+  "products" : {
+    "WRE2DUSY9CWVQDZN" : {
+      "sku" : "WRE2DUSY9CWVQDZN",
+      "productFamily" : "Provisioned IOPS",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReadUnits",
+        "groupDescription" : "DynamoDB Provisioned Read Units",
+        "usagetype" : "MXC1-ReadCapacityUnit-Hrs",
+        "operation" : "CommittedThroughput",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "Y3H327X4GCUTC98A" : {
+      "sku" : "Y3H327X4GCUTC98A",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReplicatedWriteUnitsIA",
+        "groupDescription" : "DynamoDB PayPerRequest Replicated Write Request Units IA",
+        "usagetype" : "MXC1-IA-ReplWriteRequestUnits",
+        "operation" : "PayPerRequestThroughput",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "K3P5UMD8DBSJ3JSG" : {
+      "sku" : "K3P5UMD8DBSJ3JSG",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReadUnitsIA",
+        "groupDescription" : "DynamoDB PayPerRequest Read Request Units IA",
+        "usagetype" : "MXC1-IA-ReadRequestUnits",
+        "operation" : "PayPerRequestThroughput",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "B2VHVRFPBGECHGH3" : {
+      "sku" : "B2VHVRFPBGECHGH3",
+      "productFamily" : "Database Storage",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Indexed DataStore - IA",
+        "usagetype" : "MXC1-IA-TimedStorage-ByteHrs",
+        "operation" : "",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "DC8BN4FVUBWBZBPH" : {
+      "sku" : "DC8BN4FVUBWBZBPH",
+      "productFamily" : "Amazon DynamoDB Import Data Size",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Import Size",
+        "usagetype" : "MXC1-ImportDataSize-Bytes",
+        "operation" : "",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "S5W7JNJH4WHNU9A3" : {
+      "sku" : "S5W7JNJH4WHNU9A3",
+      "productFamily" : "Provisioned IOPS",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-WriteUnits",
+        "groupDescription" : "DynamoDB Provisioned Write Units",
+        "usagetype" : "MXC1-WriteCapacityUnit-Hrs",
+        "operation" : "CommittedThroughput",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "FAAVYBRRGSKSSMJR" : {
+      "sku" : "FAAVYBRRGSKSSMJR",
+      "productFamily" : "Amazon DynamoDB Export Data Size",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Export Size",
+        "usagetype" : "MXC1-ExportDataSize-Bytes",
+        "operation" : "",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "GUZX799RARNQ79CU" : {
+      "sku" : "GUZX799RARNQ79CU",
+      "productFamily" : "API Request",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-StreamsReadRequests",
+        "groupDescription" : "DynamoDB Streams read request (GetRecords API)",
+        "usagetype" : "MXC1-Streams-Requests",
+        "operation" : "GetRecords",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "9F7T7RJ2NK3F5PKW" : {
+      "sku" : "9F7T7RJ2NK3F5PKW",
+      "productFamily" : "Database Storage",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Indexed DataStore",
+        "usagetype" : "MXC1-TimedStorage-ByteHrs",
+        "operation" : "",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "ZESHGP3PW45NJY4Q" : {
+      "sku" : "ZESHGP3PW45NJY4Q",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-VectorWriteRequest-IA",
+        "groupDescription" : "DynamoDB PayPerRequest Write Request Units IA",
+        "usagetype" : "MXC1-IA-VectorWriteRequest",
+        "operation" : "",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "9KB7PN7UJM4ENTYX" : {
+      "sku" : "9KB7PN7UJM4ENTYX",
+      "productFamily" : "DDB-Operation-ReplicatedWrite",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReplicatedWriteUnits",
+        "groupDescription" : "DynamoDB Provisioned Replicated Write Units",
+        "usagetype" : "MXC1-ReplWriteCapacityUnit-Hrs",
+        "operation" : "CommittedThroughput",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "TAMAQ5G76W4BR78M" : {
+      "sku" : "TAMAQ5G76W4BR78M",
+      "productFamily" : "Amazon DynamoDB On-Demand Backup Storage",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - On-Demand Backup Storage",
+        "usagetype" : "MXC1-TimedBackupStorage-ByteHrs",
+        "operation" : "",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "YQ7MD859ATDCE9FK" : {
+      "sku" : "YQ7MD859ATDCE9FK",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReadUnits",
+        "groupDescription" : "DynamoDB PayPerRequest Read Request Units",
+        "usagetype" : "MXC1-ReadRequestUnits",
+        "operation" : "PayPerRequestThroughput",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "3CD7ARQSZ3TH4T7M" : {
+      "sku" : "3CD7ARQSZ3TH4T7M",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-VectorWriteRequest",
+        "groupDescription" : "DynamoDB PayPerRequest Vector Write Request",
+        "usagetype" : "MXC1-VectorWriteRequest",
+        "operation" : "",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB",
+        "tableclass" : "Standard"
+      }
+    },
+    "GVKFK4VY577PJ9GA" : {
+      "sku" : "GVKFK4VY577PJ9GA",
+      "productFamily" : "Amazon DynamoDB Export Data Size",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Incremental Export",
+        "usagetype" : "MXC1-IncrementalExportDataSize-Bytes",
+        "operation" : "",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "PE2D3GDMNZ3428X7" : {
+      "sku" : "PE2D3GDMNZ3428X7",
+      "productFamily" : "DDB-Operation-ReplicatedWrite",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReplicatedWriteUnitsIA",
+        "groupDescription" : "DynamoDB Provisioned Replicated Write Units IA",
+        "usagetype" : "MXC1-IA-ReplWriteCapacityUnit-Hrs",
+        "operation" : "CommittedThroughput",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "PAP6M9P6V26C3HVT" : {
+      "sku" : "PAP6M9P6V26C3HVT",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-WriteUnitsIA",
+        "groupDescription" : "DynamoDB PayPerRequest Write Request Units IA",
+        "usagetype" : "MXC1-IA-WriteRequestUnits",
+        "operation" : "PayPerRequestThroughput",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "9T89Y4RAF7PGGPRT" : {
+      "sku" : "9T89Y4RAF7PGGPRT",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-VectorSearch-IA",
+        "groupDescription" : "DynamoDB PayPerRequest Vector Search IA",
+        "usagetype" : "MXC1-IA-VectorSearch",
+        "operation" : "",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "BE4PX952XMNBS2H6" : {
+      "sku" : "BE4PX952XMNBS2H6",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-WriteUnits",
+        "groupDescription" : "DynamoDB PayPerRequest Write Request Units",
+        "usagetype" : "MXC1-WriteRequestUnits",
+        "operation" : "PayPerRequestThroughput",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "6U6DFQSAYS3R74M9" : {
+      "sku" : "6U6DFQSAYS3R74M9",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-VectorSearch",
+        "groupDescription" : "DynamoDB PayPerRequest Vector Search",
+        "usagetype" : "MXC1-VectorSearch",
+        "operation" : "",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB",
+        "tableclass" : "Standard"
+      }
+    },
+    "ST5YQH3CMNKHJSTY" : {
+      "sku" : "ST5YQH3CMNKHJSTY",
+      "productFamily" : "Provisioned IOPS",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReadUnitsIA",
+        "groupDescription" : "DynamoDB Provisioned Read Units IA",
+        "usagetype" : "MXC1-IA-ReadCapacityUnit-Hrs",
+        "operation" : "CommittedThroughput",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "PQVM3BHHDB4JTP46" : {
+      "sku" : "PQVM3BHHDB4JTP46",
+      "productFamily" : "Amazon DynamoDB Restore Data Size",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Backup Restore Size",
+        "usagetype" : "MXC1-RestoreDataSize-Bytes",
+        "operation" : "",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "FC6CNMG24D25HKPZ" : {
+      "sku" : "FC6CNMG24D25HKPZ",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-Kinesis",
+        "groupDescription" : "Change Data Capture Units for Kinesis Data Streams",
+        "usagetype" : "MXC1-ChangeDataCaptureUnits-Kinesis",
+        "operation" : "DelegatedOperations",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "F8B64VTRGH2GMHAW" : {
+      "sku" : "F8B64VTRGH2GMHAW",
+      "productFamily" : "Provisioned IOPS",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-WriteUnitsIA",
+        "groupDescription" : "DynamoDB Provisioned Write Units IA",
+        "usagetype" : "MXC1-IA-WriteCapacityUnit-Hrs",
+        "operation" : "CommittedThroughput",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "48EREHW8FURVSNUZ" : {
+      "sku" : "48EREHW8FURVSNUZ",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReplicatedWriteUnits",
+        "groupDescription" : "DynamoDB PayPerRequest Replicated Write Request Units",
+        "usagetype" : "MXC1-ReplWriteRequestUnits",
+        "operation" : "PayPerRequestThroughput",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "6QPWE2DR9JVCADDE" : {
+      "sku" : "6QPWE2DR9JVCADDE",
+      "productFamily" : "Database Storage",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "Mexico (Central)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Point-In-Time-Restore (PITR) Backup Storage",
+        "usagetype" : "MXC1-TimedPITRStorage-ByteHrs",
+        "operation" : "",
+        "regionCode" : "mx-central-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    }
+  },
+  "terms" : {
+    "OnDemand" : {
+      "9T89Y4RAF7PGGPRT" : {
+        "9T89Y4RAF7PGGPRT.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "9T89Y4RAF7PGGPRT",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "9T89Y4RAF7PGGPRT.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "9T89Y4RAF7PGGPRT.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.00263 per GB of IA vector data searched in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.0026300000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "YQ7MD859ATDCE9FK" : {
+        "YQ7MD859ATDCE9FK.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "YQ7MD859ATDCE9FK",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "YQ7MD859ATDCE9FK.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "YQ7MD859ATDCE9FK.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.1315 per million DynamoDB Read Request Units in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReadRequestUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000001315"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "9F7T7RJ2NK3F5PKW" : {
+        "9F7T7RJ2NK3F5PKW.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "9F7T7RJ2NK3F5PKW",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "9F7T7RJ2NK3F5PKW.JRTCKXETXF.G2A93NZ7DT" : {
+              "rateCode" : "9F7T7RJ2NK3F5PKW.JRTCKXETXF.G2A93NZ7DT",
+              "description" : "$0.00 per GB-Mo of storage from 0 to 25 for Amazon DynamoDB in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "25",
+              "unit" : "GB-Mo",
+              "pricePerUnit" : {
+                "USD" : "0.0000000000"
+              },
+              "appliesTo" : [ ]
+            },
+            "9F7T7RJ2NK3F5PKW.JRTCKXETXF.VYAP54KATQ" : {
+              "rateCode" : "9F7T7RJ2NK3F5PKW.JRTCKXETXF.VYAP54KATQ",
+              "description" : "$0.2625 per GB-Mo of storage beyond 25 for Amazon DynamoDB in Mexico (Central)",
+              "beginRange" : "25",
+              "endRange" : "Inf",
+              "unit" : "GB-Mo",
+              "pricePerUnit" : {
+                "USD" : "0.2625000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "K3P5UMD8DBSJ3JSG" : {
+        "K3P5UMD8DBSJ3JSG.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "K3P5UMD8DBSJ3JSG",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "K3P5UMD8DBSJ3JSG.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "K3P5UMD8DBSJ3JSG.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.163 per million DynamoDB IA Read Request Units in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReadRequestUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000001630"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "GUZX799RARNQ79CU" : {
+        "GUZX799RARNQ79CU.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "GUZX799RARNQ79CU",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "GUZX799RARNQ79CU.JRTCKXETXF.M9QGYPQ72M" : {
+              "rateCode" : "GUZX799RARNQ79CU.JRTCKXETXF.M9QGYPQ72M",
+              "description" : "$0.00 per Request from 0 to 2,500,000 for DynamoDB Streams read request (GetRecords API) in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "2500000",
+              "unit" : "Requests",
+              "pricePerUnit" : {
+                "USD" : "0.0000000000"
+              },
+              "appliesTo" : [ ]
+            },
+            "GUZX799RARNQ79CU.JRTCKXETXF.AUKFMGQW43" : {
+              "rateCode" : "GUZX799RARNQ79CU.JRTCKXETXF.AUKFMGQW43",
+              "description" : "$0.00000021 per Request beyond 2,500,000 for DynamoDB Streams read request (GetRecords API) in Mexico (Central)",
+              "beginRange" : "2500000",
+              "endRange" : "Inf",
+              "unit" : "Requests",
+              "pricePerUnit" : {
+                "USD" : "0.0000002100"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "GVKFK4VY577PJ9GA" : {
+        "GVKFK4VY577PJ9GA.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "GVKFK4VY577PJ9GA",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "GVKFK4VY577PJ9GA.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "GVKFK4VY577PJ9GA.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.105 per GB of data exported from Amazon DynamoDB  in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.1050000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "WRE2DUSY9CWVQDZN" : {
+        "WRE2DUSY9CWVQDZN.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "WRE2DUSY9CWVQDZN",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "WRE2DUSY9CWVQDZN.JRTCKXETXF.HBHVWY47CM" : {
+              "rateCode" : "WRE2DUSY9CWVQDZN.JRTCKXETXF.HBHVWY47CM",
+              "description" : "$0 per hour for 18,600 units of DynamoDB Provisioned Read Capacity Units in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "18600",
+              "unit" : "ReadCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0000000000"
+              },
+              "appliesTo" : [ ]
+            },
+            "WRE2DUSY9CWVQDZN.JRTCKXETXF.E63J5HTPNN" : {
+              "rateCode" : "WRE2DUSY9CWVQDZN.JRTCKXETXF.E63J5HTPNN",
+              "description" : "$0.0001365 per hour beyond the free tier for DynamoDB Provisioned Read Capacity Units in Mexico (Central)",
+              "beginRange" : "18600",
+              "endRange" : "Inf",
+              "unit" : "ReadCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0001365000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "9KB7PN7UJM4ENTYX" : {
+        "9KB7PN7UJM4ENTYX.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "9KB7PN7UJM4ENTYX",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "9KB7PN7UJM4ENTYX.JRTCKXETXF.HBHVWY47CM" : {
+              "rateCode" : "9KB7PN7UJM4ENTYX.JRTCKXETXF.HBHVWY47CM",
+              "description" : "$0 per hour for 18,600 units of DynamoDB Provisioned Replicated Write Units in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "18600",
+              "unit" : "ReplicatedWriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0000000000"
+              },
+              "appliesTo" : [ ]
+            },
+            "9KB7PN7UJM4ENTYX.JRTCKXETXF.E63J5HTPNN" : {
+              "rateCode" : "9KB7PN7UJM4ENTYX.JRTCKXETXF.E63J5HTPNN",
+              "description" : "$0.0006825 per hour beyond the free tier for DynamoDB Provisioned Replicated Write Units in Mexico (Central)",
+              "beginRange" : "18600",
+              "endRange" : "Inf",
+              "unit" : "ReplicatedWriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0006825000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "F8B64VTRGH2GMHAW" : {
+        "F8B64VTRGH2GMHAW.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "F8B64VTRGH2GMHAW",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "F8B64VTRGH2GMHAW.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "F8B64VTRGH2GMHAW.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.0008505 per hour for DynamoDB Provisioned IA Write Capacity Units in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "WriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0008505000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "FAAVYBRRGSKSSMJR" : {
+        "FAAVYBRRGSKSSMJR.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "FAAVYBRRGSKSSMJR",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "FAAVYBRRGSKSSMJR.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "FAAVYBRRGSKSSMJR.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.105 per GB of data exported from Amazon DynamoDB  in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.1050000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "48EREHW8FURVSNUZ" : {
+        "48EREHW8FURVSNUZ.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "48EREHW8FURVSNUZ",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "48EREHW8FURVSNUZ.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "48EREHW8FURVSNUZ.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.655 per million DynamoDB Replicated Write Request Units in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReplicatedWriteRequestUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000006550"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "PQVM3BHHDB4JTP46" : {
+        "PQVM3BHHDB4JTP46.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "PQVM3BHHDB4JTP46",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "PQVM3BHHDB4JTP46.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "PQVM3BHHDB4JTP46.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.1575 per GB of data restored for Amazon DynamoDB in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.1575000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "S5W7JNJH4WHNU9A3" : {
+        "S5W7JNJH4WHNU9A3.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "S5W7JNJH4WHNU9A3",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "S5W7JNJH4WHNU9A3.JRTCKXETXF.HBHVWY47CM" : {
+              "rateCode" : "S5W7JNJH4WHNU9A3.JRTCKXETXF.HBHVWY47CM",
+              "description" : "$0 per hour for 18,600 units of DynamoDB Provisioned Write Capacity Units in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "18600",
+              "unit" : "WriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0000000000"
+              },
+              "appliesTo" : [ ]
+            },
+            "S5W7JNJH4WHNU9A3.JRTCKXETXF.E63J5HTPNN" : {
+              "rateCode" : "S5W7JNJH4WHNU9A3.JRTCKXETXF.E63J5HTPNN",
+              "description" : "$0.0006825 per hour beyond the free tier for DynamoDB Provisioned Write Capacity Units in Mexico (Central)",
+              "beginRange" : "18600",
+              "endRange" : "Inf",
+              "unit" : "WriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0006825000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "FC6CNMG24D25HKPZ" : {
+        "FC6CNMG24D25HKPZ.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "FC6CNMG24D25HKPZ",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "FC6CNMG24D25HKPZ.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "FC6CNMG24D25HKPZ.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.105 per million Change Data Capture Units for Kinesis Data Streams in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ChangeDataCaptureUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000001050"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "ST5YQH3CMNKHJSTY" : {
+        "ST5YQH3CMNKHJSTY.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "ST5YQH3CMNKHJSTY",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "ST5YQH3CMNKHJSTY.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "ST5YQH3CMNKHJSTY.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.000168 per hour for DynamoDB Provisioned IA Read Capacity Units in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReadCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0001680000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "DC8BN4FVUBWBZBPH" : {
+        "DC8BN4FVUBWBZBPH.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "DC8BN4FVUBWBZBPH",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "DC8BN4FVUBWBZBPH.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "DC8BN4FVUBWBZBPH.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.1575 per GB of data imported to Amazon DynamoDB  in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.1575000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "BE4PX952XMNBS2H6" : {
+        "BE4PX952XMNBS2H6.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "BE4PX952XMNBS2H6",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "BE4PX952XMNBS2H6.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "BE4PX952XMNBS2H6.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.655 per million DynamoDB Write Request Units in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "WriteRequestUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000006550"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "6U6DFQSAYS3R74M9" : {
+        "6U6DFQSAYS3R74M9.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "6U6DFQSAYS3R74M9",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "6U6DFQSAYS3R74M9.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "6U6DFQSAYS3R74M9.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.0021 per GB of vector data searched in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.0021000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "3CD7ARQSZ3TH4T7M" : {
+        "3CD7ARQSZ3TH4T7M.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "3CD7ARQSZ3TH4T7M",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "3CD7ARQSZ3TH4T7M.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "3CD7ARQSZ3TH4T7M.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.54496 per GB of vector write requests in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.5449600000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "PE2D3GDMNZ3428X7" : {
+        "PE2D3GDMNZ3428X7.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "PE2D3GDMNZ3428X7",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "PE2D3GDMNZ3428X7.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "PE2D3GDMNZ3428X7.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.0008505 per hour for DynamoDB Provisioned IA Replicated Write Units in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReplicatedWriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0008505000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "6QPWE2DR9JVCADDE" : {
+        "6QPWE2DR9JVCADDE.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "6QPWE2DR9JVCADDE",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "6QPWE2DR9JVCADDE.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "6QPWE2DR9JVCADDE.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.21 per GB-Mo of storage used for Amazon DynamoDB - PITR Backup Storage in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB-Mo",
+              "pricePerUnit" : {
+                "USD" : "0.2100000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "PAP6M9P6V26C3HVT" : {
+        "PAP6M9P6V26C3HVT.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "PAP6M9P6V26C3HVT",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "PAP6M9P6V26C3HVT.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "PAP6M9P6V26C3HVT.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.819 per million DynamoDB IA Write Request Units in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "WriteRequestUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000008190"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "Y3H327X4GCUTC98A" : {
+        "Y3H327X4GCUTC98A.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "Y3H327X4GCUTC98A",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "Y3H327X4GCUTC98A.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "Y3H327X4GCUTC98A.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.819 per million DynamoDB IA Replicated Write Request Units in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReplicatedWriteRequestUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000008190"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "TAMAQ5G76W4BR78M" : {
+        "TAMAQ5G76W4BR78M.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "TAMAQ5G76W4BR78M",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "TAMAQ5G76W4BR78M.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "TAMAQ5G76W4BR78M.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.105 per GB-Month of storage for Amazon DynamoDB On-Demand Backups in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB-Month",
+              "pricePerUnit" : {
+                "USD" : "0.1050000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "B2VHVRFPBGECHGH3" : {
+        "B2VHVRFPBGECHGH3.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "B2VHVRFPBGECHGH3",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "B2VHVRFPBGECHGH3.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "B2VHVRFPBGECHGH3.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.105 per GB-Mo of IA storage for Amazon DynamoDB in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB-Mo",
+              "pricePerUnit" : {
+                "USD" : "0.1050000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "ZESHGP3PW45NJY4Q" : {
+        "ZESHGP3PW45NJY4Q.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "ZESHGP3PW45NJY4Q",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "ZESHGP3PW45NJY4Q.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "ZESHGP3PW45NJY4Q.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.6825 per GB of IA vector write requests in Mexico (Central)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.6825000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      }
+    },
+    "Reserved" : {
+      "WRE2DUSY9CWVQDZN" : {
+        "WRE2DUSY9CWVQDZN.YTVHEVGPBZ" : {
+          "offerTermCode" : "YTVHEVGPBZ",
+          "sku" : "WRE2DUSY9CWVQDZN",
+          "effectiveDate" : "2026-09-11T12:44:26Z",
+          "priceDimensions" : {
+            "WRE2DUSY9CWVQDZN.YTVHEVGPBZ.6YS6EN2CT7" : {
+              "rateCode" : "WRE2DUSY9CWVQDZN.YTVHEVGPBZ.6YS6EN2CT7",
+              "description" : "Amazon DynamoDB, Reserved Read Capacity used this month",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReadCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0000260000"
+              },
+              "appliesTo" : [ ]
+            },
+            "WRE2DUSY9CWVQDZN.YTVHEVGPBZ.2TG2D8R56U" : {
+              "rateCode" : "WRE2DUSY9CWVQDZN.YTVHEVGPBZ.2TG2D8R56U",
+              "description" : "Upfront Fee",
+              "unit" : "Quantity",
+              "pricePerUnit" : {
+                "USD" : "0.315"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : {
+            "LeaseContractLength" : "1yr",
+            "PurchaseOption" : "Heavy Utilization",
+            "OfferingClass" : "standard"
+          }
+        }
+      },
+      "S5W7JNJH4WHNU9A3" : {
+        "S5W7JNJH4WHNU9A3.YTVHEVGPBZ" : {
+          "offerTermCode" : "YTVHEVGPBZ",
+          "sku" : "S5W7JNJH4WHNU9A3",
+          "effectiveDate" : "2026-09-11T12:44:26Z",
+          "priceDimensions" : {
+            "S5W7JNJH4WHNU9A3.YTVHEVGPBZ.6YS6EN2CT7" : {
+              "rateCode" : "S5W7JNJH4WHNU9A3.YTVHEVGPBZ.6YS6EN2CT7",
+              "description" : "Amazon DynamoDB, Reserved Write Capacity used this month",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "WriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0001340000"
+              },
+              "appliesTo" : [ ]
+            },
+            "S5W7JNJH4WHNU9A3.YTVHEVGPBZ.2TG2D8R56U" : {
+              "rateCode" : "S5W7JNJH4WHNU9A3.YTVHEVGPBZ.2TG2D8R56U",
+              "description" : "Upfront Fee",
+              "unit" : "Quantity",
+              "pricePerUnit" : {
+                "USD" : "1.575"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : {
+            "LeaseContractLength" : "1yr",
+            "PurchaseOption" : "Heavy Utilization",
+            "OfferingClass" : "standard"
+          }
+        }
+      }
+    }
+  },
+  "attributesList" : { }
+}

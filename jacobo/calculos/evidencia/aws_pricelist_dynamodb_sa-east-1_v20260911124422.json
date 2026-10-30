@@ -1,0 +1,1132 @@
+{
+  "formatVersion" : "v1.0",
+  "disclaimer" : "This pricing list is for informational purposes only. All prices are subject to the additional terms included in the pricing pages on http://aws.amazon.com. All Free Tier prices are also subject to the terms included at https://aws.amazon.com/free/",
+  "offerCode" : "AmazonDynamoDB",
+  "version" : "20260911124422",
+  "publicationDate" : "2026-09-11T12:44:22Z",
+  "products" : {
+    "27PU8VNH2D3KDTZG" : {
+      "sku" : "27PU8VNH2D3KDTZG",
+      "productFamily" : "Provisioned IOPS",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReadUnits",
+        "groupDescription" : "DynamoDB Provisioned Read Units",
+        "usagetype" : "SAE1-ReadCapacityUnit-Hrs",
+        "operation" : "CommittedThroughput",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "GUQNP9269HMJRPCD" : {
+      "sku" : "GUQNP9269HMJRPCD",
+      "productFamily" : "Amazon DynamoDB Export Data Size",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Export Size",
+        "usagetype" : "SAE1-ExportDataSize-Bytes",
+        "operation" : "",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "Y5GPYX5P62JGDG4J" : {
+      "sku" : "Y5GPYX5P62JGDG4J",
+      "productFamily" : "DDB-Operation-ReplicatedWrite",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReplicatedWriteUnits",
+        "groupDescription" : "DynamoDB Provisioned Replicated Write Units",
+        "usagetype" : "SAE1-ReplWriteCapacityUnit-Hrs",
+        "operation" : "CommittedThroughput",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "UDJEYNT3QF2VPEDH" : {
+      "sku" : "UDJEYNT3QF2VPEDH",
+      "productFamily" : "DDB-Operation-ReplicatedWrite",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReplicatedWriteUnitsIA",
+        "groupDescription" : "DynamoDB Provisioned Replicated Write Units IA",
+        "usagetype" : "SAE1-IA-ReplWriteCapacityUnit-Hrs",
+        "operation" : "CommittedThroughput",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "8W4GZTZFBHDXADNZ" : {
+      "sku" : "8W4GZTZFBHDXADNZ",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-VectorSearch-IA",
+        "groupDescription" : "DynamoDB PayPerRequest Vector Search IA",
+        "usagetype" : "SAE1-IA-VectorSearch",
+        "operation" : "",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "4WEKS5HK87NBYW2G" : {
+      "sku" : "4WEKS5HK87NBYW2G",
+      "productFamily" : "Amazon DynamoDB Restore Data Size",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Backup Restore Size",
+        "usagetype" : "SAE1-RestoreDataSize-Bytes",
+        "operation" : "",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "ZEYVX9RJQS8VBH8B" : {
+      "sku" : "ZEYVX9RJQS8VBH8B",
+      "productFamily" : "Provisioned IOPS",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-WriteUnitsIA",
+        "groupDescription" : "DynamoDB Provisioned Write Units IA",
+        "usagetype" : "SAE1-IA-WriteCapacityUnit-Hrs",
+        "operation" : "CommittedThroughput",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "48TVFPYA2M5H2JC4" : {
+      "sku" : "48TVFPYA2M5H2JC4",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-VectorWriteRequest-IA",
+        "groupDescription" : "DynamoDB PayPerRequest Write Request Units IA",
+        "usagetype" : "SAE1-IA-VectorWriteRequest",
+        "operation" : "",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "TEJVZ9S6V2NZMM5D" : {
+      "sku" : "TEJVZ9S6V2NZMM5D",
+      "productFamily" : "Database Storage",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Point-In-Time-Restore (PITR) Backup Storage",
+        "usagetype" : "SAE1-TimedPITRStorage-ByteHrs",
+        "operation" : "",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "MNTY3QJH648FJ3RF" : {
+      "sku" : "MNTY3QJH648FJ3RF",
+      "productFamily" : "Amazon DynamoDB On-Demand Backup Storage",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - On-Demand Backup Storage",
+        "usagetype" : "SAE1-TimedBackupStorage-ByteHrs",
+        "operation" : "",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "XU9636JG98YVPWK3" : {
+      "sku" : "XU9636JG98YVPWK3",
+      "productFamily" : "Amazon DynamoDB Export Data Size",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Incremental Export",
+        "usagetype" : "SAE1-IncrementalExportDataSize-Bytes",
+        "operation" : "",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "UJF9JVCDT5CC28NG" : {
+      "sku" : "UJF9JVCDT5CC28NG",
+      "productFamily" : "Provisioned IOPS",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReadUnitsIA",
+        "groupDescription" : "DynamoDB Provisioned Read Units IA",
+        "usagetype" : "SAE1-IA-ReadCapacityUnit-Hrs",
+        "operation" : "CommittedThroughput",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "FP32PMXZGT2VFUMA" : {
+      "sku" : "FP32PMXZGT2VFUMA",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReadUnits",
+        "groupDescription" : "DynamoDB PayPerRequest Read Request Units",
+        "usagetype" : "SAE1-ReadRequestUnits",
+        "operation" : "PayPerRequestThroughput",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "ZVWTUTN3ZXUV3KU3" : {
+      "sku" : "ZVWTUTN3ZXUV3KU3",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-VectorWriteRequest",
+        "groupDescription" : "DynamoDB PayPerRequest Vector Write Request",
+        "usagetype" : "SAE1-VectorWriteRequest",
+        "operation" : "",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB",
+        "tableclass" : "Standard"
+      }
+    },
+    "5N8GHNBUKQ3GTEUB" : {
+      "sku" : "5N8GHNBUKQ3GTEUB",
+      "productFamily" : "Provisioned IOPS",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-WriteUnits",
+        "groupDescription" : "DynamoDB Provisioned Write Units",
+        "usagetype" : "SAE1-WriteCapacityUnit-Hrs",
+        "operation" : "CommittedThroughput",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "23YD79DRF2CMV2ME" : {
+      "sku" : "23YD79DRF2CMV2ME",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-WriteUnitsIA",
+        "groupDescription" : "DynamoDB PayPerRequest Write Request Units IA",
+        "usagetype" : "SAE1-IA-WriteRequestUnits",
+        "operation" : "PayPerRequestThroughput",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "D2MCDU8DTUAS9R63" : {
+      "sku" : "D2MCDU8DTUAS9R63",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-Kinesis",
+        "groupDescription" : "Change Data Capture Units for Kinesis Data Streams",
+        "usagetype" : "SAE1-ChangeDataCaptureUnits-Kinesis",
+        "operation" : "DelegatedOperations",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "4URCW2J8D2Q287SM" : {
+      "sku" : "4URCW2J8D2Q287SM",
+      "productFamily" : "Amazon DynamoDB Import Data Size",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Import Size",
+        "usagetype" : "SAE1-ImportDataSize-Bytes",
+        "operation" : "",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "XW7BF6VRZKDNEGNP" : {
+      "sku" : "XW7BF6VRZKDNEGNP",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-VectorSearch",
+        "groupDescription" : "DynamoDB PayPerRequest Vector Search",
+        "usagetype" : "SAE1-VectorSearch",
+        "operation" : "",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB",
+        "tableclass" : "Standard"
+      }
+    },
+    "WMZ5H5QJRWB4RWRM" : {
+      "sku" : "WMZ5H5QJRWB4RWRM",
+      "productFamily" : "Database Storage",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Indexed DataStore - IA",
+        "usagetype" : "SAE1-IA-TimedStorage-ByteHrs",
+        "operation" : "",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "6A47ZD8AQ6U5ZC64" : {
+      "sku" : "6A47ZD8AQ6U5ZC64",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReplicatedWriteUnitsIA",
+        "groupDescription" : "DynamoDB PayPerRequest Replicated Write Request Units IA",
+        "usagetype" : "SAE1-IA-ReplWriteRequestUnits",
+        "operation" : "PayPerRequestThroughput",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "RRVUWYNFST3EHR8J" : {
+      "sku" : "RRVUWYNFST3EHR8J",
+      "productFamily" : "API Request",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-StreamsReadRequests",
+        "groupDescription" : "DynamoDB Streams read request (GetRecords API)",
+        "usagetype" : "SAE1-Streams-Requests",
+        "operation" : "GetRecords",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "AMWJZ26HDA6RQ9PU" : {
+      "sku" : "AMWJZ26HDA6RQ9PU",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReadUnitsIA",
+        "groupDescription" : "DynamoDB PayPerRequest Read Request Units IA",
+        "usagetype" : "SAE1-IA-ReadRequestUnits",
+        "operation" : "PayPerRequestThroughput",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "GM69RJT49WH6GV53" : {
+      "sku" : "GM69RJT49WH6GV53",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-WriteUnits",
+        "groupDescription" : "DynamoDB PayPerRequest Write Request Units",
+        "usagetype" : "SAE1-WriteRequestUnits",
+        "operation" : "PayPerRequestThroughput",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "XFGEC4CX3KPPC6Z8" : {
+      "sku" : "XFGEC4CX3KPPC6Z8",
+      "productFamily" : "Database Storage",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "volumeType" : "Amazon DynamoDB - Indexed DataStore",
+        "usagetype" : "SAE1-TimedStorage-ByteHrs",
+        "operation" : "",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    },
+    "75DP8C6BS6R8TCXG" : {
+      "sku" : "75DP8C6BS6R8TCXG",
+      "productFamily" : "Amazon DynamoDB PayPerRequest Throughput",
+      "attributes" : {
+        "servicecode" : "AmazonDynamoDB",
+        "location" : "South America (Sao Paulo)",
+        "locationType" : "AWS Region",
+        "group" : "DDB-ReplicatedWriteUnits",
+        "groupDescription" : "DynamoDB PayPerRequest Replicated Write Request Units",
+        "usagetype" : "SAE1-ReplWriteRequestUnits",
+        "operation" : "PayPerRequestThroughput",
+        "regionCode" : "sa-east-1",
+        "servicename" : "Amazon DynamoDB"
+      }
+    }
+  },
+  "terms" : {
+    "OnDemand" : {
+      "MNTY3QJH648FJ3RF" : {
+        "MNTY3QJH648FJ3RF.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "MNTY3QJH648FJ3RF",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "MNTY3QJH648FJ3RF.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "MNTY3QJH648FJ3RF.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.15 per GB-Month of storage used for on-demand backup",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB-Month",
+              "pricePerUnit" : {
+                "USD" : "0.1500000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "UJF9JVCDT5CC28NG" : {
+        "UJF9JVCDT5CC28NG.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "UJF9JVCDT5CC28NG",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "UJF9JVCDT5CC28NG.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "UJF9JVCDT5CC28NG.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.0002440 per hour for units of IA read capacity in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReadCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0002440000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "8W4GZTZFBHDXADNZ" : {
+        "8W4GZTZFBHDXADNZ.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "8W4GZTZFBHDXADNZ",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "8W4GZTZFBHDXADNZ.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "8W4GZTZFBHDXADNZ.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.00378 per GB of IA vector data searched in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.0037800000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "D2MCDU8DTUAS9R63" : {
+        "D2MCDU8DTUAS9R63.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "D2MCDU8DTUAS9R63",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "D2MCDU8DTUAS9R63.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "D2MCDU8DTUAS9R63.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.15000 per million change data capture units for Kinesis Data Streams in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ChangeDataCaptureUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000001500"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "RRVUWYNFST3EHR8J" : {
+        "RRVUWYNFST3EHR8J.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "RRVUWYNFST3EHR8J",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "RRVUWYNFST3EHR8J.JRTCKXETXF.M9QGYPQ72M" : {
+              "rateCode" : "RRVUWYNFST3EHR8J.JRTCKXETXF.M9QGYPQ72M",
+              "description" : "$0.00 for 2.5 million DynamoDB Streams read request units for a month (free tier) (South America (Sao Paulo))",
+              "beginRange" : "0",
+              "endRange" : "2500000",
+              "unit" : "Requests",
+              "pricePerUnit" : {
+                "USD" : "0.0000000000"
+              },
+              "appliesTo" : [ ]
+            },
+            "RRVUWYNFST3EHR8J.JRTCKXETXF.AUKFMGQW43" : {
+              "rateCode" : "RRVUWYNFST3EHR8J.JRTCKXETXF.AUKFMGQW43",
+              "description" : "$0.0000003 per DynamoDB Streams read request unit beyond free tier (South America (Sao Paulo))",
+              "beginRange" : "2500000",
+              "endRange" : "Inf",
+              "unit" : "Requests",
+              "pricePerUnit" : {
+                "USD" : "0.0000003000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "5N8GHNBUKQ3GTEUB" : {
+        "5N8GHNBUKQ3GTEUB.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "5N8GHNBUKQ3GTEUB",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "5N8GHNBUKQ3GTEUB.JRTCKXETXF.HBHVWY47CM" : {
+              "rateCode" : "5N8GHNBUKQ3GTEUB.JRTCKXETXF.HBHVWY47CM",
+              "description" : "$0.00 per hour for 25 units of write capacity for a month (free tier)",
+              "beginRange" : "0",
+              "endRange" : "18600",
+              "unit" : "WriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0000000000"
+              },
+              "appliesTo" : [ ]
+            },
+            "5N8GHNBUKQ3GTEUB.JRTCKXETXF.E63J5HTPNN" : {
+              "rateCode" : "5N8GHNBUKQ3GTEUB.JRTCKXETXF.E63J5HTPNN",
+              "description" : "$0.000975 per hour for units of write capacity beyond the free tier",
+              "beginRange" : "18600",
+              "endRange" : "Inf",
+              "unit" : "WriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0009750000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "48TVFPYA2M5H2JC4" : {
+        "48TVFPYA2M5H2JC4.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "48TVFPYA2M5H2JC4",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "48TVFPYA2M5H2JC4.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "48TVFPYA2M5H2JC4.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.97667 per GB of IA vector write requests in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.9766700000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "GUQNP9269HMJRPCD" : {
+        "GUQNP9269HMJRPCD.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "GUQNP9269HMJRPCD",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "GUQNP9269HMJRPCD.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "GUQNP9269HMJRPCD.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.15000 per GB of data exported in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.1500000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "27PU8VNH2D3KDTZG" : {
+        "27PU8VNH2D3KDTZG.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "27PU8VNH2D3KDTZG",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "27PU8VNH2D3KDTZG.JRTCKXETXF.HBHVWY47CM" : {
+              "rateCode" : "27PU8VNH2D3KDTZG.JRTCKXETXF.HBHVWY47CM",
+              "description" : "$0.00 per hour for 25 units of read capacity for a month (free tier)",
+              "beginRange" : "0",
+              "endRange" : "18600",
+              "unit" : "ReadCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0000000000"
+              },
+              "appliesTo" : [ ]
+            },
+            "27PU8VNH2D3KDTZG.JRTCKXETXF.E63J5HTPNN" : {
+              "rateCode" : "27PU8VNH2D3KDTZG.JRTCKXETXF.E63J5HTPNN",
+              "description" : "$0.000195 per hour for units of read capacity beyond the free tier",
+              "beginRange" : "18600",
+              "endRange" : "Inf",
+              "unit" : "ReadCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0001950000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "WMZ5H5QJRWB4RWRM" : {
+        "WMZ5H5QJRWB4RWRM.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "WMZ5H5QJRWB4RWRM",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "WMZ5H5QJRWB4RWRM.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "WMZ5H5QJRWB4RWRM.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.15000 per GB-Month of IA storage in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB-Mo",
+              "pricePerUnit" : {
+                "USD" : "0.1500000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "ZEYVX9RJQS8VBH8B" : {
+        "ZEYVX9RJQS8VBH8B.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "ZEYVX9RJQS8VBH8B",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "ZEYVX9RJQS8VBH8B.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "ZEYVX9RJQS8VBH8B.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.0012190 per hour for units of IA write capacity in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "WriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0012190000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "23YD79DRF2CMV2ME" : {
+        "23YD79DRF2CMV2ME.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "23YD79DRF2CMV2ME",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "23YD79DRF2CMV2ME.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "23YD79DRF2CMV2ME.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$1.172 per million IA write request units in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "WriteRequestUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000011720"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "XFGEC4CX3KPPC6Z8" : {
+        "XFGEC4CX3KPPC6Z8.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "XFGEC4CX3KPPC6Z8",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "XFGEC4CX3KPPC6Z8.JRTCKXETXF.G2A93NZ7DT" : {
+              "rateCode" : "XFGEC4CX3KPPC6Z8.JRTCKXETXF.G2A93NZ7DT",
+              "description" : "$0.00 per GB-Month of storage for first 25 free GB-Months",
+              "beginRange" : "0",
+              "endRange" : "25",
+              "unit" : "GB-Mo",
+              "pricePerUnit" : {
+                "USD" : "0.0000000000"
+              },
+              "appliesTo" : [ ]
+            },
+            "XFGEC4CX3KPPC6Z8.JRTCKXETXF.VYAP54KATQ" : {
+              "rateCode" : "XFGEC4CX3KPPC6Z8.JRTCKXETXF.VYAP54KATQ",
+              "description" : "$0.375 per GB-Month of storage used beyond first 25 free GB-Months",
+              "beginRange" : "25",
+              "endRange" : "Inf",
+              "unit" : "GB-Mo",
+              "pricePerUnit" : {
+                "USD" : "0.3750000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "AMWJZ26HDA6RQ9PU" : {
+        "AMWJZ26HDA6RQ9PU.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "AMWJZ26HDA6RQ9PU",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "AMWJZ26HDA6RQ9PU.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "AMWJZ26HDA6RQ9PU.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.2345 per million IA read request units in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReadRequestUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000002345"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "Y5GPYX5P62JGDG4J" : {
+        "Y5GPYX5P62JGDG4J.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "Y5GPYX5P62JGDG4J",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "Y5GPYX5P62JGDG4J.JRTCKXETXF.HBHVWY47CM" : {
+              "rateCode" : "Y5GPYX5P62JGDG4J.JRTCKXETXF.HBHVWY47CM",
+              "description" : "$0.00 per hour for 25 units of replicated write capacity for a month (free tier) in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "18600",
+              "unit" : "ReplicatedWriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0000000000"
+              },
+              "appliesTo" : [ ]
+            },
+            "Y5GPYX5P62JGDG4J.JRTCKXETXF.E63J5HTPNN" : {
+              "rateCode" : "Y5GPYX5P62JGDG4J.JRTCKXETXF.E63J5HTPNN",
+              "description" : "$0.000975 per ReplicatedWriteCapacityUnit-Hr in South America (Sao Paulo)",
+              "beginRange" : "18600",
+              "endRange" : "Inf",
+              "unit" : "ReplicatedWriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0009750000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "6A47ZD8AQ6U5ZC64" : {
+        "6A47ZD8AQ6U5ZC64.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "6A47ZD8AQ6U5ZC64",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "6A47ZD8AQ6U5ZC64.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "6A47ZD8AQ6U5ZC64.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$1.172 per million replicated IA write request units in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReplicatedWriteRequestUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000011720"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "XU9636JG98YVPWK3" : {
+        "XU9636JG98YVPWK3.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "XU9636JG98YVPWK3",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "XU9636JG98YVPWK3.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "XU9636JG98YVPWK3.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.1500 per GB of incremental data exported in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.1500000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "FP32PMXZGT2VFUMA" : {
+        "FP32PMXZGT2VFUMA.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "FP32PMXZGT2VFUMA",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "FP32PMXZGT2VFUMA.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "FP32PMXZGT2VFUMA.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.1875 per million read request units (South America (Sao Paulo))",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReadRequestUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000001875"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "GM69RJT49WH6GV53" : {
+        "GM69RJT49WH6GV53.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "GM69RJT49WH6GV53",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "GM69RJT49WH6GV53.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "GM69RJT49WH6GV53.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.9375 per million write request units (South America (Sao Paulo))",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "WriteRequestUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000009375"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "TEJVZ9S6V2NZMM5D" : {
+        "TEJVZ9S6V2NZMM5D.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "TEJVZ9S6V2NZMM5D",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "TEJVZ9S6V2NZMM5D.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "TEJVZ9S6V2NZMM5D.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.30 per GB-Month of storage used for DynamoDB PITR backup",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB-Mo",
+              "pricePerUnit" : {
+                "USD" : "0.3000000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "ZVWTUTN3ZXUV3KU3" : {
+        "ZVWTUTN3ZXUV3KU3.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "ZVWTUTN3ZXUV3KU3",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "ZVWTUTN3ZXUV3KU3.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "ZVWTUTN3ZXUV3KU3.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.78 per GB of vector write requests in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.7800000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "4WEKS5HK87NBYW2G" : {
+        "4WEKS5HK87NBYW2G.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "4WEKS5HK87NBYW2G",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "4WEKS5HK87NBYW2G.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "4WEKS5HK87NBYW2G.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.225 per GB of data restored",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.2250000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "75DP8C6BS6R8TCXG" : {
+        "75DP8C6BS6R8TCXG.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "75DP8C6BS6R8TCXG",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "75DP8C6BS6R8TCXG.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "75DP8C6BS6R8TCXG.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.9375 per million ReplicatedWriteRequestUnit in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReplicatedWriteRequestUnits",
+              "pricePerUnit" : {
+                "USD" : "0.0000009375"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "UDJEYNT3QF2VPEDH" : {
+        "UDJEYNT3QF2VPEDH.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "UDJEYNT3QF2VPEDH",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "UDJEYNT3QF2VPEDH.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "UDJEYNT3QF2VPEDH.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.001219 per hour for units of IA replicated write capacity in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReplicatedWriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0012190000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "4URCW2J8D2Q287SM" : {
+        "4URCW2J8D2Q287SM.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "4URCW2J8D2Q287SM",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "4URCW2J8D2Q287SM.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "4URCW2J8D2Q287SM.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.2250 per GB for data import in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.2250000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      },
+      "XW7BF6VRZKDNEGNP" : {
+        "XW7BF6VRZKDNEGNP.JRTCKXETXF" : {
+          "offerTermCode" : "JRTCKXETXF",
+          "sku" : "XW7BF6VRZKDNEGNP",
+          "effectiveDate" : "2026-08-01T00:00:00Z",
+          "priceDimensions" : {
+            "XW7BF6VRZKDNEGNP.JRTCKXETXF.6YS6EN2CT7" : {
+              "rateCode" : "XW7BF6VRZKDNEGNP.JRTCKXETXF.6YS6EN2CT7",
+              "description" : "$0.003 per GB of vector data searched in South America (Sao Paulo)",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "GB",
+              "pricePerUnit" : {
+                "USD" : "0.0030000000"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : { }
+        }
+      }
+    },
+    "Reserved" : {
+      "5N8GHNBUKQ3GTEUB" : {
+        "5N8GHNBUKQ3GTEUB.YTVHEVGPBZ" : {
+          "offerTermCode" : "YTVHEVGPBZ",
+          "sku" : "5N8GHNBUKQ3GTEUB",
+          "effectiveDate" : "2026-09-11T12:44:26Z",
+          "priceDimensions" : {
+            "5N8GHNBUKQ3GTEUB.YTVHEVGPBZ.6YS6EN2CT7" : {
+              "rateCode" : "5N8GHNBUKQ3GTEUB.YTVHEVGPBZ.6YS6EN2CT7",
+              "description" : "Amazon DynamoDB, Reserved Write Capacity used this month",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "WriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0001930000"
+              },
+              "appliesTo" : [ ]
+            },
+            "5N8GHNBUKQ3GTEUB.YTVHEVGPBZ.2TG2D8R56U" : {
+              "rateCode" : "5N8GHNBUKQ3GTEUB.YTVHEVGPBZ.2TG2D8R56U",
+              "description" : "Upfront Fee",
+              "unit" : "Quantity",
+              "pricePerUnit" : {
+                "USD" : "2.25"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : {
+            "LeaseContractLength" : "1yr",
+            "PurchaseOption" : "Heavy Utilization",
+            "OfferingClass" : "standard"
+          }
+        },
+        "5N8GHNBUKQ3GTEUB.VG8YD49WWM" : {
+          "offerTermCode" : "VG8YD49WWM",
+          "sku" : "5N8GHNBUKQ3GTEUB",
+          "effectiveDate" : "2026-09-11T12:44:26Z",
+          "priceDimensions" : {
+            "5N8GHNBUKQ3GTEUB.VG8YD49WWM.6YS6EN2CT7" : {
+              "rateCode" : "5N8GHNBUKQ3GTEUB.VG8YD49WWM.6YS6EN2CT7",
+              "description" : "Amazon DynamoDB, Reserved Write Capacity used this month",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "WriteCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0001220000"
+              },
+              "appliesTo" : [ ]
+            },
+            "5N8GHNBUKQ3GTEUB.VG8YD49WWM.2TG2D8R56U" : {
+              "rateCode" : "5N8GHNBUKQ3GTEUB.VG8YD49WWM.2TG2D8R56U",
+              "description" : "Upfront Fee",
+              "unit" : "Quantity",
+              "pricePerUnit" : {
+                "USD" : "2.7"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : {
+            "LeaseContractLength" : "3yr",
+            "PurchaseOption" : "Heavy Utilization",
+            "OfferingClass" : "standard"
+          }
+        }
+      },
+      "27PU8VNH2D3KDTZG" : {
+        "27PU8VNH2D3KDTZG.YTVHEVGPBZ" : {
+          "offerTermCode" : "YTVHEVGPBZ",
+          "sku" : "27PU8VNH2D3KDTZG",
+          "effectiveDate" : "2026-09-11T12:44:26Z",
+          "priceDimensions" : {
+            "27PU8VNH2D3KDTZG.YTVHEVGPBZ.6YS6EN2CT7" : {
+              "rateCode" : "27PU8VNH2D3KDTZG.YTVHEVGPBZ.6YS6EN2CT7",
+              "description" : "Amazon DynamoDB, Reserved Read Capacity used this month",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReadCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0000380000"
+              },
+              "appliesTo" : [ ]
+            },
+            "27PU8VNH2D3KDTZG.YTVHEVGPBZ.2TG2D8R56U" : {
+              "rateCode" : "27PU8VNH2D3KDTZG.YTVHEVGPBZ.2TG2D8R56U",
+              "description" : "Upfront Fee",
+              "unit" : "Quantity",
+              "pricePerUnit" : {
+                "USD" : "0.45"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : {
+            "LeaseContractLength" : "1yr",
+            "PurchaseOption" : "Heavy Utilization",
+            "OfferingClass" : "standard"
+          }
+        },
+        "27PU8VNH2D3KDTZG.VG8YD49WWM" : {
+          "offerTermCode" : "VG8YD49WWM",
+          "sku" : "27PU8VNH2D3KDTZG",
+          "effectiveDate" : "2026-09-11T12:44:26Z",
+          "priceDimensions" : {
+            "27PU8VNH2D3KDTZG.VG8YD49WWM.6YS6EN2CT7" : {
+              "rateCode" : "27PU8VNH2D3KDTZG.VG8YD49WWM.6YS6EN2CT7",
+              "description" : "Amazon DynamoDB, Reserved Read Capacity used this month",
+              "beginRange" : "0",
+              "endRange" : "Inf",
+              "unit" : "ReadCapacityUnit-Hrs",
+              "pricePerUnit" : {
+                "USD" : "0.0000240000"
+              },
+              "appliesTo" : [ ]
+            },
+            "27PU8VNH2D3KDTZG.VG8YD49WWM.2TG2D8R56U" : {
+              "rateCode" : "27PU8VNH2D3KDTZG.VG8YD49WWM.2TG2D8R56U",
+              "description" : "Upfront Fee",
+              "unit" : "Quantity",
+              "pricePerUnit" : {
+                "USD" : "0.54"
+              },
+              "appliesTo" : [ ]
+            }
+          },
+          "termAttributes" : {
+            "LeaseContractLength" : "3yr",
+            "PurchaseOption" : "Heavy Utilization",
+            "OfferingClass" : "standard"
+          }
+        }
+      }
+    }
+  },
+  "attributesList" : { }
+}

@@ -1,0 +1,12 @@
+Evidencia de latencia desde Bogota (WonderNetwork) - extracto limpio
+Fuente: https://wondernetwork.com/pings/Bogota  | consulta: 2026-10-29 | descarga con curl; cifras leidas del HTML de la pagina
+Aviso: ping ICMP entre servidores del proveedor; NO es una medicion contra endpoints de AWS.
+
+Destino          | Distancia | Ping promedio | Min      | Max      | Ultima medicion de la fila (hora del sitio)
+Sao Paulo        | 4319 km   | 112.24 ms     | 112.06   | 112.53   | 2026-10-29 15:48:39
+Washington       | 3837 km   |  77.13 ms     |  76.95   |  77.40   | 2026-10-29 14:58:01
+Miami            | 2443 km   |  57.99 ms     |  57.81   |  58.36   | 2026-10-29 15:35:48
+Mexico City      | 3178 km   | 111.54 ms     | 111.13   | 118.53   | 2026-10-29 15:35:37
+Santiago         | 4194 km   |  67.42 ms     |  67.30   |  67.92   | 2026-10-29 15:48:28
+Dallas           | 3923 km   |  86.73 ms     |  86.53   |  87.55   | 2026-10-15 22:16:03
+Lima             | 1879 km   |  38.42 ms     |  38.28   |  38.76   | 2026-10-29 15:33:46
