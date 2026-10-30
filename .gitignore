@@ -1,0 +1,13 @@
+# Basura de macOS (vienen en los zip de Jacobo)
+__MACOSX/
+.DS_Store
+._*
+
+# Basura de Windows
+Thumbs.db
+desktop.ini
+
+# Temporales de editores
+*.tmp
+*.swp
+~$*
