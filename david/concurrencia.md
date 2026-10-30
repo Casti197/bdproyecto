@@ -27,7 +27,7 @@
 | Máximo de sillas por orden | 10 |
 | Reintentos ante `TransactionConflict` | 3, espera aleatoria entre 0 y `min(1000, 50 × 2^intento)` ms, mismo `ClientRequestToken` |
 | `ClientRequestToken` | `H(oid, "LOCK")` para el bloqueo y `H(oid, "CONFIRM")` para la confirmación; válido 10 min tras completarse la primera llamada [R-04, D-02] |
-| Límite por usuario (`:max`) | Pendiente con Samuel (propuesta: 10 por evento) |
+| Límite por usuario (`:max`) | 10 sillas por usuario y evento (acordado con Samuel) |
 
 ## 3. Fase 1: bloqueo de sillas
 
@@ -187,9 +187,10 @@ Costo de la contención: cada transacción consume el doble de capacidad, **tamb
 
 El ítem `LIM#E<eid>#U<uid>` cuenta las sillas retenidas y compradas por usuario y evento, y se actualiza **dentro** de la transacción de bloqueo con la condición `n <= :max_menos_k`. Un bot con una sola cuenta no puede retener más de `:max` sillas aunque lance mil solicitudes en paralelo, porque las escrituras sobre ese ítem son serializables.
 
+`:max` = 10 sillas por usuario y evento, valor acordado con Samuel. Es el mismo número que el máximo por orden (A-09), así que un usuario puede agotar su cupo en una sola compra de 10 sillas, o en varias más pequeñas.
+
 Pendientes con Samuel:
 
-* El valor de `:max`.
 * **Devolver el cupo** cuando un bloqueo vence sin pagar. Propuesta: el reconciliador, al expirar una orden `PENDING`, hace `ADD n :menos_k` en `LIM#` y pasa la orden a `EXPIRED` en la misma transacción (condición `ORDER.st = 'PENDING'`).
 * La detección de patrones de bots (varias cuentas, mismo dispositivo) es de Samuel; aquí solo se garantiza el límite por cuenta.
 

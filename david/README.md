@@ -18,7 +18,7 @@
 
 * Jacobo: aplicar las correcciones de `respuesta_a_jacobo.md` §3.
 * Miguel: conciliar D-2 (RPO 0 de pagos por conciliación ante pérdida de región).
-* Samuel: valor de `:max` por usuario y devolución del cupo al expirar.
+* Samuel: confirmar la devolución del cupo al expirar un bloqueo (`:max` = 10 ya acordado).
 * Profesor: P-4 ("pérdida total del sitio").
 * Jacobo: activar Streams en `bya_tickets` y guardar la puerta asignada por localidad en `bya_catalog` (`estadio.md` §4).
 * Juan Pablo: costear el equipo de `estadio.md` §9.
