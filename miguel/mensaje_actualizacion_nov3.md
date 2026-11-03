@@ -1,6 +1,8 @@
-Muchachos, actualicé miguel/ con lo que subió David (recuperacion_licenciamiento_carta.md, lista_componentes_para_juan_pablo.md, README.md, respuesta_a_david.md y revision_de_jacobo.md cambiaron).
+Actualización 3-nov (Miguel):
 
-- David: gracias por aceptar las condiciones de D-2. Apliqué tu confirmarDesastre al runbook 2b (paso 5), el orden de pasos (tráfico primero con la admisión cerrada) y la reconstrucción de contadores. Ojo, eso cambia el total: reconstruir contadores va después de conciliar, no en paralelo. El RTO queda en 7 a 13 min si la aplicación en espera se levanta mientras cambia el DNS, y 7 a 16 min si todo va en secuencia (el límite es 15). Tu alta_disponibilidad.md dice 6 a 14; corrígelo o dime si ves otro traslape. Tampoco encontré el RPO/RTO del ingreso al estadio en estadio.md.
-- Juan Pablo: la lista tiene dos líneas nuevas por lo que propuso David: migración de PostgreSQL del estadio (COP 2.880.000, estimación mía) y Ubuntu Pro para 14 equipos (sin precio verificado, consúltalo en Canonical). Actualizaciones a 5 años: 15.360.000 más Ubuntu Pro.
-- Jacobo: sigue pendiente corregir en arquitectura.md la conmutación de origen de CloudFront (no sirve para POST/PUT), la cola virtual en AWS y el pre-calentamiento de las réplicas.
-- Todos: falta elegir la pasarela (idempotencia, metadatos en el cobro y listado por fechas) y mandar al profesor P-1, P-3, P-4, P-6, P-16, P-30 y P-41.
+- Decidimos Jacobo, David y yo usar el listado de transacciones de la pasarela por rango de fechas como punto de partida de la conciliación de desastre. Ya está en miguel/ (README, carta, fichas). Falta confirmarlo con la pasarela concreta.
+- Gracias Jacobo y David: vi las correcciones de CloudFront, la cola virtual en AWS, el pre-calentamiento y el RTO de 7 a 13 / 7 a 16 min. Quedamos alineados.
+- Pendiente de los tres: fijar la pasarela con llave de idempotencia y metadatos en el cobro (sillas, evento, usuario). Sin metadatos las sillas de un pago no se pueden reconstruir y se reembolsa, o se activa el libro de pagos (bya_ledger).
+- Juan Pablo: la lista de componentes está en miguel/lista_componentes_para_juan_pablo.md (con PostgreSQL del estadio y Ubuntu Pro sin precio). Avísame si algo no cabe en los 280 millones del año 1.
+- Samuel: falta tu conformidad con D-2, el plazo legal de retención y confirmar que ningún respaldo guarda números de tarjeta.
+- Profesor: falta enviar P-1, P-3, P-4, P-6, P-16, P-30 y P-41. David, ¿las envías tú?

@@ -26,7 +26,7 @@ Tres capas: DynamoDB replica en 3 zonas (falla de zona, RPO 0); PITR de 35 días
 
 **Supuestos, no datos** (están marcados así en el documento):
 - Los tiempos de cada paso de los runbooks. AWS no publica tiempos de restauración ni de conmutación de una región.
-- Que la pasarela de pagos permita enviar metadatos en el cobro y listar transacciones por rango de fechas. Falta elegir pasarela.
+- Que la pasarela de pagos permita enviar metadatos en el cobro. El listado de transacciones por rango de fechas **ya se decidió usar** (3-nov-2026, Miguel, Jacobo y David), pero falta confirmarlo con la pasarela concreta, que no está elegida.
 - Que AWS Backup no consuma capacidad de las tablas (la documentación consultada no lo dice; por eso hay reglas de congelamiento y horario).
 - Si AWS Backup factura incrementalmente los puntos de DynamoDB (la lista de Juan Pablo da una cota superior).
 - Las horas de DBA (68 al año) y de actualización (104 en 5 años): son estimaciones mías.
@@ -43,7 +43,7 @@ Tres capas: DynamoDB replica en 3 zonas (falla de zona, RPO 0); PITR de 35 días
 | Juan Pablo | Costear la lista; avisar si el año 1 no cabe en COP 280.000.000 |
 | Samuel | Plazo legal de retención; confirmar que los respaldos no guardan números de tarjeta |
 | Profesor (P-1, P-4) | Qué significa Escenario B con DynamoDB; qué es "pérdida total del sitio" |
-| Miguel | Elegir la pasarela con David y Jacobo |
+| Miguel, David, Jacobo | Fijar la pasarela: listado por fechas decidido; faltan llave de idempotencia y metadatos en el cobro |
 
 ## Cifras de costo que entrego
 

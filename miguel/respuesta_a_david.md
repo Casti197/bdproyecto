@@ -34,7 +34,7 @@ Por eso propongo dos modos:
 - **Modo normal:** tu reconciliador, sin cambios.
 - **Modo desastre:** parte de la lista de transacciones aprobadas de la pasarela por ventana de tiempo (desde unos minutos antes de la hora T de la falla) y busca cada una en la réplica con lectura fuerte. Pasos 4 y 5 del runbook 2b.
 
-Hay que confirmar que la pasarela permita listar por rango de fechas.
+**Decidido el 3-nov-2026 (Miguel, Jacobo y David): se usa el listado por rango de fechas.** Falta confirmar que la pasarela concreta lo ofrezca.
 
 ## 4. Riesgo adicional: la región original que vuelve
 

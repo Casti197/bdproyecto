@@ -87,7 +87,7 @@ El RPO 0 es real solo dentro de la región. Si se pierde la región, la base tie
 **Qué debe confirmarse con la pasarela elegida** (el grupo no ha fijado cuál es):
 
 - Si acepta llave de idempotencia por cobro.
-- Si permite listar transacciones por rango de fechas.
+- ~~Si permite listar transacciones por rango de fechas.~~ **Decidido el 3-nov-2026 por Miguel, Jacobo y David: se usa el listado por rango de fechas** como punto de partida de la conciliación de desastre. Falta confirmar con la pasarela concreta que lo ofrezca.
 - Si permite adjuntar metadatos al cobro.
 
 **Nota sobre el SLA.** El SLA de 99,999 % de las tablas globales exige que todas las tablas de la región sean globales y que se intente la conmutación [\[AWS, SLA\]](https://aws.amazon.com/dynamodb/sla/). Con solo algunas tablas replicadas aplica el SLA estándar de 99,99 %, que coincide con el mínimo del enunciado para la preventa.
@@ -317,7 +317,7 @@ En el ensayo de la semana 5 cada integrante responde una carta inventada en 3 mi
 | Contexto | El enunciado exige RPO 0 para pagos. La compra usa transacciones, y las tablas globales con consistencia fuerte entre regiones (MRSC) no las admiten |
 | Alternativas | (a) MREC con conciliación contra la pasarela. (b) MRSC para toda la compra: imposible por las transacciones. (c) MREC más un libro de pagos en MRSC. (d) Aceptar un RPO mayor que 0 |
 | Criterio | RPO 0 del dinero, sin romper la atomicidad de la compra, a costo razonable |
-| Elección | (a), con las sillas enviadas como metadato del cobro; (c) como plan B si la pasarela no permite metadatos ni listar transacciones por fechas |
+| Elección | (a), con las sillas enviadas como metadato del cobro; (c) como plan B si la pasarela no permite metadatos. El listado por fechas ya se decidió usar (3-nov-2026) |
 | Sacrificio | La base queda con RPO de segundos; el RTO incluye de 3 a 5 minutos de conciliación; la recuperación depende de capacidades de la pasarela que aún no se han confirmado |
 
 **Ficha R-2: respaldo inmutable**
@@ -339,7 +339,7 @@ En el ensayo de la semana 5 cada integrante responde una carta inventada en 3 mi
 | Juan Pablo | Costear AWS Backup (diario u horario), copias a us-east-2 y a la cuenta de respaldo, almacenamiento bajo Vault Lock, restauraciones de prueba, el testigo de MRSC si se usa, la aplicación en espera y el enlace redundante del Escenario B. Incluir en el TCO 68 horas de DBA al año (COP 8.160.000) y 15.360.000 en actualizaciones a 5 años (12.480.000 de la aplicación y 2.880.000 de PostgreSQL del estadio), más Ubuntu Pro de 14 equipos, que no tiene precio verificado |
 | Samuel | Plazo legal de retención y regla de Object Lock en S3. Los respaldos y la réplica de us-east-2 son otra transferencia de datos personales. Verificar que ningún respaldo contenga números de tarjeta (−1,0). AWS permite cifrar los respaldos con una llave KMS distinta a la de la tabla [\[AWS\]](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/backuprestore_HowItWorksAWS.html) |
 | Profesor | P-4 (qué es "pérdida total del sitio") y P-1 (Escenario B con DynamoDB) |
-| Yo | Elegir la pasarela con David y Jacobo. AWS no publica tiempos de restauración ni fechas de fin de vida de Valkey, así que esos dos datos se miden en los simulacros o se vigilan, no se citan |
+| Yo | Fijar con David y Jacobo cuál es la pasarela: ya decidimos usar el listado por rango de fechas; faltan la llave de idempotencia y los metadatos en el cobro. AWS no publica tiempos de restauración ni fechas de fin de vida de Valkey, así que esos dos datos se miden en los simulacros o se vigilan, no se citan |
 
 ## Fuentes
 

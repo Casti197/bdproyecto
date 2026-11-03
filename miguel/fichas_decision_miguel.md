@@ -12,10 +12,10 @@ Las mismas fichas que están en `recuperacion_licenciamiento_carta.md`, en un ar
 | Contexto | El enunciado exige RPO 0 para pagos. La compra usa transacciones, y las tablas globales con consistencia fuerte entre regiones (MRSC) no las admiten |
 | Alternativas | (a) Tablas globales con consistencia eventual (MREC) y conciliación contra la pasarela. (b) MRSC para toda la compra: imposible por las transacciones. (c) MREC más un libro de pagos en MRSC. (d) Aceptar un RPO mayor que 0 |
 | Criterio | RPO 0 del dinero, sin romper la atomicidad de la compra, a costo razonable |
-| Elección | (a), con las sillas enviadas como metadato del cobro; (c) como plan B si la pasarela no permite metadatos ni listar transacciones por fechas |
+| Elección | (a), con las sillas enviadas como metadato del cobro; (c) como plan B si la pasarela no permite metadatos. El listado de transacciones por rango de fechas queda **decidido** (3-nov-2026, Miguel, Jacobo y David) |
 | Sacrificio | La base queda con RPO de segundos; el RTO incluye de 3 a 5 minutos de conciliación; la recuperación depende de capacidades de la pasarela que aún no se han confirmado |
 | Responsable | Miguel, con David (D-2) |
-| Estado | Propuesta; falta la confirmación de David y elegir la pasarela |
+| Estado | David aceptó las condiciones. Decidido: conciliar desde el listado de la pasarela por fechas. Pendiente: confirmar idempotencia y metadatos en la pasarela concreta (si no hay metadatos, se reembolsa o se activa el libro de pagos) y la conformidad de Samuel |
 
 ## Ficha R-2: respaldo inmutable
 
