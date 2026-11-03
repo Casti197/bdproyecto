@@ -19,12 +19,18 @@
 
 ## Pendientes
 
-* Jacobo: aplicar las correcciones de `respuesta_a_jacobo.md` §3.
+**Míos (David)**
+* Enviar al profesor las preguntas de [`preguntas_para_el_cliente.md`](preguntas_para_el_cliente.md), empezando por las marcadas con ★ (incluye P-4, P-1, P-30 y P-41).
+* Invitar al grupo como colaboradores del repositorio y decidir si sigue público.
+* Verificar el precio de Ubuntu Pro y el soporte del fabricante de lectores y torniquetes (`estadio.md` §9.1).
+* Si el profesor exige tiempos medidos: planear un simulacro de conmutación (hoy los tiempos son estimados).
+
+**De otros**
+* Jacobo: aplicar las correcciones de `respuesta_a_jacobo.md` §3; activar Streams en `bya_tickets` y guardar la puerta por localidad en `bya_catalog` (`estadio.md` §4); pre-calentar las réplicas (`alta_disponibilidad.md` §7).
 * Miguel: aplicar `respuesta_a_miguel.md` al runbook 2b.
-* Jacobo y Juan Pablo: pre-calentar y costear las réplicas (`alta_disponibilidad.md` §7).
-* Miguel, Jacobo, David: elegir pasarela (idempotencia, metadatos, listado por fechas).
 * Samuel: confirmar la devolución del cupo al expirar un bloqueo (`:max` = 10 ya acordado).
-* Profesor: P-4 ("pérdida total del sitio").
-* Jacobo: activar Streams en `bya_tickets` y guardar la puerta asignada por localidad en `bya_catalog` (`estadio.md` §4).
-* Juan Pablo: costear el equipo de `estadio.md` §9 y, según §9.1, Ubuntu Pro y una migración de PostgreSQL hacia 2030 (precio de Ubuntu Pro sin verificar).
+* Juan Pablo: costear el equipo de `estadio.md` §9, las réplicas, Ubuntu Pro y una migración de PostgreSQL hacia 2030 (precio de Ubuntu Pro sin verificar).
+
+**Entre varios**
+* Miguel, Jacobo y David: elegir la pasarela de pagos (llave de idempotencia, metadatos en el cobro, listado por fechas).
 * Grupo: decidir los riesgos E-R1 y E-R2 de `estadio.md` §8.
