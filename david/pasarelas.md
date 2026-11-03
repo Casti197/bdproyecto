@@ -1,5 +1,7 @@
 # Pasarelas de pago: comparación para la decisión D-11
 
+> **Decisión (2026-11-03):** Miguel, Jacobo y David aceptan **Mercado Pago**. Siguen pendientes las dos comprobaciones de sandbox de §2; si la de `metadata` falla, se activa `bya_ledger`.
+
 **Autor:** David · **Fecha:** 2026-11-03 · **Para:** Miguel y Jacobo (decisión D-11)
 **Qué necesitamos** (`alta_disponibilidad.md` §4, `miguel/` runbook 2b):
 
@@ -22,7 +24,7 @@ Todo lo de abajo sale de la documentación pública consultada hoy. **No se prob
 
 ✅ documentado · 🟡 parcial o sin describir · ❌ no documentado · ❓ sin verificar
 
-## 2. Recomendación
+## 2. Recomendación (aceptada)
 
 **Mercado Pago como opción principal**, con dos condiciones antes de decidir:
 

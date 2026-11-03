@@ -91,7 +91,7 @@ La detección (hasta que la alarma se activa) queda **fuera** del RTO, pero se r
 | ¿Y si cae una región? | La **base** puede perder los últimos segundos (RPO = retraso de replicación [D-07]). Pero el **dinero** no se pierde: la pasarela guarda cada cobro aprobado y, antes de reabrir, se reaplican en us-east-2 todos los aprobados |
 | ¿Puede entonces venderse dos veces una silla? | No, porque las ventas permanecen **cerradas** hasta terminar la conciliación y porque solo escribe una región |
 
-La afirmación "RPO 0 de pagos" depende de **tres capacidades de la pasarela** que aún no están confirmadas porque no hay pasarela elegida: llave de idempotencia, **metadatos en el cobro** (evento, usuario y sillas) y **listar transacciones por rango de fechas**. Sin la segunda, las sillas de un pago no se pueden reconstruir y el pago se reembolsa (la venta se pierde, el dinero no). Sin la tercera, la conciliación de desastre no tiene punto de partida. Es la condición 1 y 2 de Miguel, y las acepto.
+La afirmación "RPO 0 de pagos" depende de **tres capacidades de la pasarela**. El 2026-11-03 Miguel, Jacobo y David eligieron **Mercado Pago** (D-11, `pasarelas.md`), que documenta las tres: llave de idempotencia obligatoria (`X-Idempotency-Key`), campo `metadata` en el pago (evento, usuario y sillas) y búsqueda de pagos por rango de fechas (`/v1/payments/search`). **Falta comprobar en el sandbox** que `metadata` guarda y devuelve un objeto propio y que repetir con la misma llave devuelve el mismo pago. Si `metadata` no sirve, las sillas de un pago no se pueden reconstruir: se reembolsa o se activa el libro de pagos de Jacobo (`bya_ledger`). Es la condición 1 y 2 de Miguel, y las acepto.
 
 ## 5. Modo desastre: confirmar un pago cuando la orden o la silla se perdieron
 
@@ -105,7 +105,7 @@ Este es el paso 4 del runbook 2b de Miguel. **No sirve la confirmación normal**
 
 ### 5.1 Datos de partida y precondiciones
 
-* **Entrada:** cada transacción aprobada que lista la pasarela desde `T − ventana` (propuesta: **5 minutos**; AWS dice "un segundo o menos" típico pero sin SLA [D-08]). Cada cobro trae `oid`, `nn`, `gtx`, `uid`, `eid`, `sillas[]`, `monto` y `aprobado_en` (los metadatos).
+* **Entrada:** cada pago aprobado que devuelve `GET /v1/payments/search` de Mercado Pago (con `range=date_created`) desde `T − ventana` (propuesta: **5 minutos**; AWS dice "un segundo o menos" típico pero sin SLA [D-08]). Cada cobro trae `oid`, `nn`, `gtx`, `uid`, `eid`, `sillas[]`, `monto` y `aprobado_en` (los metadatos).
 * **Precondiciones:** ventas cerradas; la aplicación en us-east-2 apunta a la réplica local; nadie escribe en us-east-1.
 * **Orden de proceso:** por `aprobado_en` ascendente. Si dos cobros aprobados reclaman la misma silla, gana el primero y el otro se reembolsa. Nunca hay doble venta; en el caso raro puede que la silla vaya a quien no la tenía en us-east-1, y por eso el criterio es explícito.
 
@@ -203,7 +203,7 @@ Miguel pregunta si su lectura es correcta: la región original **no recibe tráf
 
 ## 8. Pendientes
 
-* **Pasarela:** elegirla y confirmar las tres capacidades de §4 (Miguel, Jacobo, David).
+* **Pasarela:** elegida Mercado Pago (2026-11-03). Falta la prueba de sandbox de `pasarelas.md` §2 (Miguel, Jacobo, David).
 * **Jacobo:** ya diseñó el libro de pagos en MRSC (`bya_ledger`, opcional) por si la pasarela no permite metadatos; se activa según la pasarela que se elija.
 * **Miguel:** hecho el 2026-11-03 (runbook 2b de 10 pasos).
 * **Profesor:** P-4, "pérdida total del sitio".

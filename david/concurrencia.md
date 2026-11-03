@@ -88,8 +88,11 @@ funcion pagar(oid, nn, token_tarjeta):
          Item: st='INITIATED', idem = oid+"#"+nn, g3pk/g3sk (entra a gsi_pendientes)
          Condition: attribute_not_exists(pk)
 
-    2. respuesta = pasarela.cobrar(token_tarjeta, monto, idempotency_key = oid+"#"+nn)
-         # un reintento con la misma llave no cobra dos veces (confirmar que la pasarela elegida lo soporta)
+    2. respuesta = MercadoPago POST /v1/payments                  # pasarela elegida (D-11, pasarelas.md)
+         encabezado X-Idempotency-Key = oid+"#"+nn                 # obligatorio en Mercado Pago [P-01]
+         external_reference = oid+"#"+nn
+         metadata = {eid, uid, sillas[]}                           # para reconstruir en desastre
+         # pendiente de sandbox: que el reintento devuelva el mismo pago y que metadata se guarde
 
     3. según respuesta:
          APROBADO  -> confirmar(oid, nn, gtx)                     # fase 3

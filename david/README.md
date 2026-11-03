@@ -16,7 +16,7 @@
 | [`preguntas_para_el_cliente.md`](preguntas_para_el_cliente.md) | 64 preguntas en lenguaje de negocio para el profesor (cliente) | Listo |
 | [`preguntas_para_el_profesor.md`](preguntas_para_el_profesor.md) | Versión técnica, numeración P-1 a P-67 | Listo |
 | [`pruebas/`](pruebas/) | Prueba de las transacciones en un simulador (moto): 37 casos, resultado en `resultado.txt`; verificador de invariantes para el simulacro | Listo |
-| [`pasarelas.md`](pasarelas.md) | Comparación de pasarelas para D-11 (Mercado Pago, Wompi, PayU, ePayco, Stripe) | Listo para decidir |
+| [`pasarelas.md`](pasarelas.md) | Comparación de pasarelas para D-11; elegida Mercado Pago | Decidido |
 | [`estadio.md`](estadio.md) | Nodo por puerta como autoridad, doble ingreso entre puertas, fallas, sincronización con DynamoDB, equipo para Juan Pablo | Listo (borrador para revisión) |
 
 ## Pendientes
@@ -32,5 +32,5 @@
 * Juan Pablo: costear el equipo de `estadio.md` §9, las réplicas, Ubuntu Pro o el cambio de versión de Ubuntu y una migración de PostgreSQL hacia 2030 (§9.1, con precios).
 
 **Entre varios**
-* Miguel, Jacobo y David: cerrar D-11. Propuesta: Mercado Pago, tras comprobar en su sandbox `metadata` y `X-Idempotency-Key` (`pasarelas.md` §2).
+* Miguel, Jacobo y David: D-11 **decidida: Mercado Pago** (2026-11-03). Falta comprobar en el sandbox `metadata` y `X-Idempotency-Key` (`pasarelas.md` §2).
 * Grupo: decidir los riesgos E-R1 y E-R2 de `estadio.md` §8.
