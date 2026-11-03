@@ -91,23 +91,123 @@ TransactWriteItems  ClientRequestToken = H(oid, "CONFIRM")
 
 ---
 
-## Escenario 3: falla a mitad de la compra (borrador, semana 2)
+## Escenario 3: falla a mitad de la compra
 
-Casos a desarrollar, cada uno con su línea de tiempo:
+**Respuesta corta:** una falla puede dejar la compra *sin terminar*, nunca *a medias*. Las dos transacciones (bloqueo y confirmación) son todo o nada [R-04]; el cobro, que no es transaccional, se protege con un registro previo (`PAY#nn`), una llave de idempotencia con la pasarela y un reconciliador. En ningún caso se cobra sin que quede rastro, ni se vende una silla dos veces.
 
 | Punto de falla | Qué queda en la base | Quién lo resuelve | Mecanismo |
 |---|---|---|---|
-| Durante la transacción de bloqueo o confirmación | Nada o todo; nunca la mitad | DynamoDB | Atomicidad [R-04] |
-| Respuesta perdida (*timeout*) | No se sabe si se aplicó | El cliente | Reintento con el mismo `ClientRequestToken` dentro de 10 min [R-04]; después, lectura fuerte de la orden |
-| Servidor cae tras cobrar y antes de confirmar | `PAY#01` en `INITIATED`, orden `PENDING` | Webhook → SQS, o reconciliador | Confirmación idempotente; DLQ [D-04] |
-| La pasarela no responde | `PAY#01` en `UNKNOWN` | Reconciliador | Consulta a la pasarela con la llave `<oid>#<nn>` |
+| 3a. Durante la transacción de bloqueo o confirmación | Nada o todo | DynamoDB | Atomicidad [R-04] |
+| 3b. Respuesta perdida (*timeout*) | No se sabe si se aplicó | El servidor | Reintento con el mismo `ClientRequestToken` (10 min); luego lectura fuerte |
+| 3c. Servidor cae tras cobrar, antes de confirmar | `PAY#01` `INITIATED`, orden `PENDING` | Webhook, SQS o reconciliador | Confirmación idempotente; DLQ [D-04] |
+| 3d. La pasarela no responde | `PAY#01` `UNKNOWN` | Reconciliador | Consulta con la llave `<oid>#<nn>` |
 
-## Escenario 4: conmutación del servidor (borrador, semana 2)
+### 3a. Falla durante la transacción
+
+Si el servidor cae, o una de las condiciones falla, DynamoDB cancela toda la transacción y no deja efectos parciales; si se cancela, `CancellationReasons` dice cuál acción falló, en el mismo orden de las acciones [D-02]. La atomicidad vale frente a operaciones individuales; las lecturas con `Query` o `Scan` son *read committed* y pueden ver el estado antes o después, pero nunca la mitad de la transacción [R-04].
+
+### 3b. Respuesta perdida
+
+| t | Servidor | Base | Qué pasa |
+|---|---|---|---|
+| 0 | Envía `TransactWriteItems` (token `T1`) | Aplica la transacción | — |
+| 1 | La respuesta se pierde; el cliente HTTP da *timeout* | Sillas en `L` | El servidor **no sabe** si se aplicó |
+| 2 | Reintenta con el **mismo** `T1` | Reconoce el token | Devuelve éxito sin repetir |
+| 3 | Si pasaron más de 10 min o cambió algún parámetro | `IdempotentParameterMismatch` o ejecuta de nuevo | Lectura fuerte de `ORDER` y de las sillas |
+
+```text
+funcion reintentarBloqueo(oid, plan):
+    token = H(oid, "LOCK")                       # mismo token en cada reintento
+    repetir hasta 3 veces con espera 50 ms x 2^n + jitter:
+        intentar TransactWriteItems(plan, ClientRequestToken = token): devolver OK
+        capturar TransactionInProgress, InternalServerError, timeout: continuar
+        capturar IdempotentParameterMismatch: leer ORDER (fuerte); decidir segun estado
+        capturar TransactionCanceledException: devolver CONFLICTO   # no se reintenta
+    leer ORDER (fuerte): si st='PENDING' con sillas en L de oid -> OK; si no -> ERROR
+```
+
+El token protege 10 minutos [D-02]; el bloqueo dura 8, así que el reintento cae dentro de la ventana. La confirmación tiene además su propia idempotencia por condiciones (`st='PENDING'`, `attribute_not_exists`), que sigue funcionando después de esos 10 minutos.
+
+### 3c. El servidor cae después de cobrar
+
+| t | Servidor A | Pasarela / webhook | Base |
+|---|---|---|---|
+| 0 | Escribe `PAY#01 INITIATED` y llama a la pasarela con la llave `<oid>#01` | Procesa el cobro | Orden `PENDING`, sillas `L` |
+| 40 | **Cae** antes de confirmar | Aprueba; envía webhook | Igual |
+| 41 | — | El webhook llega a un servidor sano que lo encola en SQS | Igual |
+| 42 | Servidor B toma el mensaje y ejecuta la confirmación de `concurrencia.md` §5 | — | Orden `PAID`, sillas `S`, boletas |
+| 43 | — | Reintento duplicado del webhook | La confirmación encuentra `st<>'PENDING'`: no hace nada (idempotente) |
+
+Si el webhook se pierde, el reconciliador (índice disperso `gsi_pendientes`, cada minuto, pagos de más de 5 minutos) consulta la pasarela con la llave `<oid>#01`, ve el cobro aprobado y confirma. Si el mensaje falla varias veces, va a la DLQ tras `maxReceiveCount` intentos y salta una alarma [D-04].
+
+**Si pasaron más de 8 minutos** y otro tomó la silla, aplica el escenario 2b: reembolso, no doble venta.
+
+### 3d. La pasarela no responde
+
+| t | Servidor | Pasarela | Base |
+|---|---|---|---|
+| 0 | `PAY#01 INITIATED`; llama | No contesta (*timeout*) | `INITIATED` |
+| 10 | Marca `PAY#01` → `UNKNOWN` (no `DECLINED`) | Puede haber cobrado o no | `UNKNOWN`, sillas `L` |
+| 60 | Reconciliador consulta con la llave `<oid>#01` | Responde: aprobado, rechazado o inexistente | — |
+| 61 | Aprobado: confirma. Rechazado/inexistente: libera las sillas | — | `PAID` o `ABANDONED` |
+
+**Regla:** nunca se libera una silla ni se rechaza una compra mientras el pago esté en `UNKNOWN`: puede haberse cobrado. La llave de idempotencia evita que el reintento cobre dos veces.
+
+**Por qué no hay doble cobro:** (1) la llave `<oid>#nn` se envía a la pasarela en cada intento; (2) `PAY#nn` existe *antes* de llamar; (3) un segundo intento del usuario crea `PAY#02` solo si `PAY#01` está `DECLINED`.
+
+---
+
+## Escenario 4: conmutación (falla de servidor, zona o región)
+
+**Respuesta corta:** servidor y zona no pierden nada y no exigen conmutar la base. La región sí: la base puede perder los últimos segundos (MREC es asíncrona), pero el dinero no, porque las ventas se mantienen cerradas hasta conciliar con la pasarela. Detalle en [`alta_disponibilidad.md`](alta_disponibilidad.md).
 
 | Falla | RPO | Qué hacer | Fuente |
 |---|---|---|---|
-| Servidor de aplicación | 0 (el estado vive en la base) | Otro servidor retoma; los reintentos son idempotentes | — |
-| Zona de disponibilidad | 0 | Nada: DynamoDB replica en 3 zonas, sin conmutación que gestionar | [R-01] |
-| Región completa | > 0 en la base (MREC asíncrona) | Modo seguro: conciliar con la pasarela y marcar vendidas las sillas de pagos aprobados **antes** de reabrir; una sola región escribe | [R-17], decisión D-2 |
+| Servidor de aplicación | 0 (el estado vive en la base) | Otro servidor retoma; los reintentos son idempotentes | Escenario 3 |
+| Zona de disponibilidad | 0 | Nada: DynamoDB replica en 3 zonas | [R-01], [D-11] |
+| Región completa | > 0 en la base (segundos); 0 en pagos por proceso | Modo seguro: cerrar ventas, mover tráfico, conciliar, reconstruir contadores, reabrir | [D-07], D-2 |
 
-Pendiente: tiempos de conmutación publicados, RTO de 15 min y conciliación con los runbooks de Miguel.
+### 4a. Línea de tiempo: pérdida de la región principal en plena preventa
+
+| t | us-east-1 (activa) | us-east-2 (réplica) | Pasarela | Acción |
+|---|---|---|---|---|
+| 0 | Opera; las ventas escriben | Recibe replicación (≈ 1 s) [D-07] | Cobra | — |
+| 100 | **Falla** | Último dato replicado: T | Sigue cobrando a quien ya estaba pagando | — |
+| 100 a 104 | — | — | — | Alarma compuesta y declaración humana (fuera del RTO) [D-10] |
+| 104 | — | — | — | **Declaración.** Se registra T |
+| +1 a +2 min | — | Cierra admisión | — | Congelar |
+| +2 a +5 min | — | Recibe el tráfico (DNS, TTL 60 s) [D-09] | — | Cambiar tráfico |
+| +5 a +8 min | — | Aplicación con capacidad de pico | — | Levantar |
+| +8 a +13 min | — | `confirmarDesastre` por cada cobro aprobado desde T−5 min, en orden | Lista aprobados | Conciliar |
+| +13 a +15 min | — | Reconstruye contadores | — | Reconstruir |
+| +15 min | — | Reapertura gradual | — | Reabrir |
+
+Los tiempos son **estimados** y el extremo alto roza el RTO de 15 minutos; solo un simulacro los confirma.
+
+### 4b. Por qué no hay doble venta en el cambio
+
+Dos regiones escribiendo la misma silla podrían venderla dos veces, porque la condición se evalúa contra la versión local y gana la última escritura [D-07]. Por eso escribe **una sola región** y las ventas se reabren solo tras conciliar.
+
+```text
+funcion conmutar(T):
+    cerrarAdmision()
+    enrutarTrafico(regionAlterna)
+    esperar aplicacionLista()
+    para cada cobro en pasarela.aprobados(desde = T - 5min) ordenado por aprobado_en:
+        confirmarDesastre(cobro)                  # alta_disponibilidad.md §5
+    reconstruirContadores()
+    reabrirGradual()
+```
+
+### 4c. Qué se pierde y qué no
+
+| Elemento | Se puede perder | Cómo se cubre |
+|---|---|---|
+| Bloqueos de sillas de los últimos segundos | Sí | Las sillas vuelven a `A`; el cliente reintenta |
+| Órdenes `PENDING` sin cobrar | Sí | El cliente vuelve a comprar |
+| Compras **cobradas** | Segundos de base | Se reaplican desde la pasarela; sin metadatos, se reembolsan |
+| Boletas ya entregadas | Posible | `confirmarDesastre` las recrea con `TKT#UUIDv5(oid, silla)`, el mismo identificador |
+
+---
+
+**Referencias.** [R-xx]: `jacobo/referencias.md`. [D-01] a [D-04]: `concurrencia.md` §9. [D-05], [D-06]: `estadio.md`. [D-07] a [D-14]: `alta_disponibilidad.md` §9.
