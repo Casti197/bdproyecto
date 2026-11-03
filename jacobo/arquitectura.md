@@ -14,7 +14,7 @@ Modelo de datos: [`modelo_datos.md`](modelo_datos.md) · Cifras: [`capacidad_y_v
 | **Región principal** | **us-east-1 (N. Virginia)**: ≈ **77 ms** desde Bogotá frente a ≈ **112 ms** de São Paulo (ping medido por un tercero, ver §1), **−33 %** de precio de DynamoDB y única entre las candidatas con **MRSC** para datos sin transacciones (pero MRSC no sirve para la compra). |
 | **Región alterna** | **us-east-2 (Ohio)** con réplica **MREC** en espera (**una sola región escribe**). |
 | **Escenario A** | Ruta crítica en AWS: CloudFront → cola virtual → API/aplicación → DynamoDB on-demand + ElastiCache + S3/Athena; Bogotá = administración, conectividad y respaldo de gestión. |
-| **Escenario B** | **DynamoDB no se puede instalar en el data center.** Variante **híbrida literal** del enunciado: aplicación, caché local y servidor de estadio en Bogotá; la verdad transaccional sigue en DynamoDB (AWS) por **Direct Connect (Equinix BG1) + VPN**. **Requiere aprobación del profesor** (pregunta P-1). |
+| **Escenario B** | **DynamoDB no se puede instalar en el data center.** Variante **híbrida literal** del enunciado: aplicación, caché local y servidor de estadio en Bogotá; la verdad transaccional **y el estado de la cola virtual** siguen en AWS por **Direct Connect (Equinix BG1) + VPN**. **Requiere aprobación del profesor** (pregunta P-1). |
 | **Efecto en la latencia de una compra** | Con la aplicación junto a la base: ≈ **22 ms** de acceso a datos por compra. Con la aplicación en Bogotá: ≈ **350 ms** (us-east-1) o ≈ **500 ms** (sa-east-1). Ambas cifras son **estimaciones** y ninguna es el tiempo total de la transacción (§5). |
 | **Hallazgo crítico (para David y Miguel)** | **RPO 0 ante pérdida de una región no es alcanzable con transacciones**: MRSC no soporta transacciones ni TTL; MREC es asíncrono [R-17]. Dentro de una región (fallo de zona), sí hay RPO 0 (3 zonas) [R-01]. |
 
@@ -197,11 +197,11 @@ flowchart TB
   subgraph BOG["Data center de Bogota - on premise"]
     APPB["Aplicacion de compra<br/>servidores propios"]
     CACHEB["Cache local Valkey<br/>limites y pistas"]
-    COLAB["Cola virtual<br/>tokens de admision"]
     BO["Administracion y organizadores"]
     GW["Direct Connect Equinix BG1<br/>y VPN de respaldo"]
   end
   subgraph R1["AWS us-east-1"]
+    COLAB["Cola virtual - estado en AWS<br/>tokens y posiciones en ElastiCache Multi-AZ"]
     DDB[("DynamoDB on-demand<br/>verdad transaccional")]
     STR["DynamoDB Streams"]
     LMB["Lambda consumidoras<br/>historial, mapa, reconciliacion"]
@@ -222,7 +222,7 @@ flowchart TB
 
   USR --> WAF --> CDN
   CDN -->|"objetos cacheados"| S3
-  CDN -->|"solicitudes dinamicas"| COLAB --> APPB
+  CDN -->|"solicitudes dinamicas"| COLAB -->|"solo usuarios admitidos"| APPB
   APPB --> CACHEB
   APPB -->|"todas las lecturas y escrituras"| GW --> DDB
   DDB --> STR --> LMB
@@ -240,7 +240,7 @@ flowchart TB
   ESC --> SRV
   SRV -.->|"sincronizacion de escaneos"| GW
   DDB -.->|"copia de boletas del evento"| SRV
-  CDN -.->|"si cae el data center: conmutacion de origen"| APPS
+  CDN -.->|"si cae el data center: cambio manual o por DNS del origen dinamico - un POST no conmuta solo"| APPS
   APPS --> DDB
 ```
 
@@ -248,10 +248,10 @@ flowchart TB
 
 | En **Bogotá** | En **AWS** |
 |---|---|
-| Aplicación de compra, caché local, cola virtual (origen), administración, servidor de estadio (en el recinto), extremo del enlace | **DynamoDB (verdad transaccional)**, Streams, Lambda, SQS, S3, Athena, respaldos, región alterna, CloudFront, WAF, aplicación en espera |
+| Aplicación de compra, caché local, administración, servidor de estadio (en el recinto), extremo del enlace | **DynamoDB (verdad transaccional)**, **cola virtual con su estado (tokens y posiciones)**, Streams, Lambda, SQS, S3, Athena, respaldos, región alterna, CloudFront, WAF, aplicación en espera |
 
-**Ventajas del componente local:** (1) cumple literalmente el enunciado (la aplicación en el DC); (2) la caché y la cola están cerca del usuario colombiano; (3) servicios de administración sin salida a Internet; (4) el estadio se integra con el DC sin depender de la nube para operar.
-**Riesgos de depender de la conectividad:** (1) **todas** las lecturas y escrituras cruzan el enlace → si cae, **no se vende** (la caché y la cola siguen, pero sin transacción no hay compra); (2) latencia por llamada +77–112 ms (§5); (3) el DC es un solo sitio (rack, UPS, aire; no tiene servidores ni planta); (4) Direct Connect no tiene redundancia por sí solo: requiere un segundo camino (VPN sobre otro proveedor) y **conmutación del origen de CloudFront a la aplicación en espera en AWS** (documentación de *origin failover* de CloudFront; su RTO real **PENDIENTE**, Miguel); (5) hardware, garantía, energía (PUE 1,8; COP 900/kWh) y administración los cuesta Juan Pablo.
+**Ventajas del componente local:** (1) cumple literalmente el enunciado (la aplicación en el DC); (2) la caché local está cerca del usuario colombiano; (3) servicios de administración sin salida a Internet; (4) el estadio se integra con el DC sin depender de la nube para operar.
+**Riesgos de depender de la conectividad:** (1) **todas** las lecturas y escrituras cruzan el enlace → si cae, **no se vende** (el mapa y la posición en la cola siguen porque salen de CloudFront/S3 y del estado de la cola en AWS, pero sin transacción no hay compra); (2) latencia por llamada +77–112 ms (§5); (3) el DC es un solo sitio (rack, UPS, aire; no tiene servidores ni planta); (4) Direct Connect no tiene redundancia por sí solo: requiere un segundo camino (VPN sobre otro proveedor) y **conmutación de la venta a la aplicación en espera en AWS**: el *origin failover* de CloudFront **solo conmuta solicitudes `GET`, `HEAD` y `OPTIONS`; no conmuta `POST` ni `PUT`** [R-40] (hallazgo H-1 de Miguel), y la compra es de escritura, así que la venta se conmuta **por DNS o cambiando el origen a mano** (runbook 2c de Miguel); CloudFront sí puede conmutar solo lo que es `GET` (consultas de estado de la orden). RTO real **PENDIENTE** (Miguel); (5) **si la cola viviera en Bogotá**, al caer el DC se perdería el lugar de hasta 250.000 personas aunque la base estuviera intacta (hallazgo H-4 de Miguel): por eso **el estado de la cola está en AWS** (ElastiCache Multi-AZ; si se perdiera, se readmite por sorteo y se documenta); (6) hardware, garantía, energía (PUE 1,8; COP 900/kWh) y administración los cuesta Juan Pablo.
 
 ### 3.5 Comparación A vs B en lo que me corresponde
 
@@ -334,7 +334,9 @@ sequenceDiagram
 1. **La compra usa transacciones ⇒ no puede usar MRSC.** Entonces el RPO 0 de **pagos** ante pérdida de **región** se logra **a nivel de proceso**: la pasarela es la fuente de verdad del dinero; tras conmutar, se **concilia** contra la pasarela y se reaplican las órdenes pagadas antes de reabrir ventas.
 2. **Una sola región escribe (activa-pasiva).** Con MREC y dos regiones escribiendo, "última escritura gana" podría vender la **misma silla** en ambas. La aplicación en la región alterna permanece **sin escrituras** hasta declarar el desastre.
 3. **Riesgo de doble venta tras conmutación entre regiones:** una venta confirmada en el último segundo antes del fallo puede no haberse replicado; en la región alterna esa silla aparecería libre. **Mitigación obligatoria:** modo seguro tras conmutar (conciliar contra pasarela y marcar vendidas las sillas de pagos aprobados **antes** de abrir). Residual a evaluar por David/Miguel.
-4. El **RTO de 15 minutos** para la preventa debe sumar: detección + decisión + conmutación de DNS/origen + conciliación. **No lo calculo aquí** (es de David y Miguel): **PENDIENTE**.
+4. El enunciado mide el RTO **"desde que se declara la falla"** (§3): **detección y decisión quedan fuera** y se reportan aparte (hallazgo H-2 de Miguel). Desde la declaración suma: congelar ventas + cambiar tráfico (DNS u origen) + aplicación lista + conciliar + verificar contadores + reabrir. Miguel lo estima en **6 a 14 min desde la declaración**, con casi todos los tiempos **supuestos** (`miguel/recuperacion_licenciamiento_carta.md`). **No lo calculo aquí** (es de David y Miguel).
+5. **Las dos condiciones con que David y Miguel aceptaron D-2:** (a) la lista de sillas de un pago aprobado vive en `ORDER.sil` y puede no haberse replicado: se envía como **metadato del cobro** a la pasarela (opción A) o, si la pasarela no lo permite, se escribe un **libro de pagos en MRSC** antes de cobrar (opción B, `modelo_datos.md` §3.9); (b) la conciliación de desastre **no parte de `gsi_pendientes`** (la réplica puede no tener las entradas de los últimos segundos): parte de la lista de transacciones **aprobadas de la pasarela** por ventana de tiempo y busca cada una en la réplica con **lectura fuerte**. Ambas exigen elegir una pasarela que permita metadato y listado por fechas (**PENDIENTE**, grupo).
+6. **La réplica debe estar pre-calentada** (hallazgo de David, `alta_disponibilidad.md` §7): la documentación indica que el `warm throughput` de una tabla global se aplica automáticamente a todas las réplicas [R-18]. Al volver la región original **no recibe tráfico ni escrituras**; sus ítems pendientes se comparan con la pasarela antes de converger (`miguel/respuesta_a_david.md` §4).
 
 ---
 
@@ -388,7 +390,8 @@ con **n ≈ 4,3** viajes secuenciales a DynamoDB por compra (bloqueo 1 + registr
 | A-R2 | Cola virtual: producto de AWS discontinuado; costo desconocido | Construcción propia o Marketplace; costear | PENDIENTE (Juan Pablo) |
 | A-R3 | Datos personales fuera de Colombia | Validación de Samuel; plan B `sa-east-1` | PENDIENTE (Samuel) |
 | A-R4 | Latencia a us-east-2 y por Direct Connect no medida | Medir con `ping`/`curl` desde Bogotá antes de la sustentación | PENDIENTE |
-| A-R5 | B depende del enlace: sin enlace no hay ventas | Doble camino + aplicación en espera en AWS + origen de CloudFront conmutable | Diseño; RTO PENDIENTE |
+| A-R5 | B depende del enlace: sin enlace no hay ventas | Doble camino + aplicación en espera en AWS + **conmutación de la venta por DNS o manual** (CloudFront no conmuta `POST` [R-40]) | Diseño; RTO PENDIENTE (Miguel) |
+| A-R8 | Cola virtual en el DC de Bogotá: al caer, 250.000 personas pierden su lugar | Estado de la cola en AWS (ElastiCache Multi-AZ); si se pierde, readmisión por sorteo | Corregido en el diagrama B (H-4) |
 | A-R6 | Retraso del mapa (≈ 3–6 s estimado) | Aceptado: el estado definitivo es la transacción | Estimación |
 | A-R7 | Derivados dependen de Streams (retención 24 h) | DLQ, alarma de edad del iterador, reconstrucción periódica | Diseño |
 

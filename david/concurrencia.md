@@ -62,6 +62,9 @@ funcion bloquear(uid, eid, sillas[], oid):          # oid lo genera el cliente: 
         devolver {oid, lx}                                                  # el cliente ve 8 minutos
     capturar TransactionCanceledException e:
         motivos = e.CancellationReasons                                     # uno por acción, en orden [D-02]
+        si motivo del Put de ORDER == ConditionalCheckFailed:
+            orden = GetItem(ORD#<oid> / ORDER, ConsistentRead = true)
+            si orden existe y orden.uid == uid: devolver {oid, orden.lx}    # un intento anterior ya se aplicó
         si algún motivo de silla == ConditionalCheckFailed: devolver 409 + sillas que fallaron
         si motivo del límite == ConditionalCheckFailed:     devolver 429 "superaste el máximo"
         si algún motivo == TransactionConflict:            reintentar(backoff)   # el SDK no lo hace [R-04]
@@ -73,6 +76,7 @@ Decisiones de esta fase:
 * **El TTL no interviene.** DynamoDB borra los vencidos "típicamente en pocos días" y siguen siendo legibles hasta entonces [R-08]. Además la silla nunca se borra, solo cambia de estado. El `ttl` de `bya_seats` es limpieza a los 90 días del evento.
 * **El `:skew` protege al dueño.** Si el reloj de otro servidor va adelantado, no puede "robar" un bloqueo justo antes de que venza.
 * **La orden y el cupo van en la misma transacción.** No puede existir una silla bloqueada sin orden, ni una orden sin descontar cupo.
+* **Segunda defensa de idempotencia, sin depender del token.** Si la respuesta se perdió y el reintento llega cuando el `ClientRequestToken` ya no protege, las sillas fallan por condición (ya son de esta orden) y el `Put` de la orden también. Como el `oid` es único y la transacción es atómica, que la orden exista prueba que el intento anterior bloqueó todo. Sin esta regla, el cliente recibiría "silla ocupada" por sus propias sillas. Lo encontró la prueba de `pruebas/prueba_concurrencia.py`.
 
 ## 4. Fase 2: pago
 

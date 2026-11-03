@@ -122,7 +122,10 @@ funcion reintentarBloqueo(oid, plan):
         intentar TransactWriteItems(plan, ClientRequestToken = token): devolver OK
         capturar TransactionInProgress, InternalServerError, timeout: continuar
         capturar IdempotentParameterMismatch: leer ORDER (fuerte); decidir segun estado
-        capturar TransactionCanceledException: devolver CONFLICTO   # no se reintenta
+        capturar TransactionCanceledException e:
+            si e.motivo(Put ORDER) == ConditionalCheckFailed y ORDER (fuerte) existe con este uid:
+                devolver OK                          # el intento anterior ya se aplicó
+            devolver CONFLICTO                       # la silla es de otro; no se reintenta
     leer ORDER (fuerte): si st='PENDING' con sillas en L de oid -> OK; si no -> ERROR
 ```
 

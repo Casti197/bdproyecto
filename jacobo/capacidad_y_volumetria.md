@@ -449,7 +449,7 @@ Precios (lista oficial, consulta 2026-10-29, versión 20260911124422) [R-23]: sa
 ### 7.3 Recomendación
 
 1. **Opción A (on-demand) + C (híbrida de lectura).** Es ≈ 10 veces más barata que el provisionado programado y ≈ 760 veces más barata que el provisionado fijo al pico, no exige adivinar capacidad y resuelve el salto súbito **con pre-calentamiento**, no con fe en el auto scaling.
-2. **Pre-calentar** (una sola vez; los valores de `warm throughput` no pueden bajar [R-18]) `bya_seats`, `bya_orders` y sus GSI a ≥ el pico de **estrés ×5** (≈ 6.000 WRU/s; lecturas ≈ 3.000 RRU/s), `bya_counters` a ≈ 3.000 WRU/s y `bya_tickets` a ≈ 1.500, antes de la primera preventa y antes de cualquier evento mayor al previsto.
+2. **Pre-calentar** (una sola vez; los valores de `warm throughput` no pueden bajar [R-18]; **en una tabla global se aplican automáticamente a todas las réplicas** [R-18], lo que cubre el hallazgo de David sobre la réplica de us-east-2) `bya_seats`, `bya_orders` y sus GSI a ≥ el pico de **estrés ×5** (≈ 6.000 WRU/s; lecturas ≈ 3.000 RRU/s), `bya_counters` a ≈ 3.000 WRU/s y `bya_tickets` a ≈ 1.500, antes de la primera preventa y antes de cualquier evento mayor al previsto.
 3. **Máximo de throughput** por tabla (≈ 2× el pico esperado) como freno de costos frente a abusos [R-13].
 4. **Plan B documentado:** si el servicio cambiara su política o el pre-calentamiento no bastara, pasar a **provisionado con acciones programadas** (T-60 min a T+120 min por preventa) sobre las dos tablas más calientes, con 25 % de margen y GSI iguales a la tabla base [R-03, R-21].
 5. **No usar auto scaling reactivo como única defensa**: dispara tras 2 min de exceso y tarda varios minutos, durante los cuales se rechaza lo que exceda la capacidad previa [R-20]. Sirve para crecimiento gradual, no para un salto de 100×.
@@ -487,7 +487,7 @@ A-01 eventos +30 % · A-02 auditoría +30 % · A-03 sobrecarga 100 B/ítem · A-
 
 ### 8.3 **Pendientes** (no los inventé)
 
-* Monto exacto del cobro del pre-calentamiento. · Facturación de la propagación a GSI en transacciones (¿×1 o ×2?). · Precio y volumen de lecturas de DynamoDB Streams y de Lambda. · KMS, CloudWatch, CloudTrail (Samuel). · Cola virtual (build vs. buy). · Tarifa de CloudFront para Colombia. · Direct Connect (puerto y datos) y VPN. · Captura/exportación de la **AWS Pricing Calculator** (las cifras aquí vienen de la **lista de precios oficial vía API**, guardada en `calculos/evidencia/`, no de la calculadora web).
+* Monto exacto del cobro del pre-calentamiento **y si se cobra por cada región de una tabla global** (Juan Pablo). · Facturación de la propagación a GSI en transacciones (¿×1 o ×2?). · Precio y volumen de lecturas de DynamoDB Streams y de Lambda. · KMS, CloudWatch, CloudTrail (Samuel). · Cola virtual (build vs. buy). · Tarifa de CloudFront para Colombia. · Direct Connect (puerto y datos) y VPN. · Captura/exportación de la **AWS Pricing Calculator** (las cifras aquí vienen de la **lista de precios oficial vía API**, guardada en `calculos/evidencia/`, no de la calculadora web).
 
 ### 8.4 Componentes auxiliares que deben costearse
 

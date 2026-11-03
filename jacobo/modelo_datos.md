@@ -1,6 +1,6 @@
 # Modelo de datos en DynamoDB — BoletaYa SAS
 
-**Autor:** Jacobo · **Estado:** propuesta para congelar el modelo (viernes semana 1) · **Fecha de redacción:** 2026-10-29
+**Autor:** Jacobo · **Estado:** modelo **aprobado por David** (claves soportan los 4 escenarios) · **Redacción:** 2026-10-29 · **Revisión:** 2026-11-03 (correcciones de David y Miguel; ver [`respuesta_a_revisiones.md`](respuesta_a_revisiones.md))
 **Motor / nube:** Amazon DynamoDB en AWS (servicio administrado, sin versiones ni ediciones)
 **Cifras de capacidad:** se calculan en [`capacidad_y_volumetria.md`](capacidad_y_volumetria.md) con [`calculos/modelo_capacidad.py`](calculos/modelo_capacidad.py). Las fuentes están en [`referencias.md`](referencias.md) con la clave `[R-xx]`.
 
@@ -19,6 +19,7 @@
 | D5 | **Historial de sillas derivado por DynamoDB Streams** con clave determinista `(silla, versión)` | Escritura idempotente: un reintento de Lambda sobreescribe el mismo ítem. |
 | D6 | **Mapa de sillas = instantánea aproximada** (S3/CloudFront); la confirmación es siempre la transacción en DynamoDB | La caché nunca es la fuente para decir "disponible". |
 | D7 | **Histórico**: TTL a los 2 años + exportación incremental diaria a S3 + Athena | Las exportaciones no consumen RCU ni afectan la tabla [R-09]. |
+| D8 | **Libro de pagos en MRSC: opcional** (plan B de la decisión D-2, §3.9) | Solo si la pasarela no permite guardar las sillas como metadato del cobro. |
 
 ---
 
@@ -84,7 +85,7 @@ Atributos con nombres cortos para reducir bytes: **el nombre del atributo cuenta
 |---|---|
 | **PK / SK** | `pk = EVT#<eid>` · `sk = META` \| `SEC#<sid>` |
 | Atributos de `META` | `tit` (título), `org` (organizador), `ini` (inicio, epoch), `est` (estado: DRAFT/ON_SALE/CLOSED/CANCELLED), `ven` (recinto), `gs1pk`, `gs1sk` |
-| Atributos de `SEC#` | `nom`, `cap` (capacidad), `pre` (precio en centavos COP), `fil` (número de filas), `nsh` (**fragmentos del contador**, por defecto 8), `est` |
+| Atributos de `SEC#` | `nom`, `cap` (capacidad), `pre` (precio en centavos COP), `fil` (número de filas), `nsh` (**fragmentos del contador**, por defecto 8), `pue` (**puerta de acceso asignada**, la usa el servidor del estadio: `david/estadio.md` §4), `est` |
 | **GSI `gsi_organizador`** | PK `ORG#<org>` · SK `<ini>#EVT#<eid>` · proyección `INCLUDE (tit, est)` |
 | Calor | Bajo (lectura masiva servida por CDN). Cambios de precio o cupo = escritura transaccional con **auditoría** en la misma transacción (ver §6.3). |
 
@@ -94,7 +95,7 @@ Ejemplo (evento + localidad):
 { "pk": "EVT#1234", "sk": "META", "tit": "Concierto X - Estadio Y", "org": "ORG#77",
   "ini": 1793059200, "est": "ON_SALE", "ven": "VEN#12", "gs1pk": "ORG#77", "gs1sk": "1793059200#EVT#1234" }
 { "pk": "EVT#1234", "sk": "SEC#07", "nom": "Oriental Baja", "cap": 2250, "pre": 18000000,
-  "fil": 45, "nsh": 8, "est": "ON_SALE" }
+  "fil": 45, "nsh": 8, "pue": "P3", "est": "ON_SALE" }
 ```
 
 Consulta AP-01 (una sola llamada trae el evento y todas sus localidades):
@@ -189,6 +190,7 @@ Consultas:
 | **PK / SK** | `pk = TKT#<tid>` · `sk = T` (la boleta) \| `SCAN#<ts>#<puerta>` (intentos de ingreso) |
 | `T` (≈ 1 KB `DATO`) | `oid`, `eid`, `sid`, `sil` (`E1234#S07#R12\|S024`), `st` (VALID/USED/VOID), `qrh` (huella HMAC del QR), `usa` (cuándo se usó), `pta` (puerta), `ver`, `g4pk`, `g4sk`, `ttl` |
 | `SCAN#…` (≈ 250 B `DATO`) | `res` (OK/DUPLICADA/INVALIDA), `pta`, `dis` (dispositivo), `off` (true si vino del servidor local), `ttl` |
+| **Streams** | **Sí** (pedido de David para el estadio, `david/estadio.md` §4): vista `NEW_AND_OLD_IMAGES`; Lambda con **filtro de eventos** que solo deja pasar altas de boleta (`sk = T`) y cambios a `VOID`, y los envía a una cola SQS por evento que consulta el servidor central; los escaneos (`USED`, `SCAN#…`) no se reenvían. Retención del *stream*: 24 h [R-11] → el central debe consumir antes; si falla, se rehace con `gsi_evento_boleta` (AP-18) |
 | **GSI `gsi_evento_boleta`** | PK `g4pk = EVT#<eid>#<n>` con `n = hash(tid) mod 8` · SK `g4sk = TKT#<tid>` · `INCLUDE (st, sil, qrh)` |
 | `tid` | **Determinista**: `UUIDv5(oid, clave de silla)`. Un reintento de la confirmación no puede crear una boleta distinta para la misma silla. |
 | QR | `v1.<tid>.<eid>.<hmac>`: lleva `tid`, así la validación en línea es un `GetItem` sin índice. El HMAC permite al servidor local rechazar QR falsos sin internet. |
@@ -239,6 +241,31 @@ Por qué por Streams y no dentro de la transacción: (a) evita duplicar los íte
 
 ---
 
+### 3.9 `bya_ledger` — libro de pagos (**OPCIONAL**: plan B de la decisión D-2)
+
+**Para qué existe.** Miguel y David aceptaron D-2 (una sola región escribe; tras perder la región, modo seguro con conciliación contra la pasarela) **con dos condiciones**: (1) tras perder la región, la lista de sillas de un pago aprobado vive en `ORDER.sil`, que puede no haberse replicado en el último segundo, y la pasarela solo conoce `<oid>#<nn>` y el monto; (2) la conciliación de desastre no puede partir de `gsi_pendientes`. La condición (2) se resuelve en el proceso (modo desastre parte de la lista de transacciones aprobadas de la pasarela y lee la réplica con lectura fuerte: `miguel/respuesta_a_david.md` §3). La condición (1) tiene dos opciones:
+
+| Opción | Qué es | Dependencia |
+|---|---|---|
+| **A (principal)** | Enviar a la pasarela el evento y las sillas como **metadato del cobro** | Que la pasarela elegida lo permita y permita **listar transacciones por rango de fechas** (**PENDIENTE**: elegir pasarela entre Miguel, David y yo) |
+| **B (plan B, esta tabla)** | Escribir un **libro mínimo** en una tabla global **MRSC**, antes de cobrar | Costo y latencia (abajo) |
+
+**Diseño de la opción B** (solo si A no es viable):
+
+| Elemento | Valor |
+|---|---|
+| **PK / SK** | `pk = LED#<oid>` · `sk = P` |
+| Atributos | `eid`, `uid`, `sil` (claves de las sillas), `amt`, `nn` (n.º de intento), `st` (INTENT / CHARGED / VOID), `cre` |
+| Escritura | `PutItem` **condicional** (`attribute_not_exists(pk)`), **sin transacción**, **antes** de llamar a la pasarela; el paso de INTENT a CHARGED es un `UpdateItem` condicional |
+| Consistencia | **MRSC**: la escritura se replica de forma sincrónica a otra región antes de responder, y una lectura fuerte en cualquier réplica devuelve lo último → **RPO 0** para este dato [R-17] |
+| Restricciones de MRSC que condicionan | **Exactamente tres regiones** (dos réplicas + un testigo, p. ej. us-east-1, us-east-2 y testigo en una tercera de la lista oficial); **sin transacciones, sin TTL, sin LSI**; solo se crea sobre una tabla **vacía** y no admite agregar réplicas después [R-17] → la limpieza se hace por exportación + borrado de la aplicación |
+| Costo en rendimiento | Una escritura **más** en el camino del pago (≈ 24.000 por preventa grande) y su latencia **depende de la distancia entre regiones**; **no la medí** (**PENDIENTE**). Costo en USD: Juan Pablo |
+| GSI | Ninguno |
+
+**Decisión que falta (D-2b, grupo):** elegir la pasarela; si no admite metadato ni listado por fechas, se activa esta tabla. Hasta entonces **no se incluye en el costo base**.
+
+---
+
 ## 4. Evitar particiones calientes
 
 **Límites que mandan** [R-12, R-19]: cada partición entrega como máximo **3.000 RCU/s y 1.000 WCU/s**; esto aplica también a un único ítem (un ítem vive en una partición). La *adaptive capacity* aísla ítems muy usados, **sin superar** esos máximos. Una tabla on-demand nueva sostiene **4.000 escrituras/s y 12.000 lecturas/s** y acepta de inmediato hasta **el doble de su pico previo**; superar el doble dentro de 30 minutos puede causar *throttling* [R-13].
@@ -267,6 +294,7 @@ Una silla es un ítem: su techo es **1.000 WRU/s = 500 transacciones/s** (2 WRU 
 ### 4.3 Qué se escala y cómo
 
 * **Tablas y GSI se pre-calientan por separado** (la documentación lo permite para tablas, tablas globales y GSI [R-18]). Un GSI con menos capacidad que la tabla base **frena las escrituras de la tabla** [R-03]: se pre-calienta `gsi_usuario`/`gsi_evento_orden`/`gsi_pendientes` al nivel de `bya_orders`.
+* **Las réplicas heredan el pre-calentamiento.** Para las tablas globales de la versión actual, la documentación dice que el `warm throughput` que se fija "se aplica automáticamente a todas las réplicas" [R-18]. Por eso la réplica de us-east-2 (hallazgo de David, `alta_disponibilidad.md` §7) se pre-calienta **al mismo nivel** que la principal con la misma operación. **PENDIENTE:** si el cargo único se cobra una vez por región (Juan Pablo) y cuánto tarda.
 * Dimensionamiento por tabla en la ráfaga ×5 (planificación / estrés), de la tabla T5c de capacidad: sillas 2.214 / 5.500 · órdenes 2.791 / 5.660 · límites 686 / 2.000 · contadores 200 / 200 · boletas 500 / 1.000.
 
 ---
@@ -368,6 +396,22 @@ Costo de una consulta que recorra **todo** el archivo del año 5 (≈ 131 GiB cr
 
 Los cambios de **precio, cupo o estado de silla hechos por personas** se hacen con `TransactWriteItems`: `Update` del ítem afectado **+** `Put` en `bya_audit` (`tip = HUMAN`). Así no puede haber cambio sin rastro. Los cambios automáticos de sillas por compra no se auditan aquí: tienen su historia en `bya_seat_history`.
 
+### 6.4 Qué **no** vuelve al restaurar una tabla (para los simulacros de Miguel)
+
+Una restauración (PITR o respaldo) **crea una tabla nueva** [R-42]; puede recuperarse **hasta cinco minutos antes de la hora actual** y hasta el período configurado (1–35 días) [R-42], y la restauración no consume capacidad de la tabla [R-41]. **Pero no copia**, y hay que **reaplicar a mano** [R-41]:
+
+| No se restaura | Efecto en este modelo | Qué se reaplica |
+|---|---|---|
+| **Streams** | Se pierde el historial de sillas, el mapa vivo y el envío al estadio (`bya_tickets`) | Activar Streams `NEW_AND_OLD_IMAGES` en `bya_seats` y `bya_tickets`; volver a crear los *event source mappings* (Lambda, DLQ) |
+| **TTL** | No se limpian sillas, órdenes abandonadas ni escaneos; los vencidos se acumulan | Habilitar TTL con el atributo `ttl` (un cambio por tabla por hora [R-07]) |
+| Políticas de **escalado** y capacidad programada | Sin `warm throughput` ni límites | Re-pre-calentar tablas y GSI; reponer el máximo de throughput |
+| Políticas **IAM** | Mínimo privilegio roto o inexistente | Reaplicar las políticas por tabla (Samuel) |
+| **Alarmas** y Contributor Insights | Sin alertas (edad del iterador de Streams, *throttling*) | Reponer alarmas |
+| **Etiquetas** (y las condiciones basadas en ellas) | Fallan permisos por etiqueta | Reponer etiquetas |
+| **Protección contra borrado** y **PITR** | La tabla restaurada no queda protegida ni respaldada | Activarlas de inmediato |
+
+Los **GSI se pueden excluir** de la restauración para que sea más rápida y barata, y se crean después [R-41] (todos los de este modelo se reconstruyen desde la tabla). En una tabla global, el respaldo de una réplica se restaura como **tabla independiente**, no como réplica; hay que crear de nuevo la tabla global [R-42].
+
 ---
 
 ## 7. Interfaz con David: estructura de la transacción de compra
@@ -379,15 +423,17 @@ Los cambios de **precio, cupo o estado de silla hechos por personas** se hacen c
 Para cada silla `k` de la compra (máximo **10 sillas por orden**, política de negocio A-09: la transacción permite hasta 100 ítems/4 MB [R-04], el bloqueo usa `n + 2` ítems):
 
 ```text
+-- La aplicación calcula :lx = now + 480 y :vencido_antes_de = now - skew ANTES de llamar a DynamoDB:
+-- una ConditionExpression no admite aritmética (corrección de David, respuesta_a_jacobo.md §3).
 Update bya_seats  Key(pk,sk) de la silla
-  SET st='L', lx=:now+480, lo=:oid, v=v+1
-  IF  attribute_exists(pk) AND ( st='A' OR (st='L' AND lx < :now - :skew) )     -- vencido = disponible
-Put    bya_orders ORD#<oid>/ORDER  (st='PENDING', lx=:now+480, ttl, idem, ...)   IF attribute_not_exists(pk)
-Update bya_counters LIM#E<eid>#U<uid>/P  SET n = if_not_exists(n,0) + :k
-                                         IF  attribute_not_exists(n) OR n + :k <= :max
+  SET st='L', lx=:lx, lo=:oid, v=v+1
+  IF  attribute_exists(pk) AND ( st='A' OR (st='L' AND lx < :vencido_antes_de) )   -- vencido = disponible
+Put    bya_orders ORD#<oid>/ORDER  (st='PENDING', lx=:lx, ttl, idem, ...)   IF attribute_not_exists(pk)
+Update bya_counters LIM#E<eid>#U<uid>/P  SET n = if_not_exists(n,:cero) + :k
+                                         IF  attribute_not_exists(n) OR n <= :max_menos_k   -- :max_menos_k = max - k
 ```
 
-* `:skew` (margen de guarda por desfase de relojes entre servidores de aplicación) lo fija David.
+* **Valores fijados por David:** `:skew` = **2 s** (supone relojes sincronizados por NTP; 5 s si no se garantiza), **máximo 10 sillas por orden** y `:max` = 10 (acordado con Samuel), y ante `TransactionConflict` *backoff* exponencial con *jitter* completo, **máx. 3 reintentos** con el mismo `ClientRequestToken`; `ConditionalCheckFailed` **no** se reintenta.
 * El `Put` de la orden con `attribute_not_exists(pk)` evita crear la orden dos veces con el mismo `oid`.
 * Los GSI de `bya_orders` se alimentan solos; **las transacciones no operan sobre índices** [R-04].
 * Un fallo de condición en cualquier ítem cancela todo; `CancellationReasons` indica **qué silla** falló para avisar al usuario.
@@ -411,7 +457,7 @@ Put    bya_tickets  TKT#<tid>/T  (st='VALID', ...)  IF attribute_not_exists(pk) 
 Put    bya_orders   ORD#<oid>/INV#1 (st='PENDING', g3pk=PEND#INV#n)  IF attribute_not_exists(pk)
 ```
 
-Con 2,5 sillas: 2,5 + 1 + 1 + 1 + 2,5 + 1 = **9 ítems** (límite 100). Si la condición de una silla falla porque otro la tomó **después** de vencer el bloqueo, la aplicación pasa la orden a `FULFILL_FAIL` y encola **reembolso** (la pasarela ya cobró): ese es el escenario 2 del anexo de David.
+Con 2,5 sillas: 2,5 + 1 + 1 + 1 + 2,5 + 1 = **9 ítems** (límite 100). Si la orden tiene sillas de **dos localidades**, la confirmación lleva **un `Update` de contador por localidad**, cada uno en su fragmento `SH#<hash(oid) mod nsh>` (ítems distintos: no viola "un ítem una vez por transacción" [R-04]). Si la condición de una silla falla porque otro la tomó **después** de vencer el bloqueo, la aplicación pasa la orden a `FULFILL_FAIL` y encola **reembolso** (la pasarela ya cobró): ese es el escenario 2 del anexo de David.
 
 ### 7.4 Limitaciones de las transacciones que afectan el diseño de David [R-04]
 
@@ -460,8 +506,9 @@ Con 2,5 sillas: 2,5 + 1 + 1 + 1 + 2,5 + 1 = **9 ítems** (límite 100). Si la co
 | R2 | **Frecuencia de `TransactionConflict` sobre una silla caliente** no medida | Latencia y reintentos en la apertura | Cola virtual + pista negativa + *backoff*; **PENDIENTE** de validar en simulacro (no se puede ejecutar en el curso) |
 | R3 | Cómo se factura la propagación a GSI de ítems escritos en transacción | Si se duplica, `gsi_*` suben ×2 | Sensibilidad `idx_tx_factor = 2` en el escenario de estrés; **PENDIENTE** de confirmar en la calculadora de precios |
 | R4 | Retraso del historial y del mapa por Streams | Información derivada atrasada | Aceptado y comunicado; conciliación periódica |
-| R5 | **Pérdida de región con RPO > 0** (réplicas MREC asíncronas; MRSC sin transacciones) | Riesgo de **doble venta tras una conmutación entre regiones** | Ver `entrega_para_el_equipo.md` §Decisiones D-2 y `arquitectura.md` §4.1 |
-| R6 | `lx` depende de relojes de la aplicación | Un servidor adelantado podría "robar" un bloqueo | Margen `:skew` y sincronización de relojes |
+| R5 | **Pérdida de región con RPO > 0** (réplicas MREC asíncronas; MRSC sin transacciones) | Riesgo de **doble venta tras una conmutación entre regiones** | D-2 aceptada por David y Miguel **con dos condiciones** (de dónde sale la lista de sillas de un pago aprobado, y que la conciliación de desastre no parta de `gsi_pendientes`): ver §3.9 y `arquitectura.md` §4.1 |
+| R6 | `lx` depende de relojes de la aplicación | Un servidor adelantado podría "robar" un bloqueo | `:skew` = 2 s y sincronización por NTP (David) |
+| R7 | Una tabla **restaurada** no recupera Streams, TTL, IAM, alarmas, etiquetas, escalado, protección contra borrado ni PITR | Mapa, historial, limpieza y auditoría quedan "a medias" tras un simulacro o desastre | Lista de reaplicación obligatoria (§6.4) |
 
 ---
 
