@@ -191,7 +191,14 @@ Miguel dejó el sistema operativo de los servidores y del nodo de puerta sin def
 
 Conclusiones:
 1. **Ninguna combinación llega a 5 años sin acción extra.** Con la regla de Miguel, hay que costear (a) Ubuntu Pro por equipo o una actualización de sistema operativo hacia 2031, y (b) una actualización mayor de PostgreSQL hacia 2030.
-2. **Para Juan Pablo:** sumar al costo a 5 años una migración de PostgreSQL (horas de DBA, ensayo previo en un evento sin público) y la suscripción de Ubuntu Pro. **No verifiqué el precio de Ubuntu Pro**; falta consultarlo en la página oficial antes de cifrarlo.
+2. **Para Juan Pablo:** sumar al costo a 5 años una migración de PostgreSQL (horas de DBA, ensayo previo en un evento sin público) y una de estas dos opciones para el sistema operativo:
+
+   | Opción | Cuándo se paga | Costo | Fuente |
+   |---|---|---|---|
+   | Ubuntu Pro solo el último año (de mayo de 2031 a inicios de 2032) | Un año | Servidor: USD 500 por máquina al año. Escritorio: USD 25 por máquina al año. El soporte 24/7 es aparte (USD 1.775 a 3.400 por servidor al año) | [D-17] |
+   | Cambiar a la siguiente LTS antes de mayo de 2031 | Una vez | Horas de técnico por equipo, sin licencia | Supuesto mío |
+
+   Con 14 equipos instalados como servidor, la primera opción cuesta 14 × 500 = **USD 7.000 por un año**. Si los 12 nodos de puerta usan la edición de escritorio, baja a 2 × 500 + 12 × 25 = **USD 1.300**. No pude confirmar en la página qué tarifa aplica a un nodo de puerta. Recomiendo la segunda opción si el cambio se puede hacer en temporada sin eventos.
 3. **Lectores y torniquetes:** su firmware y soporte dependen del fabricante, que aún no está elegido. No lo verifiqué; queda como requisito de compra: soporte y repuestos del fabricante por 5 años como mínimo, por escrito.
 4. **Mientras no se defina**, el supuesto de 12 puertas (12 nodos más 2 servidores) fija la cantidad de licencias de Ubuntu Pro a costear: 14 equipos.
 
