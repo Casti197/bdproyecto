@@ -35,19 +35,19 @@ Cronograma de `jacobo.md`: día 3 = borrador de patrones y claves (**este docume
 | Necesidad | Dónde está |
 |---|---|
 | **Identificar y bloquear varias sillas** | Cada silla es **un ítem** con clave `(pk, sk)` calculable desde `(evento, localidad, fila, número)`; `TransactWriteItems` hasta 100 ítems/4 MB, **máx. 10 sillas por orden** (A-09) [R-04, R-07] |
-| **Atributos del bloqueo de 8 minutos** | `lx` (epoch s) y `lo` (orden dueña). Condición del bloqueo: `st='A' OR (st='L' AND lx < :now - :skew)`. **El TTL de `bya_seats` solo limpia; nunca interviene** [R-08] |
+| **Atributos del bloqueo de 8 minutos** | `lx` (epoch s) y `lo` (orden dueña). Condición del bloqueo: `st='A' OR (st='L' AND lx < :vencido_antes_de)`, con `:vencido_antes_de = now − skew` **calculado en la aplicación** (una `ConditionExpression` no admite aritmética; corrección de David). **El TTL de `bya_seats` solo limpia; nunca interviene** [R-08] |
 | **Confirmación aunque el bloqueo haya vencido** | `st='L' AND lo=:oid` (si nadie la tomó sigue siendo de la orden) |
 | **Pagos idempotentes** | `PAY#nn.idem = <oid>#<nn>` (clave para la pasarela), `PutItem` con `attribute_not_exists(pk)`, `ClientRequestToken = H(oid,"LOCK"/"CONFIRM")` (válido 10 min tras terminar [R-04]); `ORD#<oid>` con `oid` generado por el cliente |
 | **Estado de intentos y conciliación** | `PAY#nn.st` ∈ INITIATED/APPROVED/DECLINED/UNKNOWN; **`gsi_pendientes`** (dispersa) lista los pagos y facturas sin resolver para el reconciliador y SQS |
 | **Boletas y doble uso** | `tid = UUIDv5(oid, silla)` (determinista) · `bya_tickets.st` VALID→USED con `UpdateItem` condicional + `SCAN#…` en la misma transacción |
-| **Antibots por usuario** | `LIM#E<eid>#U<uid>` con `n + :k <= :max` dentro del bloqueo |
+| **Antibots por usuario** | `LIM#E<eid>#U<uid>` con `attribute_not_exists(n) OR n <= :max_menos_k` (`:max_menos_k = max − k`, calculado en la aplicación) dentro del bloqueo |
 | **Estado intermedio "pagado sin boleta"** | `ORDER.st = FULFILL_FAIL` + `PAY#.st = APPROVED` → reembolso |
 
 ### 1.3 Los 4 escenarios de tu anexo: qué claves los sostienen
 
 | Escenario | Elementos del modelo que usas | Lo que **no** debes asumir |
 |---|---|---|
-| **1. Dos clientes, misma silla** | El ítem de la silla; condición `st='A' OR (st='L' AND lx < now - skew)`; `TransactionCanceledException` con `CancellationReasons` por ítem [R-04]. Transacciones y `UpdateItem` son **serializables** entre sí [R-04] | Que el SDK reintente un `TransactionConflict`: **no lo hace** [R-04] |
+| **1. Dos clientes, misma silla** | El ítem de la silla; condición `st='A' OR (st='L' AND lx < :vencido_antes_de)`; `TransactionCanceledException` con `CancellationReasons` por ítem [R-04]. Transacciones y `UpdateItem` son **serializables** entre sí [R-04] | Que el SDK reintente un `TransactionConflict`: **no lo hace** [R-04] |
 | **2. El bloqueo expira mientras paga** | `lx`, `lo`, condición de confirmación `st='L' AND lo=:oid`; si otro la tomó, `FULFILL_FAIL` + reembolso | Que el TTL libere la silla |
 | **3. Falla a mitad de la compra** | Transacciones atómicas (todo o nada); `ClientRequestToken`; condiciones de estado (`ORDER.st='PENDING'`); `gsi_pendientes` + SQS | Que el token proteja más de 10 minutos: después protege la **condición** (`st='L' AND lo=:oid` falla porque ya es `S`) |
 | **4. Conmutación del servidor** | **Dentro de la región**: 3 zonas, RPO 0, sin modo de conmutación que gestionar [R-01]. **Entre regiones**: ver §1.5 | Que una tabla global entre regiones dé RPO 0 con transacciones |
@@ -136,16 +136,17 @@ Salida de datos (*egress*) hacia el DC de Bogotá y hacia usuarios (CloudFront) 
 | Usuarios | `bya_users` | Usuarios, catálogo y analítica | 15 min / 4 h | Crítica para operar, datos personales | No (supresión por solicitud) |
 | Catálogo | `bya_catalog` | Usuarios, catálogo y analítica | 15 min / 4 h | Media | Sí a los 2 años |
 | Historial de sillas | `bya_seat_history` | Derivada | 15 min / 4 h (propuesto) | Reconstruible desde exportaciones de `bya_seats` | Sí a los 2 años |
-| Auditoría | `bya_audit` | Cumplimiento (**clasificación pendiente de acordar**) | 15 min / 4 h (propuesto) | **Evidencia legal**; inmutable en S3 | Sí a los 2 años |
+| Auditoría | `bya_audit` | **Usuarios, catálogo y analítica** (clasificación propuesta por Miguel y aceptada) | 15 min / 4 h | **Evidencia legal**; inmutable en S3 | Sí a los 2 años |
 | Histórico > 2 años | S3 | Histórico | 24 h / 48 h | Evidencia | Es el archivo |
 
 ### 3.2 Hechos del servicio que pesan en tus runbooks (con fuente)
 
-* **PITR:** restauración a cualquier segundo de los **últimos 1–35 días**; las copias continuas y las restauraciones **no usan capacidad aprovisionada ni afectan rendimiento o disponibilidad** [R-01]. Esto responde "cómo respaldar sin ponerlo lento".
+* **PITR:** restauración a cualquier segundo del período configurado (**1–35 días**), **hasta cinco minutos antes de la hora actual** [R-42] (el último punto restaurable no es "ahora"; corrección H-5 de Miguel); las copias continuas y las restauraciones **no usan capacidad aprovisionada ni afectan rendimiento o disponibilidad** [R-01]. Esto responde "cómo respaldar sin ponerlo lento".
 * **Respaldos bajo demanda** y **AWS Backup** con copia entre cuentas y regiones y paso a almacenamiento frío [R-01]; **bóveda inmutable (Vault Lock)** y simulacros: tuyos.
 * **PITR, protección contra borrado y etiquetas NO se sincronizan entre réplicas de una tabla global** [R-17]: hay que configurarlas **en cada región**.
 * **TTL:** el borrado se **replica** a las demás regiones y **consume** escritura replicada allí [R-08, R-17].
-* **Exportación a S3** requiere PITR, no consume RCU, y no hay SLA de duración [R-09]. Hay límite de **50 restauraciones concurrentes / 50 TB** [R-14].
+* **Exportación a S3** requiere PITR, no consume RCU, y no hay SLA de duración [R-09]. Hay límite de **50 restauraciones concurrentes / 50 TB** [R-14] (sección "Backup and restore" de esa página de cuotas; la leí, la cita es correcta; H-7).
+* **Una restauración crea una tabla nueva y no devuelve Streams, TTL, IAM, alarmas, etiquetas, escalado, protección contra borrado ni PITR** [R-41]: la lista de lo que hay que reaplicar está en `modelo_datos.md` §6.4 (H-6). Los GSI pueden excluirse y reconstruirse.
 * **DynamoDB no tiene versiones, ediciones ni licencia por núcleo** [R-01] (tu punto 5.3): "no hay mantenimiento ni ventanas".
 
 ### 3.3 Retención propuesta (**SUPUESTO A-04, sujeta a validación legal de Samuel**)
@@ -158,8 +159,8 @@ Salida de datos (*egress*) hacia el DC de Bogotá y hacia usuarios (CloudFront) 
 2. **Reconstruir el historial y el mapa:** desde Streams (24 h) o, más atrás, desde las exportaciones incrementales (traen `OldImage`/`NewImage` y `WriteTimestampMicros` [R-15]).
 3. **GSI:** son derivados de la tabla; el respaldo cubre la tabla.
 4. **Pago confirmado sin registro:** `gsi_pendientes` + reconciliación con la pasarela (David).
-5. **Pérdida de región:** ver D-2: RPO 0 de pagos por **conciliación**, no por réplica. **Tu runbook "pérdida total del sitio" debe distinguir** fallo de zona (sin acción), pérdida de región (modo seguro) y pérdida del DC de Bogotá (escenario B: conmutar el origen a la aplicación en AWS).
-6. **Escenario B, "qué pasa si falla el DC de Bogotá":** los datos **no** están en el DC; lo que se pierde es la aplicación, la caché y la cola: se conmuta a la aplicación en espera en AWS. RTO **PENDIENTE** (el cálculo es tuyo).
+5. **Pérdida de región:** ver D-2: RPO 0 de pagos por **conciliación**, no por réplica. **Tu runbook "pérdida total del sitio" debe distinguir** fallo de zona (sin acción), pérdida de región (modo seguro) y pérdida del DC de Bogotá (escenario B: conmutar la **venta** a la aplicación en AWS **por DNS o a mano**: el *origin failover* de CloudFront no conmuta `POST` [R-40]).
+6. **Escenario B, "qué pasa si falla el DC de Bogotá":** los datos **no** están en el DC; lo que se pierde es la aplicación y la caché local (**la cola virtual guarda su estado en AWS**, H-4): se conmuta a la aplicación en espera en AWS. El RTO se informa **desde la declaración** de la falla; detección y decisión aparte (H-2). RTO **PENDIENTE** (el cálculo es tuyo).
 
 ---
 
@@ -208,15 +209,16 @@ DynamoDB cifra **todos los datos en reposo por defecto** (clave propiedad de AWS
 
 | # | Decisión | Propuesta | Quién decide / afecta |
 |---|---|---|---|
-| **D-1** | Congelar el modelo de 8 tablas y las claves | Sí (viernes semana 1) | Todos (David valida claves) |
-| **D-2** | **Una sola región escribe; RPO 0 de pagos ante pérdida de región por conciliación con la pasarela** (no por réplica); MRSC descartado | Aceptar o buscar alternativa | **David + Miguel + Samuel** (afecta runbooks, sustentación y registro de decisiones) |
+| **D-1** | Congelar el modelo de 8 tablas y las claves | **APROBADA por David** (2026-10-29) | Todos |
+| **D-2** | **Una sola región escribe; RPO 0 de pagos ante pérdida de región por conciliación con la pasarela** (no por réplica); MRSC descartado **para la compra** | **Aceptada por David y Miguel con 2 condiciones**: (1) sillas del pago aprobado como metadato del cobro, o libro de pagos en MRSC (`modelo_datos.md` §3.9); (2) conciliación de desastre desde la lista de la pasarela, no desde `gsi_pendientes`. Falta Samuel y elegir pasarela | **David + Miguel + Samuel** (afecta runbooks, sustentación y registro de decisiones) |
 | **D-3** | Región principal `us-east-1`, alterna `us-east-2`; plan B `sa-east-1` | Aprobar sujeto a la validación legal | Samuel (legal), Juan Pablo (costos), David/Miguel (replicación) |
 | **D-4** | Capacidad: **on-demand + pre-calentamiento + máximo de throughput**; plan B provisionado programado | Aprobar | Juan Pablo |
 | **D-5** | Contador exacto fragmentado dentro de la transacción (N = 8) | Aprobar | David |
 | **D-6** | Retención en línea (A-04) y TTL con exportación previa | Validar el plazo legal | Samuel, Miguel |
 | **D-7** | Interpretación de los escenarios: A = ruta crítica en AWS; B = híbrido con aplicación en Bogotá | Confirmar con el profesor (P-1, P-3) | Todos |
 | **D-8** | Cola virtual: construcción propia vs. producto comercial | Costear ambas | Juan Pablo |
-| **D-9** | Máximo 10 sillas por orden; `:skew` de relojes; política de reintentos | David fija los valores | David |
+| **D-9** | Máximo 10 sillas por orden; `:skew` de relojes; política de reintentos | **Fijados por David**: 10 sillas, `:skew` = 2 s, *backoff* con *jitter* y máx. 3 reintentos | Cerrada |
+| **D-11** | **Elegir la pasarela de pagos** (llave de idempotencia, metadato en el cobro, listado por fechas) | Elegir entre Miguel, David y Jacobo; de ella depende la opción A o B de D-2 | Miguel, David, Jacobo |
 | **D-10** | Historial por Streams (idempotente) y auditoría administrativa síncrona | Aprobar | David, Samuel |
 
 ---
@@ -252,10 +254,10 @@ DynamoDB cifra **todos los datos en reposo por defecto** (clave propiedad de AWS
 
 ---
 
-## 8. Lista de verificación para el viernes de la semana 1
+## 8. Lista de verificación para el viernes de la semana 1 (estado al 2026-11-03)
 
-- [ ] David confirma que las claves soportan sus 4 escenarios (o pide cambios **antes** del congelamiento).
+- [x] David confirma que las claves soportan sus 4 escenarios (`david/respuesta_a_jacobo.md`; dos correcciones de sintaxis **aplicadas** en `modelo_datos.md` §7.1).
 - [ ] Juan Pablo contrasta mis cifras con su catálogo de precios y resuelve §2.3.
-- [ ] Miguel entrega su lista de componentes de respaldo y concilia D-2.
+- [x] Miguel entrega su lista de componentes de respaldo y concilia D-2 (con 2 condiciones; ver D-2). Sus 7 hallazgos están atendidos en [`respuesta_a_revisiones.md`](respuesta_a_revisiones.md).
 - [ ] Samuel entrega el plazo legal y la validación de la región.
 - [ ] Todos: leer `modelo_datos.md` §5 (contador exacto) y §7 (transacción) y `arquitectura.md` §4.1 (RPO 0), que son las preguntas más probables del jurado.

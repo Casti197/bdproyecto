@@ -69,6 +69,15 @@ Dentro de la región **sí hay RPO 0** (tres zonas) [R-01]. Entre regiones **no 
 **P10. ¿Cómo instalan DynamoDB en el data center (Escenario B)?**
 **No se puede**: es un servicio administrado, DynamoDB local es solo para desarrollo y pruebas [R-33] y Outposts no lo ejecuta localmente (inferencia) [R-34]. Propongo la variante híbrida: aplicación, caché y estadio en Bogotá; base en AWS por Direct Connect. **Está pendiente de confirmación del profesor (P-1).** *(arquitectura §3)*
 
+**P21. En el Escenario B, ¿CloudFront conmuta solo a AWS si cae el data center?**
+No para la compra. CloudFront solo conmuta de origen cuando la solicitud es `GET`, `HEAD` u `OPTIONS`, **no** `POST` ni `PUT` [R-40], y bloquear, pagar y confirmar son escrituras. La venta se conmuta **por DNS o cambiando el origen a mano**; CloudFront sí conmuta solo las consultas `GET`. Además el **estado de la cola virtual está en AWS**, para que al caer el DC no se pierda el lugar de 250.000 personas. *(arquitectura §3.4)*
+
+**P22. ¿Por qué `lx < :vencido_antes_de` y no `lx < now - skew`?**
+Una `ConditionExpression` no admite aritmética (solo el `SET` de una `UpdateExpression` suma y resta); la aplicación calcula `now − skew` y lo pasa como valor. Lo detectó David al revisar el modelo. *(modelo §7.1; `respuesta_a_revisiones.md`)*
+
+**P23. Si restauran una tabla con PITR, ¿queda lista?**
+No. La restauración crea una tabla nueva **sin** Streams, TTL, IAM, alarmas, etiquetas, escalado, protección contra borrado ni PITR [R-41]; sin Streams no hay mapa ni historial. Hay una lista de reaplicación en el modelo §6.4. Y solo se puede restaurar hasta cinco minutos antes de la hora actual [R-42].
+
 **P11. ¿250.000 personas golpean la base?**
 No. Consultando cada 10 s serían 25.000 req/s = 687.500 RRU/s = **17,2×** la cuota por tabla. El mapa sale de **instantáneas** (≈ 3 KB, TTL 2 s) y la base solo ve ≈ **450 RRU/s** del constructor. *(capacidad §6)*
 

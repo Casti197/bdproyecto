@@ -1,6 +1,6 @@
 # Referencias y control de fuentes — parte de Jacobo
 
-**Fecha de consulta de todas las fuentes: 2026-10-29** (fecha del sistema de la sesión). Las páginas de documentación de AWS se leyeron con la herramienta de navegación web y se extrajeron los datos que se citan; **no se cita nada que no se haya leído**, salvo donde se indica "solo resultados de búsqueda". Los precios vienen de la **API de lista de precios oficial de AWS** (archivos guardados en [`calculos/evidencia/`](calculos/evidencia/)). No se creó cuenta ni recurso en la nube.
+**Fecha de consulta: 2026-10-29 (R-01 a R-39) y 2026-11-03 (R-40 a R-42, añadidas tras la revisión de Miguel)** (fecha del sistema de la sesión). Las páginas de documentación de AWS se leyeron con la herramienta de navegación web y se extrajeron los datos que se citan; **no se cita nada que no se haya leído**, salvo donde se indica "solo resultados de búsqueda". Los precios vienen de la **API de lista de precios oficial de AWS** (archivos guardados en [`calculos/evidencia/`](calculos/evidencia/)). No se creó cuenta ni recurso en la nube.
 
 **Clave de confianza:** 🟢 abierta y leída · 🟡 solo resultados de búsqueda (no abierta) · 🔴 no verificado (declarado como pendiente).
 
@@ -30,6 +30,9 @@
 | R-21 🟢 | Scheduled scaling for Application Auto Scaling | https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-scheduled-scaling.html | Escalado programado | Acciones programadas que suben el mínimo / bajan el máximo; conviven con las políticas reactivas |
 | R-24 🟢 | DynamoDB table classes | https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.TableClasses.html | Clases de tabla | Standard-IA para tablas donde el almacenamiento domina; los GSI usan la clase de la tabla; se puede cambiar |
 | R-28 🟢 | Amazon DynamoDB endpoints and quotas (AWS General Reference) | https://docs.aws.amazon.com/general/latest/gr/ddb.html | Regiones y cuotas | DynamoDB disponible en `sa-east-1`, `us-east-1`, `us-east-2`, `mx-central-1` y las demás regiones listadas |
+| R-40 🟢 | Optimize high availability with CloudFront origin failover | https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/high_availability_origin_failover.html | Conmutación de origen | "CloudFront fails over to the secondary origin only when the HTTP method of the viewer request is `GET`, `HEAD`, or `OPTIONS`"; **no conmuta `POST` ni `PUT`**; criterios por código de estado (400, 403, 404, 416, 429, 500, 502, 503, 504); por defecto espera hasta 30 s (3 intentos de 10 s) antes de conmutar; remite a DNS failover de Route 53 |
+| R-41 🟢 | Restore a table in DynamoDB | https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/pointintimerecovery_restores.html | Restauración | Restaura a una **tabla nueva** sin consumir throughput; se puede excluir GSI; **hay que reaplicar a mano**: políticas de auto scaling, políticas IAM, alarmas y métricas, Contributor Insights, **etiquetas**, **Streams**, **TTL**, protección contra borrado y **PITR**; restauración entre regiones posible |
+| R-42 🟢 | Backup and restore for DynamoDB · Point-in-time backups for DynamoDB | https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Backup-and-Restore.html · https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Point-in-time-recovery.html | PITR | Puntos de recuperación por segundo hasta 35 días (configurable 1–35); se puede restaurar "desde **cinco minutos antes de la hora actual** hasta el período configurado"; PITR se factura por el tamaño de la tabla y los LSI; el respaldo de una réplica se restaura como tabla **independiente** (no como réplica) |
 | R-33 🟢 | Setting up DynamoDB local | https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html | DynamoDB local | Versión descargable "para desarrollar y probar" |
 
 ## B. SLA, precios y servicios auxiliares
@@ -95,3 +98,5 @@
 | U-10 | Tablas de Direct Connect (precio por puerto/datos en Bogotá) | Pendiente (Juan Pablo) |
 | U-11 | Que las páginas de documentación de **Virtual Waiting Room** (docs) estén retiradas | Solo se verificó el aviso de la página de la solución |
 | U-12 | Estado legal de las listas de países de la SIC | Fuente secundaria; verificar |
+| U-13 | Si el cargo único del pre-calentamiento se cobra por cada región de una tabla global; latencia de escritura del libro de pagos MRSC entre us-east-1 y us-east-2 | Pendiente (Juan Pablo; medir) |
+| U-14 | Tiempo real de conmutación por DNS de la venta (el tiempo propagado depende del TTL y de los resolvedores; no lo verifiqué) | Pendiente (Miguel, `recuperacion_licenciamiento_carta.md`) |
