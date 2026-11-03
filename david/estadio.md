@@ -179,6 +179,22 @@ Cantidades con los supuestos E-02 y E-03. **Los precios los pone Juan Pablo.**
 | Plan de datos 4G/5G | 1 | Bajo volumen (≈ 45.000 escaneos × ≈ 1 KB por evento) | Respaldo de internet |
 | Rack, cableado, instalación | 1 lote | — | — |
 
+### 9.1 Sistema operativo y fin de soporte (regla de Miguel: al menos 5 años desde la compra)
+
+Miguel dejó el sistema operativo de los servidores y del nodo de puerta sin definir y puso la regla de elegir uno con soporte de al menos 5 años desde la compra, o costear su actualización. Propuesta, con fechas consultadas el 2026-11-03 [D-15, D-16]. Supuesto mío: compra a inicios de 2027, por lo que 5 años llegan a inicios de 2032.
+
+| Componente | Propuesta | Fin del soporte estándar | ¿Cubre 5 años desde 2027? | Qué hacer |
+|---|---|---|---|---|
+| Sistema operativo del servidor central y de los nodos de puerta | Ubuntu 26.04 LTS (lanzada en abril de 2026) | Mayo de 2031 | **No del todo** (≈ 4,4 años) | Contratar Ubuntu Pro (mantenimiento de seguridad ampliado hasta mayo de 2036) o planear el cambio de versión en 2031 |
+| Alternativa | Ubuntu 24.04 LTS | Mayo de 2029 (ampliado hasta mayo de 2034) | No (≈ 2,4 años estándar) | Solo con Ubuntu Pro; no la recomiendo para equipo nuevo |
+| Base local | PostgreSQL 18 | 14 de noviembre de 2030 | **No** (≈ 3,9 años) | Una migración a una versión mayor nueva en 2030; Miguel ya costea "migraciones de runtime", falta sumar esta |
+
+Conclusiones:
+1. **Ninguna combinación llega a 5 años sin acción extra.** Con la regla de Miguel, hay que costear (a) Ubuntu Pro por equipo o una actualización de sistema operativo hacia 2031, y (b) una actualización mayor de PostgreSQL hacia 2030.
+2. **Para Juan Pablo:** sumar al costo a 5 años una migración de PostgreSQL (horas de DBA, ensayo previo en un evento sin público) y la suscripción de Ubuntu Pro. **No verifiqué el precio de Ubuntu Pro**; falta consultarlo en la página oficial antes de cifrarlo.
+3. **Lectores y torniquetes:** su firmware y soporte dependen del fabricante, que aún no está elegido. No lo verifiqué; queda como requisito de compra: soporte y repuestos del fabricante por 5 años como mínimo, por escrito.
+4. **Mientras no se defina**, el supuesto de 12 puertas (12 nodos más 2 servidores) fija la cantidad de licencias de Ubuntu Pro a costear: 14 equipos.
+
 Costos recurrentes a considerar: garantía y soporte de los equipos, reposición de lectores, el plan de datos, el personal técnico el día del evento y el transporte si los equipos se mueven entre estadios.
 
 ## 10. Referencias propias
@@ -187,5 +203,7 @@ Costos recurrentes a considerar: garantía y soporte de los equipos, reposición
 |---|---|---|
 | D-05 | [PostgreSQL: Transaction Isolation (Read Committed)](https://www.postgresql.org/docs/current/transaction-iso.html) | Un `UPDATE` sobre una fila que otra transacción está actualizando **espera**; si la primera confirma, el `WHERE` **se vuelve a evaluar** sobre la versión nueva |
 | D-06 | [PostgreSQL: Log-Shipping Standby Servers, §26.2.8 Synchronous Replication](https://www.postgresql.org/docs/current/warm-standby.html) | Cada confirmación espera a que el cambio esté escrito en el disco del primario y del respaldo; solo hay pérdida si ambos fallan a la vez |
+| D-15 | [Ubuntu release cycle](https://ubuntu.com/about/release-cycle) | Ubuntu 26.04 LTS: mantenimiento estándar hasta mayo de 2031 y ampliado hasta mayo de 2036; 24.04 LTS: mayo de 2029 y mayo de 2034; las LTS reciben 5 años de mantenimiento estándar |
+| D-16 | [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/) | Cada versión mayor recibe 5 años de soporte; PostgreSQL 18 llega a fin de vida el 14 de noviembre de 2030 |
 
-Consultadas el 2026-10-30.
+Consultadas el 2026-10-30 (D-05, D-06) y el 2026-11-03 (D-15, D-16).

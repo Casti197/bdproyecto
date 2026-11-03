@@ -13,6 +13,8 @@
 | [`anexo_concurrencia.md`](anexo_concurrencia.md) | Los 4 escenarios con pseudocódigo y línea de tiempo | Los 4 listos |
 | [`alta_disponibilidad.md`](alta_disponibilidad.md) | Replicación, MREC/MRSC, tiempos de conmutación, RPO 0 por zona y por región, confirmación en modo desastre | Listo (borrador para revisión) |
 | [`respuesta_a_miguel.md`](respuesta_a_miguel.md) | Condiciones de D-2 aceptadas y cambios al runbook 2b | Listo |
+| [`preguntas_para_el_cliente.md`](preguntas_para_el_cliente.md) | 64 preguntas en lenguaje de negocio para el profesor (cliente) | Listo |
+| [`preguntas_para_el_profesor.md`](preguntas_para_el_profesor.md) | Versión técnica, numeración P-1 a P-67 | Listo |
 | [`estadio.md`](estadio.md) | Nodo por puerta como autoridad, doble ingreso entre puertas, fallas, sincronización con DynamoDB, equipo para Juan Pablo | Listo (borrador para revisión) |
 
 ## Pendientes
@@ -24,5 +26,5 @@
 * Samuel: confirmar la devolución del cupo al expirar un bloqueo (`:max` = 10 ya acordado).
 * Profesor: P-4 ("pérdida total del sitio").
 * Jacobo: activar Streams en `bya_tickets` y guardar la puerta asignada por localidad en `bya_catalog` (`estadio.md` §4).
-* Juan Pablo: costear el equipo de `estadio.md` §9.
+* Juan Pablo: costear el equipo de `estadio.md` §9 y, según §9.1, Ubuntu Pro y una migración de PostgreSQL hacia 2030 (precio de Ubuntu Pro sin verificar).
 * Grupo: decidir los riesgos E-R1 y E-R2 de `estadio.md` §8.
