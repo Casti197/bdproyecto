@@ -13,7 +13,7 @@
 |---|---|---|---|---|---|
 | Servidor de aplicación | 0 | 0 | Lo que tarde el escalado | El estado vive en la base; la confirmación es idempotente | `concurrencia.md` §5 |
 | Zona de disponibilidad | 0 | 0 | Sin conmutación | Replicación en 3 zonas, SLA 99,99 % | [D-11, D-12] |
-| Región completa | Segundos (MREC asíncrona) | 0 **si** se cumple la conciliación de §5 | 6 a 14 min **desde la declaración** (estimación de Miguel, §3.3) | Réplica en us-east-2 + modo seguro + conciliación contra la pasarela | [D-07, D-08] |
+| Región completa | Segundos (MREC asíncrona) | 0 **si** se cumple la conciliación de §5 | 7 a 13 min **desde la declaración**, o 7 a 16 si los pasos van en secuencia (estimación de Miguel, §3.3) | Réplica en us-east-2 + modo seguro + conciliación contra la pasarela | [D-07, D-08] |
 | Data center de Bogotá (Escenario B) | 0 (la base no está allí) | 0 | 3 a 11 min (Miguel) | Aplicación en espera en AWS; runbook 2c | `miguel/` runbook 2c |
 
 ## 2. Cómo funciona la alta disponibilidad elegida
@@ -67,20 +67,20 @@ El enunciado mide el RTO "desde que se declara la falla" (hallazgo H-2 de Miguel
 
 La detección (hasta que la alarma se activa) queda **fuera** del RTO, pero se reporta aparte.
 
-### 3.3 Alineación con la tabla de RTO de Miguel (6 a 14 min)
+### 3.3 Alineación con la tabla de RTO de Miguel (7 a 13 min, o 7 a 16 sin traslape)
 
 | Paso (Miguel) | Minutos | Mi observación |
 |---|---|---|
 | 1. Congelar escrituras en us-east-1 | 1 a 2 | De acuerdo. Con la región caída puede no ser posible escribir la política: en ese caso el congelamiento real es **cerrar la admisión** y no enrutar tráfico a us-east-1 |
 | 2. Cambiar el tráfico a us-east-2 | 1 a 3 | **Es el paso más optimista.** AWS dice "varios minutos" para DNS solo, y "segundos a pocos minutos" con ARC [D-10]. El rango de Miguel vale si el cambio es manual y preparado, con TTL de 60 s |
-| 3. Aplicación en us-east-2 con capacidad de pico | 0 a 3 | Requiere aplicación en espera encendida **y la tabla réplica pre-calentada** (ver §6) |
+| 3. Aplicación en us-east-2 con capacidad de pico | 0 a 3 | Requiere aplicación en espera encendida **y la réplica pre-calentada**, que se cumple sola (ver §7) |
 | 4. Conciliar contra la pasarela | 3 a 5 | De acuerdo con su cálculo; ahora con el procedimiento de §5 |
 | 5. **Reconstruir** contadores | 1 a 2 | Cambia de "verificar" a "reconstruir" (ver §5.4) |
 | 6. Reapertura gradual | 1 | De acuerdo |
 
 **Orden.** La tabla de Miguel cambia el tráfico en el paso 2 y su runbook 2b lo hace en el paso 6. Propongo el de la **tabla**: el tráfico va a us-east-2 primero, con la admisión cerrada (la gente ve la sala de espera desde la región sana), y la apertura es lo último.
 
-Con esto el total de 6 a 14 minutos es **plausible, no demostrado**. El extremo alto deja casi sin margen frente a los 15 del enunciado, como señala Miguel.
+**Actualización del 2026-11-03.** Miguel aplicó estos cambios a su runbook 2b. Como reconstruir contadores va **después** de conciliar, y ya no en paralelo, su total pasó a **7 a 16 minutos** con los pasos en secuencia. Si la aplicación en espera se levanta mientras cambia el DNS, queda en **7 a 13 minutos**. El extremo de 16 supera los 15 del enunciado: el traslape del paso 3 no es opcional, y solo el simulacro dirá si alcanza. Si no alcanza, Miguel propone reabrir por localidades a medida que cada una queda conciliada.
 
 ## 4. Por qué ninguna orden confirmada se pierde (RPO 0)
 
@@ -197,15 +197,15 @@ Miguel pregunta si su lectura es correcta: la región original **no recibe tráf
 | MREC (elegido) | Ninguno en la escritura: la replicación es asíncrona [D-07] | Escrituras replicadas (USD 0,625 por millón en us-east-1, cifra de Jacobo, `entrega_para_el_equipo.md` §2.4) |
 | MRSC (descartado) | Subiría la latencia de escritura (cruza regiones), según Jacobo (`arquitectura.md` §4.1) | No se puede usar con transacciones |
 | Conciliación en modo desastre | No afecta la preventa normal | Horas de DBA; el enunciado asigna 6 horas por preventa (Miguel) |
-| **Pre-calentamiento de la réplica** | — | **Hay que agregarlo** (abajo) |
+| Pre-calentamiento de la réplica | — | Ninguno extra: se aplica solo a todas las réplicas (abajo) |
 
-**Hallazgo para Jacobo y Juan Pablo: la réplica debe estar pre-calentada.** Las tablas bajo demanda aceptan de inmediato hasta el doble de su pico anterior y más allá pueden limitar [R-13, cita de Jacobo]. La réplica en us-east-2 solo recibe el tráfico de replicación, así que su "pico anterior" es una fracción del real. Al conmutar, la carga completa de la preventa (hasta ≈ 10.546 WCU, cifra de Jacobo) llegaría de golpe y podría ser limitada. AWS recomienda precisamente, si la región destino limita, aumentar la capacidad de inmediato [D-10], y Jacobo ya documenta el pre-calentamiento para tablas globales [R-18]. Propuesta: **aplicar el pre-calentamiento también a las réplicas**, y que Juan Pablo lo incluya en el costo. No pude verificar el precio ni el tiempo que tarda.
+**Pre-calentamiento de la réplica: resuelto por Jacobo.** Mi temor era que la réplica de us-east-2, que solo recibe tráfico de replicación, no soportara la carga de pico al conmutar. Jacobo encontró que en las tablas globales los valores de *warm throughput* "se aplicarán automáticamente a todas las réplicas" [R-18, D-18] (traducción mía). Basta con pre-calentar la tabla global al nivel del pico (≈ 10.546 WCU, cifra de Jacobo). Queda para Juan Pablo saber si el cargo del pre-calentamiento se cobra por región.
 
 ## 8. Pendientes
 
 * **Pasarela:** elegirla y confirmar las tres capacidades de §4 (Miguel, Jacobo, David).
-* **Jacobo:** pre-calentar las réplicas (§7); decidir el libro de pagos en MRSC (opción B de Miguel) si la pasarela no permite metadatos.
-* **Miguel:** unificar el orden de pasos (§3.3), cambiar "verificar" por "reconstruir" contadores (§5.4) y usar `confirmarDesastre` en el paso 4.
+* **Jacobo:** ya diseñó el libro de pagos en MRSC (`bya_ledger`, opcional) por si la pasarela no permite metadatos; se activa según la pasarela que se elija.
+* **Miguel:** hecho el 2026-11-03 (runbook 2b de 10 pasos).
 * **Profesor:** P-4, "pérdida total del sitio".
 * **Simulacro:** ningún tiempo de este documento se ha medido; el plan de pruebas es de Miguel.
 
@@ -223,3 +223,4 @@ Consultadas el 2026-11-03. Las citas en español son traducciones mías.
 | D-12 | [Amazon DynamoDB SLA](https://aws.amazon.com/dynamodb/sla/) | 99,99 % estándar y 99,999 % para tablas globales; condiciones del segundo |
 | D-13 | [How Route 53 determines the health of endpoints](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-determining-health-of-endpoints.html) | Revisión cada 10 o 30 s; sin fórmula del tiempo total |
 | D-14 | [Capital One: Moving to DynamoDB to increase application resiliency](https://www.capitalone.com/tech/software-engineering/comparing-dynamodb-and-aurora-global-database-and-aurora-multi-master/) | Caso publicado: replicación ≈ 1 s en operación normal, mayor bajo carga; sin tiempo de conmutación absoluto |
+| D-18 | [Understanding DynamoDB warm throughput](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/warm-throughput.html) | En tablas globales, el *warm throughput* se aplica automáticamente a todas las réplicas; la duración del pre-calentamiento depende de los valores y del tamaño de la tabla |

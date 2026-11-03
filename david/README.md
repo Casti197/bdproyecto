@@ -25,8 +25,8 @@
 * Entregar a Miguel el verificador de `pruebas/` para su simulacro de conmutación.
 
 **De otros**
-* Jacobo: aplicar las correcciones de `respuesta_a_jacobo.md` §3; activar Streams en `bya_tickets` y guardar la puerta por localidad en `bya_catalog` (`estadio.md` §4); pre-calentar las réplicas (`alta_disponibilidad.md` §7).
-* Miguel: aplicar `respuesta_a_miguel.md` al runbook 2b.
+* Jacobo: aplicar las correcciones de `respuesta_a_jacobo.md` §3; activar Streams en `bya_tickets` y guardar la puerta por localidad en `bya_catalog` (`estadio.md` §4). **Hecho el 2026-11-03** (`jacobo/respuesta_a_revisiones.md`); el pre-calentamiento de réplicas es automático.
+* Miguel: **hecho el 2026-11-03** (runbook 2b de 10 pasos, RTO de 7 a 13 min, o de 7 a 16 sin traslape).
 * Samuel: confirmar la devolución del cupo al expirar un bloqueo (`:max` = 10 ya acordado).
 * Juan Pablo: costear el equipo de `estadio.md` §9, las réplicas, Ubuntu Pro o el cambio de versión de Ubuntu y una migración de PostgreSQL hacia 2030 (§9.1, con precios).
 

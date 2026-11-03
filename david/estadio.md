@@ -127,6 +127,23 @@ Luego el nodo envía el ingreso al servidor central. Si la red interna está ca�
 
 **Por qué el cambio de nodo lo confirma una persona.** Un sistema no puede distinguir entre un nodo apagado y un nodo vivo pero desconectado. Si el central tomara la autoridad solo porque dejó de oír al nodo, y el nodo siguiera vivo atendiendo su puerta, habría dos dueños de las mismas boletas: es exactamente el doble ingreso que queremos evitar. Apagar el nodo antes de tomar su lugar garantiza que solo haya un dueño. Es un procedimiento manual de minutos, en una falla poco probable, que no arriesga la regla.
 
+### 6.1 RPO y RTO del ingreso
+
+El enunciado fija RPO 0 y RTO 15 minutos para la plataforma. Para el ingreso propongo estos valores, que Miguel pidió declarar:
+
+| Falla | RPO de los ingresos | RTO de la puerta | Por qué |
+|---|---|---|---|
+| Sin internet | 0 | 0 | Los escaneos se guardan en el central y suben al volver (§7) |
+| Puerta aislada de la red interna | 0 | 0 | El nodo confirma el `UPDATE` en su disco **antes** de abrir el torniquete |
+| Cae el central primario | 0 | 0 en las puertas | Réplica síncrona: el respaldo tiene cada cambio confirmado [D-06] |
+| Cae un nodo de puerta, con su disco sano | 0 | **Minutos** (supuesto: 5 a 10): apagar el nodo, recuperar su cola desde el SSD, el central toma la puerta | Paso manual a propósito (§6) |
+| Cae un nodo **y se daña su disco** mientras estaba aislado | Los ingresos no enviados de ese aislamiento | Igual al anterior | Es el único caso con pérdida |
+| Se va la luz en una puerta | 0 | 0 mientras dure la UPS | UPS por puerta |
+
+**El único RPO distinto de 0** requiere dos fallas a la vez en la misma puerta: aislamiento de la red y daño del disco. Lo que se pierde no es dinero ni una venta, sino la marca de "usada" de esas boletas. Su efecto es que esas boletas podrían volver a entrar por **la misma** puerta. Para que esa ventana sea de segundos, el nodo envía cada ingreso al central apenas lo confirma, y la cola local solo crece mientras la puerta está aislada.
+
+Los RTO son supuestos míos y se miden en el ensayo previo al evento (Miguel). No hay cifra publicada que citar: dependen del procedimiento.
+
 ## 7. Sincronización con DynamoDB
 
 Cuando hay internet, el servidor central sube cada ingreso con la transacción de 2 ítems de Jacobo (`modelo_datos.md` §3.5), marcada como fuera de línea:

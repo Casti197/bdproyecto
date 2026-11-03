@@ -185,7 +185,7 @@ Si el webhook se pierde, el reconciliador (índice disperso `gsi_pendientes`, ca
 | +13 a +15 min | — | Reconstruye contadores | — | Reconstruir |
 | +15 min | — | Reapertura gradual | — | Reabrir |
 
-Los tiempos son **estimados** y el extremo alto roza el RTO de 15 minutos; solo un simulacro los confirma.
+Los tiempos son **estimados**. La tabla de Miguel da de 7 a 13 minutos si la aplicación se levanta mientras cambia el DNS, y de 7 a 16 si todo va en secuencia: el extremo alto supera el RTO de 15 minutos. Solo un simulacro los confirma (`alta_disponibilidad.md` §3.3).
 
 ### 4b. Por qué no hay doble venta en el cambio
 
