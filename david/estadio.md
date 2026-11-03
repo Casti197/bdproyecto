@@ -205,5 +205,6 @@ Costos recurrentes a considerar: garantía y soporte de los equipos, reposición
 | D-06 | [PostgreSQL: Log-Shipping Standby Servers, §26.2.8 Synchronous Replication](https://www.postgresql.org/docs/current/warm-standby.html) | Cada confirmación espera a que el cambio esté escrito en el disco del primario y del respaldo; solo hay pérdida si ambos fallan a la vez |
 | D-15 | [Ubuntu release cycle](https://ubuntu.com/about/release-cycle) | Ubuntu 26.04 LTS: mantenimiento estándar hasta mayo de 2031 y ampliado hasta mayo de 2036; 24.04 LTS: mayo de 2029 y mayo de 2034; las LTS reciben 5 años de mantenimiento estándar |
 | D-16 | [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/) | Cada versión mayor recibe 5 años de soporte; PostgreSQL 18 llega a fin de vida el 14 de noviembre de 2030 |
+| D-17 | [Ubuntu Pro pricing](https://ubuntu.com/pricing/pro) | Ubuntu Pro: USD 500 por servidor al año (máquinas virtuales ilimitadas) y USD 25 por escritorio al año; soporte 24/7 aparte |
 
-Consultadas el 2026-10-30 (D-05, D-06) y el 2026-11-03 (D-15, D-16).
+Consultadas el 2026-10-30 (D-05, D-06) y el 2026-11-03 (D-15 a D-17).

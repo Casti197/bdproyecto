@@ -1,0 +1,63 @@
+
+== Sintaxis: las condiciones originales con aritmética ==
+PASA   'lx < :now - :skew' rechazada (moto no la puede interpretar)  | Unexpected expression at - :skew
+PASA   'n + :k <= :max' rechazada (moto no la puede interpretar)  | Cannot parse condition starting at:+ :k <= :max
+
+== Escenario 1: dos clientes, la misma silla ==
+PASA   Ana bloquea S24
+PASA   Beto es rechazado por condición en la acción de S24  | ['ConditionalCheckFailed', 'None', 'None']
+PASA   La orden de Beto no existe
+PASA   El cupo de Beto no se descontó
+PASA   S24 sigue siendo de Ana
+
+== Escenario 1b: todo o nada con varias sillas ==
+PASA   Caro pide S23, S24, S25: se cancela todo  | ['None', 'ConditionalCheckFailed', 'None', 'None', 'None']
+PASA   S23 y S25 siguen libres
+PASA   CancellationReasons señala solo la segunda acción  | ['None', 'ConditionalCheckFailed', 'None']
+
+== Reintento del bloqueo cuando la respuesta se perdió (escenario 3b) ==
+PASA   Repetir el bloqueo de Ana se reconoce como ya aplicado, no como silla ocupada  | ('OK_YA_APLICADO', ['ConditionalCheckFailed', 'ConditionalCheckFailed', 'None'])
+PASA   El cupo de Ana se descontó una sola vez  | n = 1
+
+== :skew protege al dueño cerca del vencimiento (lx = 480) ==
+PASA   En t = 482 (480 < 480 es falso) Beto no puede tomarla
+PASA   En t = 483 (480 < 481) Beto sí la toma  | ('OK', [])
+
+== Escenario 2b: venció y otro la tomó, Ana paga tarde ==
+PASA   La confirmación de Ana falla y termina en FULFILL_FAIL  | ['ConditionalCheckFailed', 'None', 'None', 'None', 'None', 'None']
+PASA   No se creó boleta para Ana
+PASA   El pago de Ana queda APPROVED (para reembolso)
+PASA   El contador no se incrementó
+PASA   S24 sigue siendo de Beto
+PASA   Beto confirma con normalidad
+PASA   S24 vendida a Beto
+
+== Escenario 2a: venció pero nadie la tomó ==
+PASA   Dani confirma en t = 1495, con el bloqueo vencido
+
+== Escenario 3: confirmación repetida (webhook duplicado, sin token) ==
+PASA   La segunda confirmación no cambia nada y reconoce PAID  | ['ConditionalCheckFailed', 'ConditionalCheckFailed', 'ConditionalCheckFailed', 'ConditionalCheckFailed', 'None', 'ConditionalCheckFailed']
+PASA   Hay una sola boleta de S26
+
+== Antibots: máximo 10 sillas por usuario y evento ==
+PASA   Eva bloquea 8
+PASA   Eva no puede sumar 3 más (8 + 3 > 10)  | ['None', 'None', 'None', 'None', 'ConditionalCheckFailed']
+PASA   Eva sí puede sumar 2 (8 + 2 = 10)
+
+== Contención: 30 clientes por la misma silla (en serie) ==
+PASA   Exactamente uno de 30 obtiene la silla  | OK = 1
+
+== Modo desastre (alta_disponibilidad.md §5) ==
+PASA   (a) Orden y bloqueo perdidos: se reconstruye todo
+PASA   (a) Repetir no cambia nada
+PASA   (b) PAID a medias se repara
+PASA   (b) La silla queda vendida a O-D2
+PASA   (c) Silla vendida a otra orden: reembolso, sin doble venta
+PASA   (c) La silla sigue siendo de O-D1
+PASA   (d) Bloqueo vigente de otro: reembolso
+
+== Verificador de invariantes (para el simulacro de Miguel) ==
+PASA   Estado final sin violaciones
+PASA   El verificador detecta una silla con boletas de dos órdenes  | silla 07|20|1 con boletas de 2 órdenes: ['O-D1', 'O-X']
+
+Resultado: 37 de 37 pruebas pasan.
