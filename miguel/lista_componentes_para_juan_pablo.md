@@ -90,6 +90,8 @@ Para cada uno: qué es, de qué cantidad depende y qué falta saber. "Precio" si
 | P1 | **Restauraciones de prueba** (PITR a tabla nueva) | 4 tipos de prueba al año, descritos en mi plan de pruebas | Almacenamiento de las tablas restauradas mientras existan, a precio de DynamoDB. Cantidad: tamaño de las críticas × el tiempo que se conserven (propongo 1 día) |
 | P2 | **Horas de DBA** para simulacros, pruebas y mantenimiento de respaldo | 68 horas al año | 68 × COP 120.000 = **COP 8.160.000 al año** |
 | P3 | **Plan de actualización de software** (licenciamiento 5.3) | 2 migraciones de runtime × 40 h + 1 SDK mayor × 24 h = 104 h en 5 años | 104 × 120.000 = **COP 12.480.000 en 5 años** |
+| P4 | **Migración de PostgreSQL del estadio** (versión 18 termina el 14-nov-2030) | 1 migración × 24 h | 24 × 120.000 = **COP 2.880.000** (estimación mía) |
+| P5 | **Ubuntu Pro** para 14 equipos del estadio (12 nodos de puerta + 2 servidores) o cambio de versión del sistema operativo hacia 2031 | 14 equipos × 5 años | **Sin precio verificado**: consúltalo en la página de Canonical. Cantidad de equipos de David (`estadio.md` §9.1) |
 
 Las 6 horas de DBA por preventa (25 preventas al año = 150 horas) están en tu parámetro y son aparte de P2; no las duplico.
 

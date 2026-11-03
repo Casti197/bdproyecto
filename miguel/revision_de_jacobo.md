@@ -34,7 +34,7 @@ Criterio: lo que afecta recuperación, licenciamiento y coherencia entre documen
 
 **Problema:** el enunciado (§3) dice que el RTO "se mide desde que se declara la falla". Detección y decisión quedan fuera del cálculo.
 
-**Corrección propuesta:** reportar el RTO desde la declaración y el tiempo de detección por separado. En mi documento: 6 a 14 minutos desde la declaración.
+**Corrección propuesta:** reportar el RTO desde la declaración y el tiempo de detección por separado. En mi documento: 7 a 13 minutos desde la declaración (7 a 16 sin traslape de pasos).
 
 ### H-3 (media): dos huecos en D-2
 

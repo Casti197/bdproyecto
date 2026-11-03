@@ -44,7 +44,7 @@ Mi lectura, que necesito que confirmes porque es tu escenario 4: la región orig
 
 ## 5. Lo que necesito de ti
 
-1. **Que tu `alta_disponibilidad.md` coincida con la tabla de pasos del RTO** (congelar, cambiar tráfico, aplicación lista, conciliar, verificar contadores, reabrir): total de 6 a 14 minutos con los pasos 4 y 5 en paralelo. Casi todos los tiempos son supuestos, y si tú tienes cifras publicadas, las cambio.
+1. **Que tu `alta_disponibilidad.md` coincida con la tabla de pasos del RTO** (congelar, cambiar tráfico, aplicación lista, conciliar, verificar contadores, reabrir): total de 7 a 13 minutos (7 a 16 sin traslape). Casi todos los tiempos son supuestos, y si tú tienes cifras publicadas, las cambio.
 2. **Que confirmes el criterio de declaración** de la falla y quién lo declara.
 3. **El RPO de los escaneos del estadio** (`estadio.md`), que en mi tabla figura como pendiente tuyo.
 4. **Decidir con Jacobo** si se agrega el libro de pagos (opción B).

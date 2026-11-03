@@ -16,7 +16,7 @@ Cubre: 5.5 Recuperación, 5.3 Versiones y licenciamiento, sitio alterno del Esce
 
 ## Resultado en una línea
 
-Tres capas: DynamoDB replica en 3 zonas (falla de zona, RPO 0); PITR de 35 días y AWS Backup con copia inmutable en otra región y cuenta (errores humanos, corrupción, ransomware); región alterna us-east-2 con modo seguro y conciliación contra la pasarela (pérdida de región). RTO desde la declaración de la falla: **6 a 14 minutos** si se pierde la región, **3 a 11** si se pierde el data center de Bogotá.
+Tres capas: DynamoDB replica en 3 zonas (falla de zona, RPO 0); PITR de 35 días y AWS Backup con copia inmutable en otra región y cuenta (errores humanos, corrupción, ransomware); región alterna us-east-2 con modo seguro y conciliación contra la pasarela (pérdida de región). RTO desde la declaración de la falla: **7 a 13 minutos** si se pierde la región (7 a 16 sin traslape de pasos), **3 a 11** si se pierde el data center de Bogotá.
 
 ## Qué está verificado y qué no
 
@@ -48,5 +48,5 @@ Tres capas: DynamoDB replica en 3 zonas (falla de zona, RPO 0); PITR de 35 días
 ## Cifras de costo que entrego
 
 - DBA: 68 horas al año × COP 120.000 = **COP 8.160.000 al año** (al TCO, no al año 1).
-- Actualizaciones: 2 migraciones de runtime × 40 h + 1 SDK mayor × 24 h = 104 h → **COP 12.480.000 en 5 años**.
+- Actualizaciones: 2 migraciones de runtime × 40 h + 1 SDK mayor × 24 h = 104 h → **COP 12.480.000 en 5 años**; más una migración de PostgreSQL del estadio (24 h, **COP 2.880.000**) y Ubuntu Pro de 14 equipos (precio sin verificar).
 - Parámetros usados: TRM 4.000, IVA 19 %, administración COP 120.000/hora.

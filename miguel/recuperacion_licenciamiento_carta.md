@@ -94,12 +94,12 @@ El RPO 0 es real solo dentro de la región. Si se pierde la región, la base tie
 
 ## 5.5 RPO y RTO alcanzados por componente
 
-La venta en preventa cumple RPO y RTO ante fallo de zona sin hacer nada. Ante pérdida de región el RTO estimado queda entre 6 y 14 minutos frente a un límite de 15, y esa cifra sale de supuestos que solo un simulacro puede confirmar. AWS no publica tiempos para la mayoría de estos pasos.
+La venta en preventa cumple RPO y RTO ante fallo de zona sin hacer nada. Ante pérdida de región el RTO estimado queda entre 7 y 13 minutos si la aplicación en espera se levanta mientras cambia el DNS, y entre 7 y 16 si todo va en secuencia, frente a un límite de 15; esa cifra sale de supuestos que solo un simulacro puede confirmar. AWS no publica tiempos para la mayoría de estos pasos.
 
 | Componente (enunciado) | Meta RPO / RTO | Alcanzado | Sustento |
 | --- | --- | --- | --- |
 | Venta en preventa, fallo de zona | 0 / 15 min | 0 / sin conmutación | Replicación en 3 zonas, SLA 99,99 % [\[AWS\]](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html) |
-| Venta en preventa, pérdida de región | 0 / 15 min | Base: segundos. Pagos: 0 si se cierran los huecos de D-2. RTO: 6 a 14 min | Réplica MREC; tabla de pasos abajo |
+| Venta en preventa, pérdida de región | 0 / 15 min | Base: segundos. Pagos: 0 si se cierran los huecos de D-2. RTO: 7 a 13 min (7 a 16 sin traslape) | Réplica MREC; tabla de pasos abajo |
 | Venta en operación normal | 0 / 1 h | Igual que la preventa, con 46 minutos más de margen | Mismo mecanismo |
 | Ingreso al evento | Nunca se detiene; 0 en escaneos hechos | **Pendiente de David** (`estadio.md`, semana 2) | El servidor local es de David |
 | Usuarios y catálogo | 15 min / 4 h | RPO de segundos con PITR; RTO de minutos a horas | PITR: RPO segundos, RTO "minutos" en la tabla y "minutos a horas" en el texto [\[AWS, DR\]](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamodbDisasterRecoveryStrategy.html) |
@@ -114,14 +114,15 @@ La venta en preventa cumple RPO y RTO ante fallo de zona sin hacer nada. Ante p�
 | 2. Cambiar el tráfico a us-east-2 | 1 a 3 | Route 53 revisa cada 10 o 30 s [\[AWS\]](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-determining-health-of-endpoints.html); TTL de 60 s es decisión nuestra |
 | 3. Aplicación en us-east-2 con capacidad de pico | 0 a 3 | Supuesto: aplicación en espera encendida |
 | 4. Conciliar contra la pasarela y marcar sillas vendidas | 3 a 5 | Cálculo: con 5 s de retraso, 100 órdenes al ritmo promedio (20 por segundo) o 500 en ráfaga ×5 |
-| 5. Verificar contadores (sillas `S` frente a la suma de fragmentos) | 1 a 2 | Supuesto; se ejecuta en paralelo con el paso 4 |
+| 5. Reconstruir contadores: contar sillas `S` por localidad y fijar los fragmentos | 1 a 2 | Supuesto. Va **después** del paso 4, porque David lo define como cierre de la conciliación (`david/alta_disponibilidad.md` §5.4) |
 | 6. Reapertura gradual por la cola virtual | 1 | Supuesto |
-| **Total, con 4 y 5 en paralelo** | **6 a 14** | Suma de mínimos y de máximos |
+| **Total, pasos en secuencia** | **7 a 16** | Suma de mínimos y de máximos |
+| **Total, si la aplicación en espera (paso 3) se levanta mientras cambia el DNS (paso 2)** | **7 a 13** | Supuesto de traslape que solo el simulacro confirma |
 
 Dos hallazgos para el resto del equipo:
 
 - **CloudFront no conmuta `POST`.** Su conmutación de origen solo actúa con `GET`, `HEAD` u `OPTIONS` [\[AWS, CloudFront\]](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/high_availability_origin_failover.html). La compra es de escritura, así que la conmutación de la venta debe hacerse por DNS (Route 53) o cambiando el origen a mano. Esto corrige `arquitectura.md` de Jacobo (§3.4, riesgo 4 y diagrama del Escenario B).
-- **El límite de 15 minutos tiene poco margen.** El extremo alto (14 min) solo se cumple con los pasos 1, 2 y 5 automatizados. Con cualquier paso manual o lento se pasa.
+- **El límite de 15 minutos tiene poco margen.** Sin traslape de pasos el extremo alto (16 min) lo supera. Con el traslape del paso 3 el extremo alto es 13 min y solo se cumple si los pasos 1, 2 y 5 están automatizados. Con cualquier paso manual o lento se pasa. Si el simulacro confirma 16, la alternativa es reabrir por localidades a medida que cada una queda conciliada y con contadores reconstruidos; hay que decidirlo con David.
 
 ## 5.5 Runbooks
 
@@ -147,16 +148,18 @@ P-4 está pendiente: el runbook distingue tres significados de "sitio".
 
 **2a. Pierde una zona.** No hay pasos: DynamoDB replica en 3 zonas [\[AWS\]](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html). El DBA verifica que la aplicación y la caché sigan en las zonas sanas.
 
-**2b. Pierde la región (modo seguro).** Los tiempos son los de la tabla de RTO.
+**2b. Pierde la región (modo seguro).** Los tiempos son los de la tabla de RTO. Pasos acordados con David (`david/respuesta_a_miguel.md` y `david/alta_disponibilidad.md` §3 a §6).
 
-1. **Declarar.** El coordinador y el DBA declaran la falla con un criterio acordado antes de la preventa, y se anota la hora T de la última escritura visible y la última `ReplicationLatency`.
-2. **Congelar escrituras** en us-east-1: política que niega escritura al rol de la aplicación y cola virtual cerrada.
-3. **Levantar la aplicación en us-east-2** apuntando a la réplica local y sin abrir ventas.
-4. **Conciliar.** Listar las transacciones aprobadas de la pasarela desde unos minutos antes de T. Para cada una, leer su `ORDER` con lectura fuerte en la réplica: si está `PAID`, no hacer nada; si falta o está `PENDING`, confirmarla con el mismo procedimiento idempotente, marcando como vendidas las sillas del cobro. Si no hay forma de saber las sillas, reembolsar.
-5. **Verificar contadores:** contar sillas `S` por localidad y compararlas con la suma de fragmentos. La diferencia debe ser 0.
-6. **Cambiar el tráfico** por DNS a us-east-2 y abrir la admisión por tramos.
-7. **Cuando vuelva la región original:** no recibe tráfico ni escrituras. Sus escrituras pendientes se replican solas y los conflictos no quedan registrados [\[AWS\]](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-global-table-design.html), así que se concilia otra vez contra la pasarela. El regreso a us-east-1 se hace fuera de una preventa.
-8. **Cerrar el incidente** midiendo el RTO real y actualizando este runbook.
+1. **Declarar.** El coordinador y el DBA declaran la falla con un criterio acordado antes de la preventa: alarma compuesta (`SystemErrors`, `ReplicationLatency` y 5xx de la API) más confirmación humana. Se anota la hora **T** de la última escritura visible y la última `ReplicationLatency`.
+2. **Cerrar la admisión y congelar escrituras** en us-east-1. Con la región caída puede no ser posible escribir la política que niega escritura al rol de la aplicación; en ese caso el congelamiento real es cerrar la admisión y no enrutar tráfico a us-east-1.
+3. **Cambiar el tráfico a us-east-2 con la admisión cerrada.** La gente ve la sala de espera desde la región sana. Es el paso más optimista de la tabla: AWS dice "varios minutos" con solo DNS y "segundos a pocos minutos" con Application Recovery Controller, y vale solo si el cambio está preparado y el TTL es de 60 s.
+4. **Levantar la aplicación en us-east-2** apuntando a la réplica local, sin abrir ventas y con la réplica pre-calentada.
+5. **Conciliar con `confirmarDesastre`.** Listar las transacciones aprobadas de la pasarela desde `T − 5 min`, en orden de `aprobado_en`. Para **cada** una, incluso si su orden aparece `PAID`, ejecutar `confirmarDesastre` (`david/alta_disponibilidad.md` §5.2): lee con lectura fuerte, decide y escribe solo lo que falta, y no hace nada si la compra está completa. La confirmación normal **no sirve** aquí, porque la orden o la silla pueden faltar y una réplica puede mostrar una compra a medias. Si dos cobros reclaman la misma silla, gana el primero y el otro se reembolsa. Si el cobro no trae sus sillas (la pasarela no guardó metadatos), se reembolsa.
+6. **Reconstruir contadores:** al terminar la conciliación, contar las sillas `S` por localidad y fijar los fragmentos (`SH#00` con el total, el resto en 0). El límite por usuario `LIM#` se recalcula desde las órdenes.
+7. **Abrir la admisión por tramos** por la cola virtual.
+8. **Pagos tardíos.** Los cobros aprobados después de reabrir cuya orden se creó antes de la declaración también usan `confirmarDesastre`; el resto, la confirmación normal.
+9. **Cuando vuelva la región original:** no recibe tráfico ni escrituras. Sus escrituras pendientes se replican solas y los conflictos no quedan registrados [\[AWS\]](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-global-table-design.html), así que tras la convergencia se concilia otra vez contra la pasarela. El regreso a us-east-1 se hace fuera de una preventa.
+10. **Cerrar el incidente** midiendo el RTO real y actualizando este runbook.
 
 **2c. Pierde el data center de Bogotá (Escenario B).** La base no está allí, solo la aplicación, la caché y la cola virtual.
 
@@ -171,7 +174,7 @@ Disparador: la cola de mensajes fallidos, el reconciliador (revisa cada minuto l
 
 1. Buscar el pago por `<oid>#<nn>` y preguntarle a la pasarela su estado con esa llave.
 2. **Aprobado, orden `PENDING`, pago `INITIATED` o `UNKNOWN`:** ejecutar la confirmación idempotente. Si las sillas ya no son de la orden, la orden pasa a `FULFILL_FAIL` y se encola el reembolso.
-3. **Aprobado y la orden no existe** (pérdida de región): aplicar el paso 4 del runbook 2b.
+3. **Aprobado y la orden no existe** (pérdida de región): aplicar el paso 5 del runbook 2b (`confirmarDesastre`).
 4. **Aprobado, orden `PAID`:** no hacer nada.
 5. **Rechazado o sin cobro:** marcar `DECLINED`; la silla se libera sola al vencer el bloqueo.
 6. **Verificar** que quede la orden `PAID`, las boletas `VALID`, la referencia de factura creada y el contador actualizado.
@@ -180,7 +183,7 @@ Disparador: la cola de mensajes fallidos, el reconciliador (revisa cada minuto l
 
 ## 5.5 Plan de pruebas de recuperación
 
-Se planean cuatro tipos de prueba, y ninguna se ejecuta durante el curso. La que mide el RTO real de la venta es el simulacro de conmutación regional antes de la preventa más grande, porque el RTO estimado de 6 a 14 minutos no puede afirmarse sin él.
+Se planean cuatro tipos de prueba, y ninguna se ejecuta durante el curso. La que mide el RTO real de la venta es el simulacro de conmutación regional antes de la preventa más grande, porque el RTO estimado de 7 a 13 minutos (7 a 16 sin traslape) no puede afirmarse sin él.
 
 | Prueba | Cuándo | Qué se verifica | Criterio de éxito | Horas de DBA (estimación) |
 | --- | --- | --- | --- | --- |
@@ -225,7 +228,21 @@ Lo que la tabla deja abierto:
 | Migración de versión mayor del SDK | 1 | 24 | 2.880.000 |
 | **Total** |  |  | **12.480.000** |
 
-**Escenario B.** Los servidores de Bogotá y el servidor del estadio sí tienen sistema operativo y fecha de fin de soporte. Su sistema operativo está sin definir y depende de Juan Pablo y David. La regla es elegir uno con soporte de al menos 5 años desde la compra o costear su actualización.
+**Escenario B y estadio.** Los servidores de Bogotá y el servidor del estadio sí tienen sistema operativo y fecha de fin de soporte. La regla es elegir uno con soporte de al menos 5 años desde la compra o costear su actualización. David propuso las versiones en `david/estadio.md` §9.1 y revisé las fechas el 3 de noviembre de 2026:
+
+| Elemento | Fin del soporte estándar | ¿Cubre 5 años desde una compra a inicios de 2027? | Fuente |
+| --- | --- | --- | --- |
+| Ubuntu 26.04 LTS (servidor central y nodos de puerta) | Mayo de 2031; seguridad ampliada (Ubuntu Pro) hasta mayo de 2036 | No del todo (≈ 4,4 años) | [Canonical, fin de soporte](https://ubuntu.com/releaseendoflife) |
+| Ubuntu 24.04 LTS (alternativa) | Mayo de 2029; ampliada hasta mayo de 2034 | No (≈ 2,4 años); no se recomienda para equipo nuevo | Canonical, misma página |
+| PostgreSQL 18 (base local del estadio) | 14 de noviembre de 2030 | No (≈ 3,9 años) | [Política de versiones de PostgreSQL](https://www.postgresql.org/support/versioning/); la fecha la confirmé en una página secundaria ([endoflife.ai](https://endoflife.ai/postgresql/18)) porque no pude abrir la oficial |
+
+Consecuencias para el costo a 5 años:
+
+- **Ubuntu Pro** para 14 equipos (12 nodos de puerta y 2 servidores centrales, con el supuesto de 12 puertas de David), o un cambio de versión del sistema operativo hacia 2031. **No verifiqué el precio de Ubuntu Pro**: Juan Pablo lo consulta en la página oficial de Canonical antes de cifrarlo.
+- **Una migración a una versión mayor de PostgreSQL hacia 2030**, que no estaba en mi plan. Estimo 24 horas de DBA (ensayo previo en un evento sin público incluido), a COP 120.000 por hora: **COP 2.880.000**. Es una estimación mía, sin fuente.
+- **Lectores y torniquetes:** su firmware y soporte dependen del fabricante, que no está elegido. Queda como requisito de compra: soporte y repuestos del fabricante por 5 años como mínimo, por escrito.
+
+El plan de actualización queda entonces en COP 12.480.000 (software de la aplicación) más COP 2.880.000 (PostgreSQL del estadio) = **COP 15.360.000 en 5 años**, más Ubuntu Pro por cifrar.
 
 ## Escenario B: sitio alterno y falla del data center de Bogotá
 
@@ -317,9 +334,9 @@ En el ensayo de la semana 5 cada integrante responde una carta inventada en 3 mi
 
 | Persona | Qué falta |
 | --- | --- |
-| David | Confirmar D-2 con los dos huecos de este documento. Que su estudio de conmutación (semana 2) coincida con mis runbooks y con la tabla de RTO. El RPO de los escaneos del estadio, que es suyo |
+| David | D-2 ya aceptado por él con mis dos condiciones (`david/respuesta_a_miguel.md`). Falta: que corrija su total de RTO en `alta_disponibilidad.md` (mi tabla ahora da 7 a 13, o 7 a 16 sin traslape, porque reconstruir contadores va después de conciliar), y que declare el RPO/RTO del ingreso al estadio, que su `estadio.md` no cifra |
 | Jacobo | Corregir en `arquitectura.md` la conmutación de CloudFront (no sirve para `POST`). Guardar el estado de la cola virtual en AWS. Decidir si se agrega el libro de pagos en MRSC. Fijar el pre-calentamiento una sola vez: se aplica solo a todas las réplicas, no se puede reducir después y se cobra al subirlo |
-| Juan Pablo | Costear AWS Backup (diario u horario), copias a us-east-2 y a la cuenta de respaldo, almacenamiento bajo Vault Lock, restauraciones de prueba, el testigo de MRSC si se usa, la aplicación en espera y el enlace redundante del Escenario B. Incluir en el TCO 68 horas de DBA al año (COP 8.160.000) y 12.480.000 en actualizaciones a 5 años |
+| Juan Pablo | Costear AWS Backup (diario u horario), copias a us-east-2 y a la cuenta de respaldo, almacenamiento bajo Vault Lock, restauraciones de prueba, el testigo de MRSC si se usa, la aplicación en espera y el enlace redundante del Escenario B. Incluir en el TCO 68 horas de DBA al año (COP 8.160.000) y 15.360.000 en actualizaciones a 5 años (12.480.000 de la aplicación y 2.880.000 de PostgreSQL del estadio), más Ubuntu Pro de 14 equipos, que no tiene precio verificado |
 | Samuel | Plazo legal de retención y regla de Object Lock en S3. Los respaldos y la réplica de us-east-2 son otra transferencia de datos personales. Verificar que ningún respaldo contenga números de tarjeta (−1,0). AWS permite cifrar los respaldos con una llave KMS distinta a la de la tabla [\[AWS\]](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/backuprestore_HowItWorksAWS.html) |
 | Profesor | P-4 (qué es "pérdida total del sitio") y P-1 (Escenario B con DynamoDB) |
 | Yo | Elegir la pasarela con David y Jacobo. AWS no publica tiempos de restauración ni fechas de fin de vida de Valkey, así que esos dos datos se miden en los simulacros o se vigilan, no se citan |
