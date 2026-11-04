@@ -48,7 +48,7 @@ Lo que dice la documentación y sostiene el diseño:
 
 Para el archivo legal en S3: Object Lock exige versionado. En modo cumplimiento nadie puede borrar ni acortar la retención, ni siquiera la cuenta raíz, y la única forma de borrar antes del plazo es eliminar la cuenta de AWS [\[AWS, Object Lock\]](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html). El bucket se replica a us-east-2 con Replication Time Control, que replica el 99,9 % de los objetos en 15 minutos [\[AWS, RTC\]](https://docs.aws.amazon.com/AmazonS3/latest/userguide/replication-time-control.html).
 
-Decisión de costo (F-17): la copia inmutable es semanal y mensual. Ante una cuenta comprometida arriesga hasta 7 días en la copia inmutable; mientras la cuenta no se pierda, PITR cubre cualquier segundo de los 35 días. Costo en `entrega/costos_boletaya_final.xlsx`.
+Decisión de costo (F-17): la copia inmutable es semanal y mensual. Ante una cuenta comprometida arriesga hasta 7 días en la copia inmutable; mientras la cuenta no se pierda, PITR cubre cualquier segundo de los 35 días. Costo en `entrega/02_hoja_de_costos.xlsx`.
 
 ## 5.5 Cómo respaldar sin afectar la preventa
 
@@ -357,7 +357,7 @@ En el ensayo de la semana 5 cada integrante responde una carta inventada en 3 mi
 | --- | --- |
 | David | Hecho: D-2 aceptado, RTO de 4 a 11 minutos, RPO/RTO del ingreso, estadio de 4 horas y sandbox de Mercado Pago (11 de 13; `metadata` e idempotencia confirmadas, búsqueda por fechas no; de ahí D-2b) |
 | Jacobo | Hechos: sección de DynamoDB on premise/API compatible, Escenario A todo en AWS, estado AWS/Local Zone en Colombia y latencia; actualizar clave por minuto y GSI de `bya_ledger`, y medir latencia MRSC (pendiente) |
-| Juan Pablo | Hecho en `entrega/costos_boletaya_final.xlsx`: AWS Backup semanal y mensual con copia a otra cuenta y región (F-17), restauraciones de prueba, `bya_ledger`, aplicación en espera, enlaces de B, 68 h/año de DBA, COP 15.360.000 de actualizaciones y Ubuntu Pro solo el último año |
+| Juan Pablo | Hecho en `entrega/02_hoja_de_costos.xlsx`: AWS Backup semanal y mensual con copia a otra cuenta y región (F-17), restauraciones de prueba, `bya_ledger`, aplicación en espera, enlaces de B, 68 h/año de DBA, COP 15.360.000 de actualizaciones y Ubuntu Pro solo el último año |
 | Samuel | Hecho en la propuesta §8: retención por clase documental con S3 Object Lock (F-21), transmisión internacional a AWS (Ley 1581) y verificación de que ningún respaldo ni log contenga tarjetas (F-20). Debe poder defenderlo |
 | Profesor | Respondió P-1, P-3, P-4, P-6, P-16, P-30 y P-41 el 4-nov-2026. La pregunta de los torniquetes quedó sin respuesta: el grupo decidió usar los del estadio (F-14) |
 | Yo | AWS no publica tiempos de restauración ni fechas de fin de vida de Valkey, así que esos dos datos se miden en los simulacros o se vigilan, no se citan |

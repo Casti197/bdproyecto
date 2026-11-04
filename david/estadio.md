@@ -195,7 +195,7 @@ El orden de llegada no importa: cada boleta tiene un solo nodo que la marca, as�
 
 ## 9. Equipo del estadio y base de costos
 
-Cantidades con los supuestos E-02 y E-03. Los precios de referencia se registran en `entrega/costos_boletaya_final.xlsx`; la hoja adjunta las fuentes y fechas consultadas.
+Cantidades con los supuestos E-02 y E-03. Los precios de referencia se registran en `entrega/02_hoja_de_costos.xlsx`; la hoja adjunta las fuentes y fechas consultadas.
 
 | Equipo | Cantidad | Especificación mínima | Para qué |
 |---|---|---|---|
@@ -215,7 +215,7 @@ Cantidades con los supuestos E-02 y E-03. Los precios de referencia se registran
 
 El profesor indicó que la solución del estadio es local tanto en A como en B. El grupo eligió **usar los torniquetes existentes** (F-14, opción 2) y conectar lectores QR fijos compatibles, en vez de comprar 48 cuerpos de torniquete. La autoridad contra doble ingreso sigue siendo el nodo de cada puerta; debe verificarse en sitio la compatibilidad de cada controladora con Wiegand/relé antes de instalar.
 
-Los 48 torniquetes propios habrían costado COP 216,1 M solo por los cuerpos, sin lectores ni controladores, y no cabían en el presupuesto de B. La opción acordada elimina esa compra. La hoja final de Juan Pablo deja los lectores QR fijos con referencia pública de COP 334.000 por unidad y los demás equipos con precio, fuente, fecha y capturas en `entrega/evidencias/`. Estos son precios consultados, no ofertas vinculantes; confirmar stock, impuestos, instalación y garantía antes de comprar.
+Los 48 torniquetes propios habrían costado COP 216,1 M solo por los cuerpos, sin lectores ni controladores, y no cabían en el presupuesto de B. La opción acordada elimina esa compra. La hoja final de Juan Pablo deja los lectores QR fijos con referencia pública de COP 334.000 por unidad y los demás equipos con precio, fuente, fecha y capturas en `entrega/02_hoja_de_costos_evidencias/`. Estos son precios consultados, no ofertas vinculantes; confirmar stock, impuestos, instalación y garantía antes de comprar.
 
 La capacidad de acceso sigue siendo la misma: con 48 carriles a 25 personas/minuto se procesan hasta 1.200/min, frente al pico de diseño de 1.500/min; se prevé una cola corta en el pico. El modelo de puerta no depende de la marca del torniquete mientras la interfaz entregue el identificador QR al nodo local.
 
@@ -224,7 +224,7 @@ La capacidad de acceso sigue siendo la misma: con 48 carriles a 25 personas/minu
 - F-14: 48 lectores QR fijos sobre los torniquetes existentes; no se compran torniquetes propios.
 - F-23: 12 terminales portátiles, uno por puerta, para accesibilidad y contingencia. Se acepta que no alcanzan para asistir dos carriles caídos en una misma puerta a la vez.
 - F-24: fondo de reposición del 10 % anual del hardware desde el año 2, como supuesto de presupuesto ante la garantía limitada de precios de tienda; no sustituye una garantía escrita de cinco años.
-- El presupuesto consolidado del estadio queda en ≈ COP 157,0 M el año 1 en ambos escenarios, incluyendo servidores, nodos, terminales, lectores, UPS, red, gabinete, energía y datos móviles. Los costos completos de A y B están en `entrega/costos_boletaya_final.xlsx`.
+- El presupuesto consolidado del estadio queda en ≈ COP 157,0 M el año 1 en ambos escenarios, incluyendo servidores, nodos, terminales, lectores, UPS, red, gabinete, energía y datos móviles. Los costos completos de A y B están en `entrega/02_hoja_de_costos.xlsx`.
 
 ### 9.1 Sistema operativo y fin de soporte (regla de Miguel: al menos 5 años desde la compra)
 
