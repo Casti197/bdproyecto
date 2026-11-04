@@ -1,7 +1,7 @@
 # Registro de decisiones (anexo A de la propuesta)
 
 **Versión de entrega del 2026-11-04.** Las fichas F-01 a F-15 consolidan decisiones tomadas en las carpetas de cada integrante; F-16 a F-25 se cerraron al integrar la propuesta (`entrega/propuesta_boletaya.pdf`) y la hoja de costos (`entrega/costos_boletaya_final.xlsx`).
-**Mínimo exigido:** 8 fichas con contexto, alternativas, criterio, elección y sacrificio. Aquí hay **25 fichas**, todas cerradas.
+**Mínimo exigido:** 8 fichas con contexto, alternativas, criterio, elección y sacrificio. Aquí hay **25 fichas**; las decisiones están tomadas y las verificaciones de compra, costos o terceros que siguen pendientes se indican en cada ficha.
 **Regla de esta carpeta:** no se copió ni se cambió nada de las carpetas de los demás. Cada ficha dice de dónde sale.
 
 | # | Decisión | Dueño | Estado |
@@ -20,13 +20,13 @@
 | F-12 | Respaldo inmutable en otra región y otra cuenta | Miguel | Cerrada en diseño; costo abierto (R-2) |
 | F-13 | Estadio: un nodo por puerta como autoridad | David | Cerrada |
 | F-14 | Equipo de puerta: usar los torniquetes del estadio | David, Juan Pablo | Cerrada |
-| F-15 | Cola virtual propia sobre AWS | Jacobo, Juan Pablo | Cerrada |
+| F-15 | Cola virtual propia sobre AWS | Jacobo, Juan Pablo | Decidida; estimación y prueba de carga pendientes de validar |
 | F-16 | Reserva del 10 %: solo B la usa | Juan Pablo | Cerrada |
 | F-17 | AWS Backup semanal y mensual (PITR cubre los 35 días) | Miguel, Juan Pablo | Cerrada |
 | F-18 | Escenario B: VPN sobre dos enlaces dedicados en vez de Direct Connect | Jacobo, Juan Pablo | Cerrada |
 | F-19 | Comisión de la pasarela fuera del presupuesto de infraestructura | Juan Pablo | Cerrada |
-| F-20 | PCI fuera de alcance: tarjeta tokenizada en el navegador por la pasarela | Samuel | Cerrada |
-| F-21 | Retención: 2 años en línea y 10 años en S3 con Object Lock | Samuel, Miguel | Cerrada |
+| F-20 | PCI: tokenización reduce alcance; SAQ sujeto al adquirente | Samuel | Diseño definido; SAQ por confirmar |
+| F-21 | Retención por clase: firmeza tributaria o 10 años mercantiles | Samuel, Miguel | Diseño definido; matriz por validar |
 | F-22 | Recomendación final: Escenario A | Grupo | Cerrada |
 | F-23 | 12 terminales portátiles en vez de 24 | David, Juan Pablo | Cerrada |
 | F-24 | Fondo de reposición del hardware del estadio | Juan Pablo | Cerrada |
@@ -250,16 +250,16 @@
 | Elección | (b); se reporta aparte cuando haya valor promedio de orden |
 | Sacrificio | El costo total del negocio por boleta no queda en esta hoja |
 
-## F-20. PCI DSS fuera de alcance
+## F-20. PCI DSS: tokenización y alcance reducido
 
 | Campo | Contenido |
 |---|---|
 | Contexto | Guardar números de tarjeta en cualquier tabla, log o respaldo cuesta −1,0 |
 | Alternativas | (a) Formulario propio que envía la tarjeta a la pasarela desde el servidor. (b) Formulario seguro de la pasarela en el navegador, que devuelve un token |
 | Criterio | Que la tarjeta nunca toque servidores, base, logs ni respaldos de BoletaYa |
-| Elección | (b). Se guardan solo el `id` del pago y el token; los logs no guardan cuerpos de solicitud; la `metadata` lleva solo identificadores |
+| Elección | (b). La tokenización reduce el alcance: solo se guardan `id` y token; se excluyen cuerpos de logs y `metadata` contiene identificadores. No se declara automáticamente fuera de PCI; el adquirente confirma el SAQ aplicable antes de producción |
 | Sacrificio | Menos control sobre la experiencia de pago |
-| Fuente | `entrega/propuesta_boletaya.pdf` §8.3 |
+| Fuente | `entrega/propuesta_boletaya.pdf` §8.3; validar con adquirente/asesor PCI |
 
 ## F-21. Retención de órdenes, pagos y boletas
 
@@ -268,9 +268,9 @@
 | Contexto | El enunciado pide 2 años en línea y luego el plazo de la norma tributaria |
 | Alternativas | (a) Término de firmeza de la declaración de renta (art. 632 E.T. y art. 46 Ley 962 de 2005). (b) 10 años de la regla comercial (art. 28 Ley 962 de 2005, art. 60 C. Co.) |
 | Criterio | Cumplir la obligación más larga que aplica a una SAS comerciante |
-| Elección | (b): 2 años en línea, luego exportación a S3 con Object Lock en modo cumplimiento hasta los 10 años, consultable con Athena |
+| Elección | Plazo por clase: soportes tributarios hasta la firmeza de la declaración (art. 46 Ley 962, modificado por art. 304 Ley 1819); libros y papeles mercantiles 10 años (art. 28 Ley 962). Diseño: 2 años en línea y S3 Object Lock hasta 10 años para soportes aplicables; validar matriz con asesor tributario |
 | Sacrificio | Almacenamiento en S3 después del año 5 (bajo); no se puede borrar antes ni con permisos de administrador, salvo las supresiones de datos personales, que se manejan por seudonimización |
-| Fuente | DIAN, Oficio 20796 de 2006; CTCP, Concepto 279 de 2025 |
+| Fuente | Estatuto Tributario art. 632; Ley 962 de 2005 arts. 28 y 46; Ley 1819 de 2016 art. 304 |
 
 ## F-22. Recomendación final: Escenario A
 
@@ -312,4 +312,3 @@
 | Criterio | Presentar dos escenarios viables, con el sacrificio dicho |
 | Elección | (b): B queda en 291,1 M (año 1, con reserva) y 122,0 M (año 5) |
 | Sacrificio | Si se pierde la región, B pierde el estado de la cola virtual y readmite a los compradores por sorteo (runbook 2c de Miguel ya lo prevé); A conserva la cola |
-

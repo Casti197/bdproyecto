@@ -193,16 +193,16 @@ El orden de llegada no importa: cada boleta tiene un solo nodo que la marca, as�
 | E-R3 | Asignación fija de puerta: si una puerta se llena, no se puede desviar gente a otra | El organizador puede reasignar una localidad a otra puerta **antes** del evento. Durante el evento, solo con el procedimiento manual de §6 |
 | E-R4 | Clave HMAC robada de un nodo | Clave por evento, rotada después de cada uno; los nodos sin disco extraíble. Coordinar con Samuel |
 
-## 9. Equipo para costear (para Juan Pablo)
+## 9. Equipo del estadio y base de costos
 
-Cantidades con los supuestos E-02 y E-03. **Los precios los pone Juan Pablo.**
+Cantidades con los supuestos E-02 y E-03. Los precios de referencia se registran en `entrega/costos_boletaya_final.xlsx`; la hoja adjunta las fuentes y fechas consultadas.
 
 | Equipo | Cantidad | Especificación mínima | Para qué |
 |---|---|---|---|
 | Servidor central | 2 | 1U, 8 núcleos, 32 GB RAM, 2 SSD en RAID 1, 2 fuentes | Primario y respaldo síncrono |
 | Nodo de puerta | 12 + 3 de repuesto | Mini PC industrial sin ventilador, 8 GB RAM, SSD 128 GB, Ethernet | Una autoridad por puerta |
 | Torniquete con lector QR fijo, Ethernet PoE | 48 | Lector 2D que lea pantallas de celular | 4 por puerta |
-| Lector QR portátil | 24 | Android con lector 2D, Ethernet por base o Wi-Fi | 2 por puerta para filas de apoyo y accesibilidad |
+| Terminal portátil con lector QR | 12 | Android con lector 2D, Ethernet por base o Wi-Fi | Una por puerta para apoyo y accesibilidad (F-23) |
 | Switch PoE de puerta | 12 | 8 puertos PoE, 2 enlaces de subida | Conecta torniquetes y nodo |
 | Switch de núcleo | 2 | 24 puertos, enlaces de fibra | Anillo redundante hacia las puertas |
 | UPS de puerta | 12 | ≥ 2 h para nodo + switch + torniquetes | Corte de energía en una puerta |
@@ -211,36 +211,20 @@ Cantidades con los supuestos E-02 y E-03. **Los precios los pone Juan Pablo.**
 | Plan de datos 4G/5G | 1 | Bajo volumen (≈ 45.000 escaneos × ≈ 1 KB por evento) | Respaldo de internet |
 | Rack, cableado, instalación | 1 lote | — | — |
 
-### 9.2 Los torniquetes rompen el presupuesto (actualización del 2026-11-04)
+### 9.2 Decisión de torniquetes y precios de referencia (actualizado 2026-11-04)
 
-**Aplica a los dos escenarios.** El profesor dijo que la solución del estadio es local en A y en B (respuesta 2), así que este equipo se costea en los dos. Hoy la hoja de Juan Pablo lo tiene solo en B (`integracion/pendientes_entrega.md` §3).
+El profesor indicó que la solución del estadio es local tanto en A como en B. El grupo eligió **usar los torniquetes existentes** (F-14, opción 2) y conectar lectores QR fijos compatibles, en vez de comprar 48 cuerpos de torniquete. La autoridad contra doble ingreso sigue siendo el nodo de cada puerta; debe verificarse en sitio la compatibilidad de cada controladora con Wiegand/relé antes de instalar.
 
-Con los precios de Juan Pablo (`juanpablo/costos_boletaya.xlsx`), el Escenario B suma **COP 336,6 M en el año 1** frente a un tope de 280 M, aunque todavía faltan cotizaciones. Los 48 torniquetes son **COP 216,1 M** (48 × 3.784.000 + IVA, referencia AXCSS AX-KATRAX) y **solo cubren el cuerpo del torniquete**: el lector QR y el controlador van aparte. Son casi dos tercios del total.
+Los 48 torniquetes propios habrían costado COP 216,1 M solo por los cuerpos, sin lectores ni controladores, y no cabían en el presupuesto de B. La opción acordada elimina esa compra. La hoja final de Juan Pablo deja los lectores QR fijos con referencia pública de COP 334.000 por unidad y los demás equipos con precio, fuente, fecha y capturas en `entrega/evidencias/`. Estos son precios consultados, no ofertas vinculantes; confirmar stock, impuestos, instalación y garantía antes de comprar.
 
-**¿Sobran torniquetes? No.** La entrada necesita unas 500 personas por minuto de promedio (45.000 en 90 minutos) y unas 1.500 en el pico (E-03). Un torniquete de trípode pasa 25 personas por minuto según la ficha del ZKTeco T2000 [D-19]; el Hikvision DS-K3G530X declara entre 30 y 60, "según la forma de paso" [D-20].
+La capacidad de acceso sigue siendo la misma: con 48 carriles a 25 personas/minuto se procesan hasta 1.200/min, frente al pico de diseño de 1.500/min; se prevé una cola corta en el pico. El modelo de puerta no depende de la marca del torniquete mientras la interfaz entregue el identificador QR al nodo local.
 
-| Torniquetes | Capacidad a 25 por minuto | ¿Alcanza para el promedio (500/min)? | ¿Y para el pico (1.500/min)? |
-|---|---|---|---|
-| 20 | 500/min | Justo | No: se forma cola |
-| 24 | 600/min | Sí | No: se forma cola |
-| 48 (diseño actual) | 1.200/min | Sí | Casi: cola corta |
-| 60 | 1.500/min | Sí | Sí |
+**Decisiones finales de compra:**
 
-Reducir el número ahorra poco sin empeorar el ingreso. **El ahorro grande está en no comprarlos.** Mi diseño no depende del torniquete: la autoridad es el nodo de la puerta, y cualquier lector que le envíe el `tid` funciona con el mismo `UPDATE` de §5. Por eso cambiar el tipo de equipo de la puerta **no toca** la regla contra el doble ingreso.
-
-| Opción | Qué compra BoletaYa | Torniquetes en el año 1 | Total B año 1 (aprox.) | Ventajas | Riesgos |
-|---|---|---|---|---|---|
-| **1. Actual** | 48 torniquetes + lectores | COP 216,1 M + lectores | 336,6 M + lectores | Control físico total | **Supera el tope** |
-| **2. Usar los torniquetes del estadio** | 48 lectores QR con salida Wiegand o relé que abren el torniquete existente | 0 | ≈ 120,5 M + lectores + integración | El mayor ahorro; los estadios grandes suelen tener control de acceso (por confirmar) | Integrar con equipos ajenos; depende de cada estadio |
-| **3. Alquilar torniquetes por evento** | Lectores; torniquetes en arriendo | Costo por evento (OPEX) | Sin cifra | Sin inversión inicial | Sin cotización; montaje en cada evento |
-| **4. Carriles con lector portátil** | 48 terminales Android con lector 2D, vallas y personal | 0 | ≈ 120,5 M + terminales + personal | Barato y flexible | Sin barrera física; más personal. El paso por persona no lo pude verificar |
-| **5. Comprar 24 torniquetes** | 24 torniquetes + lectores | ≈ COP 108,1 M | ≈ 228,6 M + lectores | Cabe en el tope con lo que hay hoy | Cola en el pico; los pendientes pueden volver a romper el tope |
-
-Notas de precio:
-* La referencia de terminal portátil es el Zebra TC22 a 940,95 EUR en una tienda de España [D-21]. **No es precio de Colombia ni cotización**; sirve solo para el orden de magnitud. El Excel ya tiene 24 lectores portátiles sin precio.
-* No encontré un precio en Colombia de un lector QR fijo con salida Wiegand. Sirven las fichas de los torniquetes de [D-19] y [D-20], que tienen entradas Wiegand para lectores externos.
-
-**Propuesta:** opción 2 como base, con la 4 como respaldo en estadios sin torniquetes compatibles, y la 1 solo si el cliente exige equipo propio. Depende de la pregunta 45 que ya se le envió al profesor ("¿Tienen ya equipos en los estadios o debemos comprar todo?"). Mientras no responda, Juan Pablo puede mostrar **A y B** con la opción 1 y con la 2, para que se vea que la diferencia es el equipo de puerta y no la arquitectura.
+- F-14: 48 lectores QR fijos sobre los torniquetes existentes; no se compran torniquetes propios.
+- F-23: 12 terminales portátiles, uno por puerta, para accesibilidad y contingencia. Se acepta que no alcanzan para asistir dos carriles caídos en una misma puerta a la vez.
+- F-24: fondo de reposición del 10 % anual del hardware desde el año 2, como supuesto de presupuesto ante la garantía limitada de precios de tienda; no sustituye una garantía escrita de cinco años.
+- El presupuesto consolidado del estadio queda en ≈ COP 159,8 M el año 1 en ambos escenarios, incluyendo servidores, nodos, terminales, lectores, UPS, red, gabinete, energía y datos móviles. Los costos completos de A y B están en `entrega/costos_boletaya_final.xlsx`.
 
 ### 9.1 Sistema operativo y fin de soporte (regla de Miguel: al menos 5 años desde la compra)
 
@@ -253,17 +237,13 @@ Miguel dejó el sistema operativo de los servidores y del nodo de puerta sin def
 | Base local | PostgreSQL 18 | 14 de noviembre de 2030 | **No** (≈ 3,9 años) | Una migración a una versión mayor nueva en 2030; Miguel ya costea "migraciones de runtime", falta sumar esta |
 
 Conclusiones:
-1. **Ninguna combinación llega a 5 años sin acción extra.** Con la regla de Miguel, hay que costear (a) Ubuntu Pro por equipo o una actualización de sistema operativo hacia 2031, y (b) una actualización mayor de PostgreSQL hacia 2030.
-2. **Para Juan Pablo:** sumar al costo a 5 años una migración de PostgreSQL (horas de DBA, ensayo previo en un evento sin público) y una de estas dos opciones para el sistema operativo:
+1. **Ninguna combinación llega a 5 años sin acción extra.** El modelo incluye Ubuntu Pro durante el último año y una migración mayor de PostgreSQL en 2030.
+2. **En el costo final:** se incluye una migración de PostgreSQL (24 h de DBA) y Ubuntu Pro para dos servidores y doce nodos activos durante el último año del horizonte; validar precio y clase de licencia con proveedor:
 
-   | Opción | Cuándo se paga | Costo | Fuente |
-   |---|---|---|---|
-   | Ubuntu Pro solo el último año (de mayo de 2031 a inicios de 2032) | Un año | Servidor: USD 500 por máquina al año. Escritorio: USD 25 por máquina al año. El soporte 24/7 es aparte (USD 1.775 a 3.400 por servidor al año) | [D-17] |
-   | Cambiar a la siguiente LTS antes de mayo de 2031 | Una vez | Horas de técnico por equipo, sin licencia | Supuesto mío |
+   El modelo final incluye una migración mayor de PostgreSQL (24 h de DBA) y, para el último año del horizonte, Ubuntu Pro con una hipótesis de dos servidores más doce workstations: USD 1.300 (COP 5,2 M). La clase de licencia de los nodos y la contratación deben confirmarse con Canonical/proveedor. No se incluye soporte 24/7.
 
-   Con 14 equipos instalados como servidor, la primera opción cuesta 14 × 500 = **USD 7.000 por un año**. Si los 12 nodos de puerta usan la edición de escritorio, baja a 2 × 500 + 12 × 25 = **USD 1.300**. No pude confirmar en la página qué tarifa aplica a un nodo de puerta. Recomiendo la segunda opción si el cambio se puede hacer en temporada sin eventos.
 3. **Lectores y torniquetes:** su firmware y soporte dependen del fabricante, que aún no está elegido. No lo verifiqué; queda como requisito de compra: soporte y repuestos del fabricante por 5 años como mínimo, por escrito.
-4. **Mientras no se defina**, el supuesto de 12 puertas (12 nodos más 2 servidores) fija la cantidad de licencias de Ubuntu Pro a costear: 14 equipos.
+4. **Alcance modelado:** 12 nodos activos y 2 servidores; los 3 nodos de repuesto no se cuentan como equipos activos con licencia en el año final.
 
 Costos recurrentes a considerar: garantía y soporte de los equipos, reposición de lectores, el plan de datos, el personal técnico el día del evento y el transporte si los equipos se mueven entre estadios.
 

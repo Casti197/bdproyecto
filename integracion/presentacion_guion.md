@@ -1,6 +1,6 @@
 # Presentación — guion integrado de 20 diapositivas
 
-**Estado:** guion actualizado el 2026-11-04. Seguridad, costos y recomendación ya están integrados; los costos y la carta siguen con dependencias explícitas. Sustentación: 30 minutos + 10 de preguntas, así que unos **1,5 minutos por diapositiva**.
+**Estado:** guion actualizado el 2026-11-04 con propuesta y hoja de entrega. Deck de 20 diapositivas preparado fuera del repositorio; faltan revisión de cifras, compartir con el grupo y ensayo. Sustentación: 30 minutos + 10 de preguntas, así que unos **1,5 minutos por diapositiva**.
 **Quién presenta:** se propone que cada quien presente lo que no es suyo en al menos una diapositiva, porque el jurado puede preguntarle a cualquiera.
 
 | # | Título | Mensaje (una frase) | Contenido | Fuente | Presenta (propuesta) |
@@ -21,9 +21,9 @@
 | 14 | El estadio sin internet | Una puerta, un nodo, una autoridad: 4 horas aislado sin doble ingreso | Diagrama de puerta | `david/estadio.md`; F-13 | Juan Pablo |
 | 15 | Seguridad y cumplimiento | Roles/KMS, PCI con token sujeto al flujo real, Ley 1581 y retención tributaria; quedan validación contractual y jurídica | — | Samuel | Jacobo |
 | 16 | Versiones y licencias | DynamoDB no tiene versión ni licencia; lo que rodea a la base sí, y está costeado | Tabla de fin de soporte | `miguel/recuperacion_licenciamiento_carta.md` §5.3 | Samuel |
-| 17 | Costos por escenario | Subtotales parciales incompletos: A $113,6 M, B $129,4 M; las cotizaciones pendientes impiden certificar topes | Barras frente al tope | Juan Pablo | Miguel |
+| 17 | Costos por escenario | A COP 194,0 M; B COP 291,1 M en año 1; B requiere la reserva única del 10 %; precios públicos capturados, pendientes de confirmación comercial | Barras frente al tope | Juan Pablo | Miguel |
 | 18 | Sensibilidad y TCO | Sensibilidad a doble de preventas/cola y TCO a 5 años, separados del subtotal de caja | Tabla | `juanpablo/sensibilidad_y_tco.md` | David |
 | 19 | A contra B | Comparación en latencia estimada, conectividad, costo incompleto, riesgo, RPO/RTO y crecimiento | Tabla comparativa | Samuel | Juan Pablo |
-| 20 | Recomendación | A recomendado; revisar tras cotizaciones, umbrales y pruebas de enlace | Una frase y tres razones | Samuel | Todos |
+| 20 | Recomendación | A recomendado: 473,7 M caja a 5 años frente a 699,8 M; B consume reserva en año 1; revisar tras validación comercial y de sitio | Una frase y tres razones | Samuel | Todos |
 
 **Diapositiva de reserva (no cuenta en las 20, para preguntas):** contradicciones del enunciado (`jacobo/README.md` §5) y lo que no se pudo verificar (`jacobo/README.md` §6).

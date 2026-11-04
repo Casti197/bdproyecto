@@ -4,30 +4,34 @@ Versión integrada del 2026-11-04. Recomendación: **Escenario A (todo en AWS, e
 
 | Entregable del enunciado (§7) | Archivo | Estado |
 |---|---|---|
-| Propuesta escrita (PDF, ≤ 25 págs.) | [`propuesta_boletaya.pdf`](propuesta_boletaya.pdf) (12 páginas; fuente en `fuentes_pdf/propuesta.md`) | Lista |
-| Hoja de costos | [`costos_boletaya_final.xlsx`](costos_boletaya_final.xlsx) y capturas en [`evidencias/`](evidencias/) | Lista: todas las líneas con precio, fuente y fecha |
+| Propuesta escrita (PDF, ≤ 25 págs.) | [`propuesta_boletaya.pdf`](propuesta_boletaya.pdf) (10 páginas; fuente en `fuentes_pdf/propuesta.md`) | Lista |
+| Hoja de costos | [`costos_boletaya_final.xlsx`](costos_boletaya_final.xlsx) y capturas en [`evidencias/`](evidencias/) | Modelo con fuentes, fechas y estimaciones; confirmar condiciones comerciales |
 | Registro de decisiones (≥ 8 fichas) | [`registro_decisiones.md`](registro_decisiones.md) (25 fichas) y en [`anexos_boletaya.pdf`](anexos_boletaya.pdf) | Lista |
 | Análisis de concurrencia | `david/anexo_concurrencia.md`, también en `anexos_boletaya.pdf` | Lista |
 | Estudio de conmutación | `david/alta_disponibilidad.md`, también en `anexos_boletaya.pdf` | Lista |
 | Memorando de la carta de evento | — | No se asignó carta al grupo |
-| Presentación (≤ 20 diapositivas) | Deck de 20 diapositivas en claude.ai (se descarga como PowerPoint o PDF); guion en `integracion/presentacion_guion.md` | Lista |
+| Presentación (≤ 20 diapositivas) | Deck externo de 20 diapositivas; guion en `integracion/presentacion_guion.md` | Guion listo; revisar, compartir y ensayar |
 
-## Qué se agregó al integrar
+## Qué se integró
 
-* Secciones que faltaban: seguridad y cumplimiento (5.6), norma tributaria citada, Ley 1581, DynamoDB *on premise* y alternativa compatible, comparación A contra B y recomendación (5.8).
-* Hoja de costos nueva a partir de la de Juan Pablo: estadio en A y en B, cómputo de la aplicación, cola, seguridad y monitoreo, saldo con el signo correcto, torniquetes del estadio, VPN con precio público en B, sensibilidades y TCO.
-* Fichas F-16 a F-22 del registro.
-* Único cambio en una carpeta ajena: el paso 4 del runbook 2b de Miguel ahora toma las sillas en duda de `bya_ledger` (D-2b), para que el anexo F coincida con la propuesta.
+- Seguridad, PCI sujeto a confirmación del SAQ, retención por clase documental, Ley 1581, la limitación de DynamoDB *on premise*, comparación A/B y recomendación.
+- Costos de ambos escenarios, incluidos precios de hardware del estadio con evidencia, aplicación, cola, seguridad, monitoreo, saldo, reserva y TCO.
+- Fichas F-16 a F-25, incluida la reserva para B, fondo de reposición, 12 terminales portátiles y B sin caché de espera en us-east-2.
+- Runbook 2b usa `bya_ledger` para las sillas en duda (D-2b).
 
-## Resultado
+## Resultado modelado
 
-| COP millones | Año 1 (tope 280) | Peor año 2–5 (tope 130) | Caja 5 años | TCO 5 años |
-|---|---|---|---|---|
+| COP millones | Año 1 (tope base 280) | Peor año 2–5 (tope 130) | Caja 5 años | TCO 5 años |
+|---|---:|---:|---:|---:|
 | A | 194,0 | 86,1 | 473,7 | 619,9 |
 | B | 291,1 (usa la reserva del 10 %) | 122,0 | 699,8 | 874,8 |
 
-## Lo que queda para el grupo
+B excede el tope base del año 1 en COP 11,13 M y requiere la reserva única; el año 5 queda bajo el tope anual por COP 8,04 M. Son cifras de modelo con precios públicos y supuestos, no cotizaciones vinculantes.
 
-1. Leer la propuesta completa, en especial lo que cada uno no escribió: el jurado puede preguntarle a cualquiera.
-2. Compartir el deck desde su menú Compartir y ensayar la sustentación.
-3. Si el jurado exige la AWS Pricing Calculator, exportar un estimado con los mismos valores de la hoja `Precios`.
+## Pendientes para el grupo
+
+1. Validar en sitio la compatibilidad entre torniquetes existentes y lectores/controladores; confirmar stock, instalación, IVA y garantía de los precios consultados.
+2. Revisar los supuestos de AWS Pricing Calculator, AWS Backup y conectividad con proveedores.
+3. Confirmar con adquirente/asesor el SAQ PCI y revisar matriz de retención y contrato de transmisión a AWS.
+4. Miguel redacta el memorando cuando llegue una carta concreta del evento; aún no fue asignada.
+5. Compartir el deck externo, revisar las cifras y ensayar la sustentación.
