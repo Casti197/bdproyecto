@@ -59,7 +59,7 @@ def motivos(e):
 
 
 def crear_tablas(ddb):
-    for t in ["bya_seats", "bya_orders", "bya_counters", "bya_tickets"]:
+    for t in ["bya_seats", "bya_orders", "bya_counters", "bya_tickets", "bya_ledger"]:
         ddb.create_table(
             TableName=t,
             KeySchema=[{"AttributeName": "pk", "KeyType": "HASH"},
@@ -308,6 +308,32 @@ def congelar_sillas_en_duda(ddb, pagos, T):
     return congeladas
 
 
+def registrar_intento(ddb, oid, nn, sillas, cre):
+    """concurrencia.md §4 paso 2 (D-2b): el intento se escribe en el libro antes de cobrar."""
+    minuto = cre // 60
+    frag = int(hashlib.md5(oid.encode()).hexdigest(), 16) % 8
+    ddb.put_item(TableName="bya_ledger",
+                 Item={"pk": S(f"LED#{minuto}#{frag}"), "sk": S(f"{oid}#{nn:02d}"), "st": S("INTENT"),
+                       "sil": {"L": [S(f"{l}|{f}|{n}") for (l, f, n) in sillas]}, "cre": N(cre)},
+                 ConditionExpression="attribute_not_exists(pk)")
+    return {"pk": S(f"LED#{minuto}#{frag}"), "sk": S(f"{oid}#{nn:02d}")}
+
+
+def congelar_desde_libro(ddb, T, W, ahora, estado_en_mp):
+    """alta_disponibilidad.md §5.0 con D-2b. estado_en_mp(gid) imita GET /v1/payments/{id}."""
+    congeladas = 0
+    for m in range((T - W) // 60, ahora // 60 + 1):
+        for f in range(8):
+            r = ddb.query(TableName="bya_ledger", ConsistentRead=True,
+                          KeyConditionExpression="pk = :pk", ExpressionAttributeValues={":pk": S(f"LED#{m}#{f}")})
+            for i in r["Items"]:
+                if "gid" in i and estado_en_mp(i["gid"]["S"]) in ("rejected", "cancelled"):
+                    continue
+                sillas = [tuple(x["S"].split("|")) for x in i["sil"]["L"]]
+                congeladas += congelar_sillas_en_duda(ddb, [{"status": "en_duda", "sillas": sillas}], T)
+    return congeladas
+
+
 def liberar_congeladas(ddb, sillas):
     for (loc, fila, nro) in sillas:
         try:
@@ -511,6 +537,24 @@ def main():
     ok("Liberar no toca la silla ya vendida", silla(ddb, "07", "30", 1)["st"]["S"] == "S")
     n = congelar_sillas_en_duda(ddb, [pagos[0]], T)
     ok("Congelar de nuevo no toca una silla vendida", n == 0 and silla(ddb, "07", "30", 1)["st"]["S"] == "S")
+
+    print("\n== D-2b: la lista de sillas en duda sale del libro de pagos ==")
+    sembrar_sillas(ddb, fila="31", nros=range(1, 6))
+    T = 20000
+    k1 = registrar_intento(ddb, "O-L1", 1, [("07", "31", 1)], cre=T - 120)     # cobrado y aprobado
+    k2 = registrar_intento(ddb, "O-L2", 1, [("07", "31", 2)], cre=T - 60)      # cobrado y rechazado
+    registrar_intento(ddb, "O-L3", 1, [("07", "31", 3)], cre=T - 30)           # cayó antes de guardar el id
+    registrar_intento(ddb, "O-L4", 1, [("07", "31", 4)], cre=T - 3600)         # una hora antes: fuera de la ventana
+    for k, gid in [(k1, "mp-1"), (k2, "mp-2")]:
+        ddb.update_item(TableName="bya_ledger", Key=k, ConditionExpression="st = :i",
+                        UpdateExpression="SET st = :c, gid = :g",
+                        ExpressionAttributeValues={":i": S("INTENT"), ":c": S("CHARGED"), ":g": S(gid)})
+    estados = {"mp-1": "approved", "mp-2": "rejected"}
+    n = congelar_desde_libro(ddb, T, W=600, ahora=T + 60, estado_en_mp=estados.get)
+    ok("Se congelan el intento aprobado y el que no tiene id; no el rechazado", n == 2, f"congeladas = {n}")
+    ok("La silla del intento sin id queda congelada", silla(ddb, "07", "31", 3).get("lo", {}).get("S") == CONC)
+    ok("La silla del pago rechazado queda libre", silla(ddb, "07", "31", 2)["st"]["S"] == "A")
+    ok("Un intento fuera de la ventana T − W no se congela", silla(ddb, "07", "31", 4)["st"]["S"] == "A")
 
     print("\n== Verificador de invariantes (para el simulacro de Miguel) ==")
     errores = verificar_invariantes(ddb)

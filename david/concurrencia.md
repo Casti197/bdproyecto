@@ -98,19 +98,27 @@ funcion pagar(oid, nn, token_tarjeta):
          Item: st='INITIATED', idem = oid+"#"+nn, g3pk/g3sk (entra a gsi_pendientes)
          Condition: attribute_not_exists(pk)
 
-    2. respuesta = MercadoPago POST /v1/payments                  # pasarela elegida (D-11, pasarelas.md)
-         encabezado X-Idempotency-Key = oid+"#"+nn                 # obligatorio en Mercado Pago [P-01]
-         external_reference = oid+"#"+nn
-         metadata = {eid, uid, sillas[]}                           # para reconstruir en desastre
-         # pendiente de sandbox: que el reintento devuelva el mismo pago y que metadata se guarde
+    2. Put bya_ledger  LED#<minuto>#<fragmento> / <oid>#<nn>       # D-2b: libro de pagos MRSC (clave: propuesta a Jacobo)
+         Item: st='INTENT', eid, uid, sil, amt, cre = now
+         Condition: attribute_not_exists(pk)
+         # se replica a la otra región antes de responder: si cae la región, el intento no se pierde
 
-    3. según respuesta:
+    3. respuesta = MercadoPago POST /v1/payments                  # pasarela elegida (D-11, pasarelas.md)
+         encabezado X-Idempotency-Key = oid+"#"+nn                 # obligatorio; el sandbox confirmó que repetir devuelve el mismo pago
+         external_reference = oid+"#"+nn
+         metadata = {eid, uid, sillas[]}                           # el sandbox confirmó que se guarda y se devuelve
+
+    4. Update bya_ledger  SET st='CHARGED', gid = respuesta.id  IF st='INTENT'   # con el id se consulta el pago en desastre
+
+    5. según respuesta:
          APROBADO  -> confirmar(oid, nn, gtx)                     # fase 3
          RECHAZADO -> Update PAY#<nn> SET st='DECLINED' REMOVE g3pk, g3sk  IF st='INITIATED'
                       # el bloqueo sigue vigente; el cliente puede intentar con PAY#<nn+1>
          TIMEOUT   -> Update PAY#<nn> SET st='UNKNOWN'  IF st='INITIATED'
                       # lo resuelve el reconciliador (§6)
 ```
+
+**Por qué el libro va antes del cobro (D-2b, 2026-11-04).** En el sandbox, Mercado Pago no listó pagos por fechas (`pasarelas.md` §7). Si se pierde la región, la lista de sillas en duda sale de `bya_ledger`, que es una tabla MRSC y no pierde datos con la región (`alta_disponibilidad.md` §5.0). Si el `Put` del libro falla, no se cobra. Cuesta una escritura sincrónica entre regiones más por pago, cuya latencia falta medir.
 
 La sesión de la pasarela se configura para vencer **antes** que el bloqueo (por ejemplo a los 7 minutos), así lo normal es que el cobro termine con la silla todavía bloqueada.
 

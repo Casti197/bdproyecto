@@ -180,7 +180,7 @@ Si el webhook se pierde, el reconciliador (índice disperso `gsi_pendientes`, ca
 | 0 (declaración) | — | — | — | **Declaración.** Se registran T y el último `ReplicationLatency` |
 | +1 a +2 min | — | Cierra admisión | — | Congelar escrituras |
 | +2 a +5 min | — | Recibe el tráfico; aplicación lista en paralelo | — | Cambiar tráfico |
-| +3 a +7 min | — | Congela las sillas de todo pago creado desde `T − W` | Búsqueda por fechas | **Congelar sillas en duda** |
+| +3 a +7 min | — | Congela las sillas de todo intento de pago de `bya_ledger` desde `T − W` | Consulta cada pago por su id | **Congelar sillas en duda** |
 | +4 a +8 min | — | **Reabre por tramos** | — | **Fin del RTO** |
 | Después | — | `confirmarDesastre` por cada pago; libera las congeladas no vendidas; reconstruye contadores | Lista pagos | Conciliar con la venta abierta |
 
@@ -188,23 +188,23 @@ Peor caso, con todo en secuencia: 11 minutos desde la declaración (`alta_dispon
 
 ### 4b. Por qué no hay doble venta en el cambio
 
-Dos regiones escribiendo la misma silla podrían venderla dos veces, porque la condición se evalúa contra la versión local y gana la última escritura [D-07]. Por eso escribe **una sola región**. Y como el profesor acepta reabrir antes de terminar la conciliación si las sillas en duda siguen congeladas (respuestas 3b y 6), toda silla que pudo venderse en us-east-1 sin llegar a la réplica queda bloqueada a nombre del incidente:
+Dos regiones escribiendo la misma silla podrían venderla dos veces, porque la condición se evalúa contra la versión local y gana la última escritura [D-07]. Por eso escribe **una sola región**. Y como el profesor acepta reabrir antes de terminar la conciliación si las sillas en duda siguen congeladas (respuestas 3b y 6), toda silla que pudo venderse en us-east-1 sin llegar a la réplica queda bloqueada a nombre del incidente. La lista sale del libro de pagos `bya_ledger` (D-2b), que se escribe antes de cobrar y no se pierde con la región:
 
 ```text
 funcion conmutar(T):
     cerrarAdmision()
     enrutarTrafico(regionAlterna)                 # en paralelo: esperar aplicacionLista()
     W = 8 min + 2 min + ultimo ReplicationLatency
-    si no congelarSillasEnDuda(T, W):             # alta_disponibilidad.md §5.0
-        mantener la venta cerrada y reintentar     # sin la pasarela no se sabe qué está en duda
+    si no congelarSillasEnDuda(T, W):             # alta_disponibilidad.md §5.0: lee bya_ledger (MRSC)
+        mantener la venta cerrada y reintentar     # sin el libro no se sabe qué está en duda
     reabrirGradual()                              # FIN DEL RTO
-    para cada pago en pasarela.pagos(desde = T - W) ordenado por fecha:
+    para cada intento en bya_ledger(desde = T - W) ordenado por fecha:      # pago pedido por su id
         confirmarDesastre(pago)                   # §5.2; acepta sillas congeladas por el incidente
     liberarCongeladasNoVendidas()
     reconstruirContadores()
 ```
 
-**Dos bloqueos a la vez sobre la misma silla** (prohibido, respuesta 5) tampoco ocurre. Un bloqueo que no llegó a la réplica queda anulado: su orden no existe en us-east-2, y sin orden no se puede pagar. Si el cliente ya había empezado a pagar, su pago está en la pasarela y la silla queda congelada.
+**Dos bloqueos a la vez sobre la misma silla** (prohibido, respuesta 5) tampoco ocurre. Un bloqueo que no llegó a la réplica queda anulado: su orden no existe en us-east-2, y sin orden no se puede pagar. Si el cliente ya había empezado a pagar, su intento está en el libro y la silla queda congelada.
 
 ### 4c. Qué se pierde y qué no
 

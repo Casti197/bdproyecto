@@ -67,8 +67,14 @@ PASA   Al terminar, la silla del pago no aprobado vuelve a estar libre
 PASA   Liberar no toca la silla ya vendida
 PASA   Congelar de nuevo no toca una silla vendida
 
+== D-2b: la lista de sillas en duda sale del libro de pagos ==
+PASA   Se congelan el intento aprobado y el que no tiene id; no el rechazado  | congeladas = 2
+PASA   La silla del intento sin id queda congelada
+PASA   La silla del pago rechazado queda libre
+PASA   Un intento fuera de la ventana T − W no se congela
+
 == Verificador de invariantes (para el simulacro de Miguel) ==
 PASA   Estado final sin violaciones
 PASA   El verificador detecta una silla con boletas de dos órdenes  | silla 07|20|1 con boletas de 2 órdenes: ['O-D1', 'O-X']
 
-Resultado: 46 de 46 pruebas pasan.
+Resultado: 50 de 50 pruebas pasan.

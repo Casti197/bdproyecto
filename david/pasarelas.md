@@ -2,7 +2,7 @@
 
 > **Decisión (2026-11-03):** Miguel, Jacobo y David aceptan **Mercado Pago**.
 >
-> **Sandbox (2026-11-04, §7):** `metadata` e idempotencia **confirmadas**. La **búsqueda por fechas no devolvió nada** en el sandbox, ni siquiera 14 minutos después, y la aplicación no tiene credenciales `APP_USR` para repetir la prueba, así que no está confirmada. Sin ella no se puede armar la lista de sillas en duda: se propone activar `bya_ledger` como fuente de esa lista (decisión D-2b del grupo).
+> **Sandbox (2026-11-04, §7):** `metadata` e idempotencia **confirmadas**. La **búsqueda por fechas no devolvió nada** en el sandbox, ni siquiera 14 minutos después, y la aplicación no tiene credenciales `APP_USR` para repetir la prueba, así que no está confirmada. Sin ella no se puede armar la lista de sillas en duda: **D-2b aprobada por el grupo el 2026-11-04:** la lista sale de `bya_ledger`, que se escribe antes de cobrar (`alta_disponibilidad.md` §5.0).
 
 **Autor:** David · **Fecha:** 2026-11-03 · **Para:** Miguel y Jacobo (decisión D-11)
 **Qué necesitamos** (`alta_disponibilidad.md` §4, `miguel/` runbook 2b):
@@ -45,7 +45,7 @@ Las sillas de una orden caben en un texto corto: hasta 10 sillas como `07|12|24`
 
 | Si se elige… | `concurrencia.md` §4 | `alta_disponibilidad.md` §5 | Jacobo |
 |---|---|---|---|
-| Mercado Pago (con `metadata`) | `X-Idempotency-Key = <oid>#<nn>`; `metadata` con eid, uid y sillas | El listado sale de `/v1/payments/search` | `bya_ledger` no hace falta |
+| Mercado Pago (elegida) | `X-Idempotency-Key = <oid>#<nn>`; `metadata` con eid, uid y sillas; **antes** de cobrar se escribe el intento en `bya_ledger` | La lista de sillas en duda sale de `bya_ledger`; cada pago se consulta por su `id` (la búsqueda por fechas no funcionó en el sandbox) | **Activar `bya_ledger`** (D-2b) con clave listable por minuto |
 | Wompi | `reference = <oid>#<nn>`; un 422 "Duplicate reference" se trata como "ya se envió" y se consulta el estado | Sin metadatos: activar `bya_ledger` o reembolsar | Activar `bya_ledger` |
 
 ## 5. Pendientes
@@ -70,7 +70,7 @@ Corrida `60978573`, con credenciales `TEST-` de una aplicación de **API de Paym
 **Pasos para cerrar la búsqueda:**
 1. ~~Repetir la búsqueda pasados unos minutos, por si el índice tarda.~~ **Hecho.** A las 11:51, unos 14 minutos después de crear los pagos, la búsqueda por fechas y la búsqueda sin filtros siguen devolviendo 0 resultados. Se descarta un retraso del índice.
 2. ~~Repetir con las credenciales `APP_USR` del entorno Prueba.~~ **No se pudo:** la aplicación no tiene credenciales `APP_USR`, solo las `TEST-`.
-3. **Pendiente de decisión del grupo (D-2b):** activar `bya_ledger` como fuente de la lista de sillas en duda (`alta_disponibilidad.md` §5.0, "Si la búsqueda no está disponible"); Jacobo ajusta la clave. No se puede descubrir en pleno desastre que la búsqueda no sirve.
+3. **Aprobado por el grupo el 2026-11-04 (D-2b):** activar `bya_ledger` como fuente de la lista de sillas en duda (`alta_disponibilidad.md` §5.0, "Si la búsqueda no está disponible"); Jacobo ajusta la clave. No se puede descubrir en pleno desastre que la búsqueda no sirve.
 
 ## 6. Referencias
 

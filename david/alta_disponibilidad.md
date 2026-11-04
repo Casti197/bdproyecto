@@ -90,7 +90,7 @@ El profesor dice que el RTO termina "hasta que la plataforma acepta compras otra
 | 1. Cerrar la admisión y no enrutar a us-east-1 | 1 a 2 | Miguel |
 | 2. Cambiar el tráfico a us-east-2 (la gente ve la sala de espera) | 1 a 3 | "Segundos a pocos minutos" con ARC, "varios minutos" solo con DNS [D-10]; vale con TTL de 60 s y el cambio preparado |
 | 3. Aplicación en us-east-2 lista (en paralelo con el paso 2) | 0 a 3 | Miguel; réplica pre-calentada automáticamente [D-18] |
-| 4. **Congelar las sillas en duda** (§5.0) | 1 a 2 | Supuesto: una búsqueda en Mercado Pago y unos pocos miles de escrituras |
+| 4. **Congelar las sillas en duda** (§5.0) | 1 a 2 | Supuesto: leer `bya_ledger` de los últimos minutos, consultar en Mercado Pago cada pago por su id y hacer unos pocos miles de escrituras |
 | 5. Reabrir por tramos | 1 | Miguel |
 | **RTO (pasos 2 y 3 en paralelo)** | **4 a 8** | Suma de mínimos y máximos |
 | **RTO (todo en secuencia)** | **4 a 11** | Peor caso |
@@ -110,7 +110,7 @@ El profesor dice que el RTO termina "hasta que la plataforma acepta compras otra
 | ¿Puede entonces venderse dos veces una silla? | No. Toda silla que pudo venderse en us-east-1 sin llegar a la réplica tiene un cobro en la pasarela, y esa silla queda congelada hasta conciliarla. Además, solo escribe una región |
 | ¿Pueden dos personas tener la misma silla bloqueada a la vez? | No. Un bloqueo que no llegó a la réplica queda anulado: su orden no existe en us-east-2, así que ese cliente no puede pagar con él y debe volver a elegir. Si ya había empezado a pagar, su cobro está en la pasarela y la silla queda congelada (§5.0) |
 
-La afirmación "RPO 0 de pagos" depende de **tres capacidades de la pasarela**. El 2026-11-03 Miguel, Jacobo y David eligieron **Mercado Pago** (D-11, `pasarelas.md`), que documenta las tres: llave de idempotencia obligatoria (`X-Idempotency-Key`), campo `metadata` en el pago (evento, usuario y sillas) y búsqueda de pagos por rango de fechas (`/v1/payments/search`). **Falta comprobar en el sandbox** que `metadata` guarda y devuelve un objeto propio y que repetir con la misma llave devuelve el mismo pago. Si `metadata` no sirve, las sillas de un pago no se pueden reconstruir: se reembolsa o se activa el libro de pagos de Jacobo (`bya_ledger`). Es la condición 1 y 2 de Miguel, y las acepto.
+La afirmación "RPO 0 de pagos" depende de la pasarela y del libro de pagos. **Mercado Pago** (D-11) cumple lo que se probó en el sandbox el 2026-11-04 (`pasarelas.md` §7): `metadata` guarda y devuelve las sillas, repetir con la misma `X-Idempotency-Key` devuelve el mismo pago y un pago se puede pedir por su `id`. **Lo que no cumple es listar pagos por fechas**, y de ahí salía la lista de sillas en duda. Por eso el grupo aprobó **D-2b** el 2026-11-04: esa lista sale de `bya_ledger` (MRSC, RPO 0), que se escribe antes de cobrar (§5.0). Es la condición 1 y 2 de Miguel.
 
 ## 5. Modo desastre: confirmar un pago cuando la orden o la silla se perdieron
 
@@ -124,31 +124,35 @@ Este es el paso 4 del runbook 2b de Miguel. **No sirve la confirmación normal**
 
 ### 5.0 Congelar las sillas en duda (respuesta 3b del profesor)
 
-**Qué silla está en duda.** Una silla solo puede estar vendida en us-east-1 sin que la réplica lo sepa si su pago existe en la pasarela: para vender, la compra pasa siempre por un cobro (`concurrencia.md` §4). Por eso:
+**Qué silla está en duda.** Una silla solo puede estar vendida en us-east-1 sin que la réplica lo sepa si se intentó pagarla: para vender, la compra pasa siempre por un cobro, y antes de cobrar se escribe el intento en el libro de pagos (`concurrencia.md` §4). Por eso:
 
-> **Sillas en duda** = las sillas del `metadata` de **todo pago de Mercado Pago creado desde `T − W`**, en cualquier estado salvo rechazado o cancelado (los nombres exactos de estado se confirman en el sandbox). `W` = 8 min de bloqueo + 2 min de margen + el último `ReplicationLatency` medido.
+> **Sillas en duda** = las sillas de **todo intento de pago registrado en `bya_ledger` desde `T − W`**, salvo los que Mercado Pago dé por rechazados (`rejected`) o cancelados. `W` = 8 min de bloqueo + 2 min de margen + el último `ReplicationLatency` medido.
 
 Un pago creado antes de `T − W` corresponde a un bloqueo que ya venció en us-east-1. Si se aprueba después, se trata como en el escenario 2b del anexo: si la silla sigue libre se confirma; si otro la tomó, se reembolsa. Es lo mismo que pasaría sin desastre.
 
 **Estados confirmados en el sandbox (2026-11-04):** aprobado `approved`, en proceso `in_process` y rechazado `rejected` (`pasarelas.md` §7). La regla de abajo usa esos nombres.
 
-**Si la búsqueda por fechas no está disponible.** En el sandbox, `/v1/payments/search` solo encontró pagos filtrando por `id` (`pasarelas.md` §7). Si en producción tampoco lista por fechas, la lista de sillas en duda no puede salir de Mercado Pago. La fuente de respaldo es el libro de pagos de Jacobo (`bya_ledger`, tabla global **MRSC**, `jacobo/modelo_datos.md` §3.9): se escribe **antes** de cobrar, con el `oid` y las sillas, y se replica de forma sincrónica, así que sobrevive a la pérdida de la región con RPO 0 [R-17]. Para usarlo así hacen falta tres cosas:
+**Fuente de la lista: el libro de pagos (D-2b, aprobada por el grupo el 2026-11-04).** En el sandbox, `/v1/payments/search` no listó pagos por fechas ni 14 minutos después; solo los encontró filtrando por `id` (`pasarelas.md` §7). Por eso la lista de sillas en duda **no sale de Mercado Pago, sino de `bya_ledger`**, el libro de pagos de Jacobo (tabla global **MRSC**, `jacobo/modelo_datos.md` §3.9). Se escribe **antes** de cobrar, con el `oid` y las sillas, y se replica de forma sincrónica a la otra región antes de responder, así que sobrevive a la pérdida de la región con RPO 0 [R-17]. Para que sirva así:
 
-1. **Listar por fecha.** Con la clave actual (`pk = LED#<oid>`) solo se puede recorrer la tabla entera. Propongo a Jacobo una clave por minuto, repartida en fragmentos para no calentar una partición, por ejemplo `pk = LED#<minuto>#<fragmento 0..7>`, `sk = <oid>`. La decisión de claves es suya.
-2. **Guardar el `id` del pago** de Mercado Pago apenas responde (el paso `INTENT → CHARGED` de su diseño). Con el `id`, el estado se consulta pidiendo el pago por su id, que sí funcionó en el sandbox.
+1. **Listar por minuto.** Con la clave actual (`pk = LED#<oid>`) habría que recorrer la tabla entera. Propuesta a Jacobo: `pk = LED#<minuto>#<fragmento 0..7>`, `sk = <oid>#<nn>`, con el fragmento sacado del `oid` para no calentar una partición. **La clave la define Jacobo**; el pseudocódigo de abajo usa esta propuesta.
+2. **Guardar el `id` del pago** de Mercado Pago apenas responde (paso `INTENT → CHARGED` de su diseño). Con el `id`, el estado se consulta pidiendo el pago por su id, que sí funcionó en el sandbox, y de paso se leen las sillas de su `metadata`.
 3. **Un intento sin `id`** (el servidor cayó entre cobrar y guardar) se congela igual y se resuelve con la notificación de Mercado Pago, que reintenta cada 15 minutos hasta recibir respuesta [P-04 en `pasarelas.md`]. Cuando el tráfico ya está en us-east-2, la notificación llega allí.
 
-Con el libro, la lista de sillas en duda es **más amplia** que con la búsqueda: incluye intentos que nunca llegaron a cobrarse. Eso es más seguro, aunque congela algunas sillas de más por un rato. El costo es una escritura sincrónica entre regiones en cada compra, cuya latencia nadie ha medido (Jacobo, §3.9).
+La lista que da el libro es **más amplia** que la de la pasarela: incluye intentos que nunca llegaron a cobrarse. Es más segura, aunque congela algunas sillas de más hasta que se aclare su estado. El costo es una escritura sincrónica entre regiones en cada pago, cuya latencia nadie ha medido (Jacobo, §3.9), y la tabla MRSC en tres regiones (Juan Pablo).
 
 **Cómo se congela, sin estado nuevo.** Cada silla en duda se bloquea a nombre del incidente, con un vencimiento lejano. La condición normal de bloqueo (`st = 'A' OR (st = 'L' AND lx < :vencido_antes_de)`) ya rechaza esa silla para cualquier otro cliente:
 
 ```text
 funcion congelarSillasEnDuda(T, W, incidente):
-    pagos = MercadoPago GET /v1/payments/search  range=date_created  begin_date=T-W  end_date=NOW
-            # o, si se activa el libro: bya_ledger, claves LED#<minuto>#<fragmento> de T-W a NOW (lectura fuerte, MRSC)
-    si la búsqueda falla: NO reabrir; seguir con las ventas cerradas y reintentar        # respaldo seguro
-    para cada pago p que no esté rechazado (rejected) ni cancelado:
-        para cada silla s de p.metadata.sillas:
+    intentos = para cada minuto m de T-W a NOW, para cada fragmento f de 0 a 7:
+                   Query bya_ledger  pk = "LED#" + m + "#" + f   (lectura fuerte, MRSC)   # clave: propuesta a Jacobo
+    si la lectura falla: NO reabrir; seguir con las ventas cerradas y reintentar        # respaldo seguro
+    para cada intento i:
+        si i.gid existe:                                       # id del pago en Mercado Pago
+            p = MercadoPago GET /v1/payments/{i.gid}           # por id sí funciona (sandbox)
+            si p.status in (rejected, cancelled): continuar    # no está en duda
+        # sin gid: el pago puede o no haberse creado -> se congela igual
+        para cada silla s de i.sil:
             Update bya_seats Key de s
                 IF  st <> 'S'                                   # una vendida ya no se puede comprar
                 SET st = 'L', lo = :conc, lx = :lejos ADD v :uno   # :conc = "CONC#<incidente>", :lejos = T + 1 día
@@ -176,7 +180,7 @@ Update bya_seats Key de s  IF st = 'L' AND lo = :conc  SET st = 'A'  REMOVE lx, 
 
 ### 5.1 Datos de partida y precondiciones
 
-* **Entrada:** **los mismos pagos que se usaron para congelar** (§5.0): todo pago de Mercado Pago creado desde `T − W`, no solo los últimos 5 minutos. Conciliar una ventana más corta que la del congelamiento dejaría sillas congeladas sin revisar, y al liberarlas se podría perder una compra pagada. Cada pago trae `oid`, `nn`, `gtx`, `uid`, `eid`, `sillas[]`, `monto` y `aprobado_en` en su `metadata`. Los aprobados pasan por `confirmarDesastre`; los que siguen en proceso esperan (ver abajo).
+* **Entrada:** **los mismos intentos que se usaron para congelar** (§5.0): todo intento de `bya_ledger` desde `T − W`, no solo los últimos 5 minutos. Para cada uno, el pago se pide a Mercado Pago por su `id` (`gid`); si no hay `id`, se espera la notificación de Mercado Pago. Conciliar una ventana más corta que la del congelamiento dejaría sillas congeladas sin revisar, y al liberarlas se podría perder una compra pagada. Cada pago trae `oid`, `nn`, `gtx`, `uid`, `eid`, `sillas[]`, `monto` y `aprobado_en` en su `metadata`. Los aprobados pasan por `confirmarDesastre`; los que siguen en proceso esperan (ver abajo).
 * **Precondiciones:** las sillas en duda ya están congeladas (§5.0); la aplicación en us-east-2 apunta a la réplica local; nadie escribe en us-east-1. Las ventas pueden estar **abiertas**: ninguna otra compra puede tocar una silla congelada.
 * **Orden de proceso:** por `aprobado_en` ascendente. Si dos cobros aprobados reclaman la misma silla, gana el primero y el otro se reembolsa. Nunca hay doble venta; en el caso raro puede que la silla vaya a quien no la tenía en us-east-1, y por eso el criterio es explícito.
 
@@ -267,6 +271,7 @@ Miguel pregunta si su lectura es correcta: la región original **no recibe tráf
 | Replicación en 3 zonas | Ninguno medible; ya está incluido en el "milisegundo de un dígito" del servicio [D-11] | Ninguno |
 | MREC (elegido) | Ninguno en la escritura: la replicación es asíncrona [D-07] | Escrituras replicadas (USD 0,625 por millón en us-east-1, cifra de Jacobo, `entrega_para_el_equipo.md` §2.4) |
 | MRSC (descartado) | Subiría la latencia de escritura (cruza regiones), según Jacobo (`arquitectura.md` §4.1) | No se puede usar con transacciones |
+| Libro de pagos `bya_ledger` (MRSC, D-2b) | **Sí afecta:** una escritura sincrónica entre regiones antes de cada cobro y una actualización después. No está medida (Jacobo, `modelo_datos.md` §3.9) | Tabla MRSC en tres regiones, unas 24.000 escrituras por preventa grande (Juan Pablo) |
 | Conciliación en modo desastre | No afecta la preventa normal | Horas de DBA; el enunciado asigna 6 horas por preventa (Miguel) |
 | Pre-calentamiento de la réplica | — | Ninguno extra: se aplica solo a todas las réplicas (abajo) |
 
