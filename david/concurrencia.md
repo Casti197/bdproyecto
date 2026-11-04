@@ -98,7 +98,7 @@ funcion pagar(oid, nn, token_tarjeta):
          Item: st='INITIATED', idem = oid+"#"+nn, g3pk/g3sk (entra a gsi_pendientes)
          Condition: attribute_not_exists(pk)
 
-    2. Put bya_ledger  LED#<minuto>#<fragmento> / <oid>#<nn>       # D-2b: libro de pagos MRSC (clave: propuesta a Jacobo)
+    2. Put bya_ledger  LED#<YYYYMMDDHHmm>#<fragmento> / <oid>#<nn>  # D-2b: libro de pagos MRSC
          Item: st='INTENT', eid, uid, sil, amt, cre = now
          Condition: attribute_not_exists(pk)
          # se replica a la otra región antes de responder: si cae la región, el intento no se pierde

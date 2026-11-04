@@ -8,10 +8,10 @@ El script `sandbox_mercadopago.py` se probó contra un servidor que imita la API
 
 | # | Prueba | Si falla… |
 |---|---|---|
-| 1 | `metadata` guarda y devuelve las 10 sillas | Se activa el libro de pagos de Jacobo (`bya_ledger`) o se reembolsa en desastre |
+| 1 | `metadata` guarda y devuelve las 10 sillas | Pasa en sandbox; aun así, D-2b activa `bya_ledger` porque la búsqueda por fecha falló |
 | 2 | La misma `X-Idempotency-Key` devuelve el mismo pago | Hay que revisar `concurrencia.md` §4: el reintento podría cobrar dos veces |
 | 3 | Otra llave crea otro pago | La llave no estaría funcionando como se espera |
-| 4 | La búsqueda por fechas encuentra los pagos y trae `metadata` | No se puede armar la lista de sillas en duda: la venta quedaría cerrada en desastre |
+| 4 | La búsqueda por fechas encuentra los pagos y trae `metadata` | Falló en sandbox; la lista sale de `bya_ledger`, pago por `gid` |
 | 5 | Nombres reales de los estados (aprobado, pendiente, rechazado) | Se ajusta la regla de congelar y liberar |
 | 6 | Largo que acepta `external_reference` (informativa) | Solo sirve para la idea de guardar ahí las sillas |
 

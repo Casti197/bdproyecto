@@ -31,7 +31,7 @@
 | D6 | `us-east-1` + `us-east-2` (réplica MREC en espera, una región escribe) | `arquitectura.md` §1, §4.1 |
 | D7 | Historial por Streams; auditoría administrativa síncrona | `modelo_datos.md` §3.6, §6.3 |
 | D8 | Escenarios: A (ruta crítica en AWS) y B (híbrido literal; cola con estado en AWS) | `arquitectura.md` §2–§3 |
-| D9 | Libro de pagos MRSC **opcional** (plan B de D-2); decisión depende de la pasarela (D-11) | `modelo_datos.md` §3.9 |
+| D9 | Libro de pagos MRSC `bya_ledger` requerido para lista de sillas de duda tras sandbox; D-2b | `modelo_datos.md` §3.9 |
 
 ## 3. Índice de entregables
 

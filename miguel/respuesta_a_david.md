@@ -23,7 +23,7 @@ Dos opciones:
 | A. Metadato en el cobro | Enviar a la pasarela el evento y las sillas como dato de referencia del cobro | Casi nulo | Depende de que la pasarela elegida lo permita |
 | B. Libro de pagos en MRSC | Tabla pequeña (orden, sillas, monto, estado) escrita con `PutItem` condicional, sin transacción, antes de cobrar. MRSC exige exactamente tres regiones: dos réplicas y un testigo ([AWS](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/V2globaltables_HowItWorks.html)) | Escritura sincrónica entre regiones en el camino del pago, testigo, y el precio lo calcula Juan Pablo | Latencia no medida |
 
-**Propuesta:** A como mecanismo principal y B como plan B si la pasarela no permite metadatos ni listar transacciones por fechas. Hay que elegir la pasarela y confirmarlo.
+**Decisión revisada (D-2b, 4-nov):** el ledger MRSC `bya_ledger` es fuente de las sillas en duda; Mercado Pago se consulta por `gid`, pues el sandbox no listó los pagos por rango de fechas.
 
 ## 3. Condición 2: la conciliación de desastre no puede partir de `gsi_pendientes`
 
@@ -34,7 +34,7 @@ Por eso propongo dos modos:
 - **Modo normal:** tu reconciliador, sin cambios.
 - **Modo desastre:** parte de la lista de transacciones aprobadas de la pasarela por ventana de tiempo (desde unos minutos antes de la hora T de la falla) y busca cada una en la réplica con lectura fuerte. Pasos 4 y 5 del runbook 2b.
 
-**Decidido el 3-nov-2026 (Miguel, Jacobo y David): se usa el listado por rango de fechas.** Falta confirmar que la pasarela concreta lo ofrezca.
+El sandbox del 4-nov encontró que la búsqueda por fecha falla; el grupo aprobó D-2b y el runbook usa `bya_ledger`.
 
 ## 4. Riesgo adicional: la región original que vuelve
 

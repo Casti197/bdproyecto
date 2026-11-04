@@ -117,7 +117,7 @@ La hoja presenta **un total parcial independiente para A y otro para B**. Cada u
 
 ## 12. Decisiones y pendientes que deben cerrarse
 
-**Pasarela elegida (D-11): Mercado Pago.** La decisión fue tomada por Miguel, Jacobo y David el 3-nov-2026. La integración usa `X-Idempotency-Key`, `metadata` con evento/usuario/sillas y búsqueda de pagos por rango de fechas. Siguen pendientes las pruebas de sandbox de `metadata` y de repetición idempotente. Si `metadata` no conserva y devuelve el objeto, activar `bya_ledger` según `david/pasarelas.md`.
+**Pasarela elegida (D-11): Mercado Pago.** La decisión fue tomada por Miguel, Jacobo y David el 3-nov-2026. En sandbox, `metadata` e idempotencia sí pasan (11/13); la búsqueda por rango de fechas falla. D-2b activa `bya_ledger` MRSC en la ruta normal: dos escrituras lógicas por pago (INTENT y CHARGED con `gid`), 24.000 pagos por preventa grande; faltan validar el throughput/item size y la latencia regional. El orden de magnitud de costo de unidades de escritura es COP 6.000/año para 25 preventas, suponiendo item ≤1 KB, dos operaciones y dos réplicas a USD 0,625/M WRU; storage/backup se añade al consolidar en calculadora. No es cotización.
 
 1. Profesor: P-1, aceptación de Escenario B híbrido con DynamoDB en AWS.
 2. Profesor: P-3, ubicación física obligatoria de aplicación en A.
@@ -127,4 +127,18 @@ La hoja presenta **un total parcial independiente para A y otro para B**. Cada u
 6. **Asistente:** investigar y consolidar precios/cotizaciones de los equipos del estadio a partir de `david/estadio.md` §9. Juan Pablo valida compatibilidad técnica; David confirma las especificaciones que ya definió.
 7. Samuel: retención legal, KMS/CloudTrail y clase de Ubuntu Pro de los nodos.
 8. **Juan Pablo:** confirmar en la cuenta/simulador de Mercado Pago la comisión del Checkout elegido y el plazo de disponibilidad; ingresar además el valor promedio de orden para completar el costo. El Excel usa provisionalmente 3,29 % + COP 800 por cobro + IVA (disponibilidad inmediata), como referencia secundaria, no como tarifa contractual.
-9. Miguel, Jacobo y David: completar las pruebas de sandbox de Mercado Pago (metadata e idempotencia).
+9. Sandbox Mercado Pago: metadata e idempotencia verificados; la búsqueda por fecha falló (11/13). Costear ledger MRSC y validar latencia/almacenamiento/backup en calculadora.
+
+
+## 13. Actualización integrada del 4-nov-2026
+
+La hoja ahora asigna el equipo local del estadio a ambos escenarios, deja los torniquetes propios como sensibilidad excluida conforme a F-14 opción 2, añade API Gateway, Lambda, ElastiCache y el throughput anual aproximado del ledger D-2b. El saldo del resumen está corregido como presupuesto menos total parcial.
+
+| Escenario | Año 1 COP | Año 5 COP | Saldo parcial año 1 |
+|---|---:|---:|---:|
+| A | 113.583.280 | 23.184.650 | 166.416.720 |
+| B, opción 2 | 129.363.740 | 38.965.110 | 150.636.260 |
+
+Son subtotales parciales. El libro conserva estado INCOMPLETO. En particular faltan proveedor de cola, tarifa final de egress/CloudFront, cotización integral de Direct Connect y enlaces, AWS Backup, lectores/controlador, UPS, core switches y soporte. Lambda usa cinco invocaciones por orden, 512 MB y 200 ms como supuesto, no una medición. El subtotal no es autorización para comprometer presupuesto.
+
+La aplicación de A se costea en AWS; B conserva su aplicación primaria local y una aplicación de espera AWS. La caché AWS presupuestada corresponde a la cola/espera, no reemplaza la caché local de B. El costo total debe revisarse al recibir las ofertas y luego volver a exportar el resumen.

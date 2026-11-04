@@ -6,7 +6,7 @@
 
 ## Qué acepto
 1. **Condición 1 (sillas de un pago aprobado):** sí, con metadatos en el cobro (evento, usuario, sillas). Sin ellos el pago se reembolsa.
-2. **Condición 2 (conciliar contra la lista de la pasarela):** sí, desde `T − 5 min`, en orden de `aprobado_en`.
+2. **Condición 2 (no usar `gsi_pendientes`):** sí. Con D-2b, congelar desde `bya_ledger` por ventana `T − W`; consultar el estado de cada pago por `gid`.
 3. **Región original al volver:** no recibe tráfico ni escrituras; se concilia otra vez tras la convergencia (§6).
 
 ## Qué cambia en tu runbook 2b
@@ -22,4 +22,4 @@
 * Cambiar el tráfico en 1 a 3 min es el paso más optimista: AWS dice "varios minutos" solo con DNS y "segundos a pocos minutos" con ARC [D-10]. Vale si está preparado y con TTL de 60 s.
 * Declaración: alarma compuesta (`SystemErrors`, `ReplicationLatency`, 5xx) más confirmación humana (§3.2). La detección queda fuera del RTO pero se reporta.
 * Las réplicas necesitan pre-calentamiento; se lo pido a Jacobo y a Juan Pablo.
-* Pendiente de los dos: elegir la pasarela y confirmar idempotencia, metadatos y listado por fechas.
+* Mercado Pago elegida; sandbox verificó metadata/idempotencia y mostró fallo de listado por fechas; D-2b usa el ledger y consulta pagos por `gid`.

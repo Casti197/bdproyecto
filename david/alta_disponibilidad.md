@@ -90,7 +90,7 @@ El profesor dice que el RTO termina "hasta que la plataforma acepta compras otra
 | 1. Cerrar la admisión y no enrutar a us-east-1 | 1 a 2 | Miguel |
 | 2. Cambiar el tráfico a us-east-2 (la gente ve la sala de espera) | 1 a 3 | "Segundos a pocos minutos" con ARC, "varios minutos" solo con DNS [D-10]; vale con TTL de 60 s y el cambio preparado |
 | 3. Aplicación en us-east-2 lista (en paralelo con el paso 2) | 0 a 3 | Miguel; réplica pre-calentada automáticamente [D-18] |
-| 4. **Congelar las sillas en duda** (§5.0) | 1 a 2 | Supuesto: leer `bya_ledger` de los últimos minutos, consultar en Mercado Pago cada pago por su id y hacer unos pocos miles de escrituras |
+| 4. **Congelar las sillas en duda** (§5.0) | 1 a 2 | Supuesto: leer `bya_ledger` por minuto, consultar por `gid` en Mercado Pago y hacer unos pocos miles de escrituras |
 | 5. Reabrir por tramos | 1 | Miguel |
 | **RTO (pasos 2 y 3 en paralelo)** | **4 a 8** | Suma de mínimos y máximos |
 | **RTO (todo en secuencia)** | **4 a 11** | Peor caso |
@@ -110,7 +110,7 @@ El profesor dice que el RTO termina "hasta que la plataforma acepta compras otra
 | ¿Puede entonces venderse dos veces una silla? | No. Toda silla que pudo venderse en us-east-1 sin llegar a la réplica tiene un cobro en la pasarela, y esa silla queda congelada hasta conciliarla. Además, solo escribe una región |
 | ¿Pueden dos personas tener la misma silla bloqueada a la vez? | No. Un bloqueo que no llegó a la réplica queda anulado: su orden no existe en us-east-2, así que ese cliente no puede pagar con él y debe volver a elegir. Si ya había empezado a pagar, su cobro está en la pasarela y la silla queda congelada (§5.0) |
 
-La afirmación "RPO 0 de pagos" depende de la pasarela y del libro de pagos. **Mercado Pago** (D-11) cumple lo que se probó en el sandbox el 2026-11-04 (`pasarelas.md` §7): `metadata` guarda y devuelve las sillas, repetir con la misma `X-Idempotency-Key` devuelve el mismo pago y un pago se puede pedir por su `id`. **Lo que no cumple es listar pagos por fechas**, y de ahí salía la lista de sillas en duda. Por eso el grupo aprobó **D-2b** el 2026-11-04: esa lista sale de `bya_ledger` (MRSC, RPO 0), que se escribe antes de cobrar (§5.0). Es la condición 1 y 2 de Miguel.
+La afirmación "RPO 0 de pagos" depende de la pasarela y del libro de pagos. **Mercado Pago** (D-11) cumple lo que se probó en el sandbox el 2026-11-04 (`pasarelas.md` §7): `metadata` guarda y devuelve las sillas, repetir con la misma `X-Idempotency-Key` devuelve el mismo pago y un pago se puede pedir por su `id`. **La búsqueda por fechas no funcionó en la corrida de sandbox**, y de ahí salía la lista de sillas en duda. Por eso el grupo aprobó **D-2b** el 2026-11-04: esa lista sale de `bya_ledger` (MRSC, RPO 0), que se escribe antes de cobrar (§5.0). Es la condición 1 y 2 de Miguel.
 
 ## 5. Modo desastre: confirmar un pago cuando la orden o la silla se perdieron
 
@@ -271,7 +271,7 @@ Miguel pregunta si su lectura es correcta: la región original **no recibe tráf
 | Replicación en 3 zonas | Ninguno medible; ya está incluido en el "milisegundo de un dígito" del servicio [D-11] | Ninguno |
 | MREC (elegido) | Ninguno en la escritura: la replicación es asíncrona [D-07] | Escrituras replicadas (USD 0,625 por millón en us-east-1, cifra de Jacobo, `entrega_para_el_equipo.md` §2.4) |
 | MRSC (descartado) | Subiría la latencia de escritura (cruza regiones), según Jacobo (`arquitectura.md` §4.1) | No se puede usar con transacciones |
-| Libro de pagos `bya_ledger` (MRSC, D-2b) | **Sí afecta:** una escritura sincrónica entre regiones antes de cada cobro y una actualización después. No está medida (Jacobo, `modelo_datos.md` §3.9) | Tabla MRSC en tres regiones, unas 24.000 escrituras por preventa grande (Juan Pablo) |
+| Libro de pagos `bya_ledger` (MRSC, D-2b) | **Sí afecta:** una escritura sincrónica entre regiones antes de cada cobro y una actualización después. Latencia no medida (Jacobo, `modelo_datos.md` §3.9) | Tabla MRSC en tres regiones, 24.000 intentos/preventa; hasta 48.000 operaciones lógicas INTENT+CHARGED antes de reintentos (Juan Pablo) |
 | Conciliación en modo desastre | No afecta la preventa normal | Horas de DBA; el enunciado asigna 6 horas por preventa (Miguel) |
 | Pre-calentamiento de la réplica | — | Ninguno extra: se aplica solo a todas las réplicas (abajo) |
 
@@ -280,7 +280,7 @@ Miguel pregunta si su lectura es correcta: la región original **no recibe tráf
 ## 8. Pendientes
 
 * **Pasarela:** elegida Mercado Pago (2026-11-03). Falta la prueba de sandbox de `pasarelas.md` §2 (Miguel, Jacobo, David).
-* **Jacobo:** ya diseñó el libro de pagos en MRSC (`bya_ledger`, opcional) por si la pasarela no permite metadatos; se activa según la pasarela que se elija.
+* **Jacobo:** clave por minuto y modelo de costo del ledger ya añadidos en `modelo_datos.md` §3.9; falta medir latencia regional en AWS/desde Bogotá.
 * **Miguel:** hecho el 2026-11-03 (runbook 2b de 10 pasos).
 * **Profesor:** P-4 respondida el 2026-11-04: región en la nube, data center en Bogotá.
 * **Miguel:** pasar el runbook 2b al congelamiento de sillas en duda (§5.0) y a la tabla de RTO de §3.3.

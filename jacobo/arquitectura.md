@@ -98,6 +98,7 @@ flowchart TB
     APP["Aplicacion de compra<br/>Lambda o contenedores"]
     CACHE["ElastiCache Valkey Multi-AZ<br/>mapa vivo, limites, pistas"]
     DDB[("DynamoDB on-demand<br/>8 tablas y GSI")]
+    LED[("bya_ledger MRSC<br/>intentos y gid")]
     STR["DynamoDB Streams"]
     LMB["Lambda consumidoras<br/>historial, mapa, reconciliacion"]
     SQS["SQS y cola de mensajes fallidos<br/>facturas, reembolsos, reintentos"]
@@ -129,6 +130,7 @@ flowchart TB
   LMB -->|"mapa vivo"| CACHE
   LMB -->|"historial"| DDB
   LMB -->|"instantaneas cada 1 a 2 s"| S3
+  APP -->|"Put INTENT; luego guardar gid"| LED
   APP -->|"cobrar con llave idempotente"| PAS
   APP --> SQS
   SQS -->|"solicitar factura"| DIAN
@@ -167,6 +169,18 @@ flowchart TB
 | **Pasarela de pagos / Proveedor DIAN** | Externos: cobro y factura electrónica | La base guarda solo token y CUFE, nunca tarjeta |
 
 ---
+
+## 2.5 Por qué DynamoDB no puede ejecutarse *on premise* (máximo 2 páginas)
+
+Amazon DynamoDB es un servicio administrado regional de AWS. El cliente consume sus endpoints y APIs, pero AWS opera el plano de control, la replicación entre zonas, la disponibilidad y el almacenamiento. No existe una licencia o instalador para desplegar el servicio completo en servidores propios. Por eso, “DynamoDB en el centro de datos de Bogotá” no es una opción de arquitectura que se pueda cotizar o implementar como si fuera PostgreSQL.
+
+**DynamoDB Local no es producción.** AWS lo documenta como herramienta de desarrollo y pruebas: emula la API localmente, no ofrece el servicio administrado ni sus garantías, y no sustituye la replicación multi-AZ, escalado, backups/PITR, control de capacidad, alta disponibilidad ni SLA de DynamoDB. Ponerlo detrás de una API compatible no convierte la emulación en el servicio de producción. Por tanto, no se recomienda para ventas reales ni para la fuente de verdad de pagos y sillas.
+
+**Alternativa compatible: motor de terceros con API compatible con DynamoDB.** Hay productos que implementan una API similar y pueden instalarse en infraestructura propia. Compatibilidad de protocolo no demuestra equivalencia semántica: antes de migrar habría que validar transacciones, condiciones de escritura, aislamiento, consistencia, límites de tamaño, índices, TTL, Streams, replicación, backups, SDK y comportamiento bajo falla. También se perdería la operación administrada y la garantía/SLA de AWS; el equipo asumiría parches, capacidad, recuperación y soporte del fabricante. Como el curso asigna DynamoDB y no exige independencia de nube, cambiar el motor agregaría riesgo, costo de prueba y diferencias de comportamiento sin resolver un requisito confirmado. No se propone diseñarlo ni sustituirlo.
+
+**Diseño aceptado por el profesor para B: híbrido.** La aplicación y caché local y los sistemas del estadio están en Bogotá; DynamoDB permanece en AWS y se accede por Direct Connect en Equinix BG1, con VPN/enlace alterno. Así se conserva el motor asignado. La aplicación tolera latencia de red y la validación final de cada silla es transaccional en DynamoDB; la red privada mejora previsibilidad, pero no elimina latencia ni dependencia del enlace. Si Direct Connect y el respaldo fallan, el estadio sigue admitiendo con su copia local y el ingreso se reconcilia después; la venta en línea se pausa o conmuta según el runbook.
+
+**Conclusión:** no desplegar DynamoDB Local ni una reimplementación de API como producción. Usar DynamoDB administrado en AWS en ambos escenarios. B es una variante híbrida de aplicación/conectividad aprobada por el profesor, no una instalación local de la base. Fuente oficial: [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html), descrito por AWS para desarrollo y pruebas; ver también [arquitectura de DynamoDB](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html).
 
 ## 3. Escenario B — On premise / híbrido
 
@@ -335,7 +349,7 @@ sequenceDiagram
 2. **Una sola región escribe (activa-pasiva).** Con MREC y dos regiones escribiendo, "última escritura gana" podría vender la **misma silla** en ambas. La aplicación en la región alterna permanece **sin escrituras** hasta declarar el desastre.
 3. **Riesgo de doble venta tras conmutación entre regiones:** una venta confirmada en el último segundo antes del fallo puede no haberse replicado; en la región alterna esa silla aparecería libre. **Mitigación obligatoria:** modo seguro tras conmutar (conciliar contra pasarela y marcar vendidas las sillas de pagos aprobados **antes** de abrir). Residual a evaluar por David/Miguel.
 4. El enunciado mide el RTO **"desde que se declara la falla"** (§3): **detección y decisión quedan fuera** y se reportan aparte (hallazgo H-2 de Miguel). Desde la declaración suma: congelar ventas + cambiar tráfico (DNS u origen) + aplicación lista + conciliar + verificar contadores + reabrir. Miguel lo estima en **6 a 14 min desde la declaración**, con casi todos los tiempos **supuestos** (`miguel/recuperacion_licenciamiento_carta.md`). **No lo calculo aquí** (es de David y Miguel).
-5. **Las dos condiciones con que David y Miguel aceptaron D-2:** (a) la lista de sillas de un pago aprobado vive en `ORDER.sil` y puede no haberse replicado: se envía como **metadato del cobro** a la pasarela (opción A) o, si la pasarela no lo permite, se escribe un **libro de pagos en MRSC** antes de cobrar (opción B, `modelo_datos.md` §3.9); (b) la conciliación de desastre **no parte de `gsi_pendientes`** (la réplica puede no tener las entradas de los últimos segundos): parte de la lista de transacciones **aprobadas de la pasarela** por ventana de tiempo y busca cada una en la réplica con **lectura fuerte**. Ambas exigen elegir una pasarela que permita metadato y listado por fechas (**PENDIENTE**, grupo).
+5. **Condiciones con que David y Miguel aceptaron D-2:** (a) la lista de sillas de un pago aprobado vive en `ORDER.sil` y puede no haberse replicado: se registra cada intento con silla y orden en `bya_ledger` MRSC antes del cobro; al cobrar se persiste `gid`. La búsqueda por rango de Mercado Pago no funcionó en sandbox, por lo que las sillas en duda se consultan desde el ledger por minuto y el estado de cada pago se consulta por `gid`. La conciliación no parte de `gsi_pendientes`. El ledger no forma parte de la transacción de compra.
 6. **La réplica debe estar pre-calentada** (hallazgo de David, `alta_disponibilidad.md` §7): la documentación indica que el `warm throughput` de una tabla global se aplica automáticamente a todas las réplicas [R-18]. Al volver la región original **no recibe tráfico ni escrituras**; sus ítems pendientes se comparan con la pasarela antes de converger (`miguel/respuesta_a_david.md` §4).
 
 ---
@@ -409,3 +423,9 @@ con **n ≈ 4,3** viajes secuenciales a DynamoDB por compra (bloqueo 1 + registr
 | DDB | §2.3, modelo_datos | | S3, ATH, BKP | §2.3 |
 
 Los diagramas de A y B muestran las mismas fuentes de datos (DynamoDB, Streams, Lambda, SQS, S3, Athena, PITR/Backup) y difieren **solo** en dónde viven la aplicación, la caché y la cola, y en por dónde cruza el tráfico a la base.
+
+### 4. AWS en Colombia y latencia (verificación al 4-nov-2026)
+
+AWS no lista una región de infraestructura en Colombia y DynamoDB no está disponible en una región colombiana. AWS sí lista Bogotá como **Local Zone anunciada** `us-east-1-bog-1a`, bajo la región padre us-east-1, cuyo estado es “Request interest”; no es una región local disponible para desplegar la base ni evidencia de que DynamoDB opere allí. Por eso el diseño conserva DynamoDB en us-east-1. La lista de regiones y servicios debe volver a verificarse al desplegar, porque AWS puede cambiarla. [Regiones AWS](https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-regions.html) · [Local Zones](https://aws.amazon.com/about-aws/global-infrastructure/localzones/locations/).
+
+La medición de red disponible desde Bogotá es un proxy de tercero: 77,13 ms de ping medio a Washington para us-east-1 y 112,24 ms a São Paulo para sa-east-1 (consulta 29-oct-2026). No es latencia a un endpoint AWS ni por Direct Connect. El cálculo de compra en B (~350 ms de acceso a datos por compra) es una estimación de múltiples viajes; A (~22 ms con la aplicación junto a DynamoDB) también es una estimación. Deben rotularse como estimaciones y medirse desde Bogotá antes de producción. La Local Zone anunciada no cambia estas cifras ni se usa en el diseño actual.

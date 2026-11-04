@@ -70,7 +70,7 @@ Corrida `60978573`, con credenciales `TEST-` de una aplicación de **API de Paym
 **Pasos para cerrar la búsqueda:**
 1. ~~Repetir la búsqueda pasados unos minutos, por si el índice tarda.~~ **Hecho.** A las 11:51, unos 14 minutos después de crear los pagos, la búsqueda por fechas y la búsqueda sin filtros siguen devolviendo 0 resultados. Se descarta un retraso del índice.
 2. ~~Repetir con las credenciales `APP_USR` del entorno Prueba.~~ **No se pudo:** la aplicación no tiene credenciales `APP_USR`, solo las `TEST-`.
-3. **Aprobado por el grupo el 2026-11-04 (D-2b):** activar `bya_ledger` como fuente de la lista de sillas en duda (`alta_disponibilidad.md` §5.0, "Si la búsqueda no está disponible"); Jacobo ajusta la clave. No se puede descubrir en pleno desastre que la búsqueda no sirve.
+3. **Aprobado por el grupo el 2026-11-04 (D-2b):** activar `bya_ledger` como fuente de la lista de sillas en duda (`alta_disponibilidad.md` §5.0); guardar clave listable por minuto y `gid` al llegar a CHARGED. La búsqueda por fechas no se usa.
 
 ## 6. Referencias
 

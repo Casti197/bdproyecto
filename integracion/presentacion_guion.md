@@ -1,6 +1,6 @@
-# Presentación — guion de 20 diapositivas (BORRADOR)
+# Presentación — guion integrado de 20 diapositivas
 
-**Estado:** guion del 2026-11-04 con el mensaje de cada diapositiva y de dónde sale. Las diapositivas se arman cuando estén cerradas las secciones con ❌ (seguridad, costos y recomendación). Sustentación: 30 minutos + 10 de preguntas, así que unos **1,5 minutos por diapositiva**.
+**Estado:** guion actualizado el 2026-11-04. Seguridad, costos y recomendación ya están integrados; los costos y la carta siguen con dependencias explícitas. Sustentación: 30 minutos + 10 de preguntas, así que unos **1,5 minutos por diapositiva**.
 **Quién presenta:** se propone que cada quien presente lo que no es suyo en al menos una diapositiva, porque el jurado puede preguntarle a cualquiera.
 
 | # | Título | Mensaje (una frase) | Contenido | Fuente | Presenta (propuesta) |
@@ -19,11 +19,11 @@
 | 12 | Si cae una región | Una sola región escribe; se congelan solo las sillas en duda y se reabre en 4 a 11 minutos (estimado) | Pasos del RTO | `david/alta_disponibilidad.md` §3.3; F-09, F-10 | Miguel |
 | 13 | Respaldos que no frenan la preventa | PITR, AWS Backup y copia inmutable en otra cuenta | Tres capas de recuperación | `miguel/recuperacion_licenciamiento_carta.md` §5.5; F-12 | David |
 | 14 | El estadio sin internet | Una puerta, un nodo, una autoridad: 4 horas aislado sin doble ingreso | Diagrama de puerta | `david/estadio.md`; F-13 | Juan Pablo |
-| 15 | Seguridad y cumplimiento | ❌ Pendiente: PCI con solo token, mínimo privilegio, Ley 1581, norma tributaria | — | Samuel | Jacobo |
+| 15 | Seguridad y cumplimiento | Roles/KMS, PCI con token sujeto al flujo real, Ley 1581 y retención tributaria; quedan validación contractual y jurídica | — | Samuel | Jacobo |
 | 16 | Versiones y licencias | DynamoDB no tiene versión ni licencia; lo que rodea a la base sí, y está costeado | Tabla de fin de soporte | `miguel/recuperacion_licenciamiento_carta.md` §5.3 | Samuel |
-| 17 | Costos por escenario | ❌ Pendiente: total año 1 y años 2–5 de A y B frente a 280 M y 130 M | Barras frente al tope | Juan Pablo | Miguel |
-| 18 | Sensibilidad y TCO | ❌ Pendiente: doble de preventas y doble de cola; TCO a 5 años | Tabla | `juanpablo/sensibilidad_y_tco.md` | David |
-| 19 | A contra B | ❌ Pendiente: costo, riesgo, RPO/RTO, pico, operación, crecimiento | Tabla comparativa | Samuel | Juan Pablo |
-| 20 | Recomendación | ❌ Pendiente: escenario recomendado y cuándo cambiar | Una frase y tres razones | Samuel | Todos |
+| 17 | Costos por escenario | Subtotales parciales incompletos: A $113,6 M, B $129,4 M; las cotizaciones pendientes impiden certificar topes | Barras frente al tope | Juan Pablo | Miguel |
+| 18 | Sensibilidad y TCO | Sensibilidad a doble de preventas/cola y TCO a 5 años, separados del subtotal de caja | Tabla | `juanpablo/sensibilidad_y_tco.md` | David |
+| 19 | A contra B | Comparación en latencia estimada, conectividad, costo incompleto, riesgo, RPO/RTO y crecimiento | Tabla comparativa | Samuel | Juan Pablo |
+| 20 | Recomendación | A recomendado; revisar tras cotizaciones, umbrales y pruebas de enlace | Una frase y tres razones | Samuel | Todos |
 
 **Diapositiva de reserva (no cuenta en las 20, para preguntas):** contradicciones del enunciado (`jacobo/README.md` §5) y lo que no se pudo verificar (`jacobo/README.md` §6).

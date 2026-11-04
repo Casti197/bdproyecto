@@ -19,7 +19,7 @@
 | D5 | **Historial de sillas derivado por DynamoDB Streams** con clave determinista `(silla, versión)` | Escritura idempotente: un reintento de Lambda sobreescribe el mismo ítem. |
 | D6 | **Mapa de sillas = instantánea aproximada** (S3/CloudFront); la confirmación es siempre la transacción en DynamoDB | La caché nunca es la fuente para decir "disponible". |
 | D7 | **Histórico**: TTL a los 2 años + exportación incremental diaria a S3 + Athena | Las exportaciones no consumen RCU ni afectan la tabla [R-09]. |
-| D8 | **Libro de pagos en MRSC: opcional** (plan B de la decisión D-2, §3.9) | Solo si la pasarela no permite guardar las sillas como metadato del cobro. |
+| D8 | Libro `bya_ledger` en MRSC requerido para lista de sillas en duda (D-2b) | Búsqueda por fechas Mercado Pago no funcionó; consultar por `gid`. |
 
 ---
 
@@ -241,30 +241,21 @@ Por qué por Streams y no dentro de la transacción: (a) evita duplicar los íte
 
 ---
 
-### 3.9 `bya_ledger` — libro de pagos (**OPCIONAL**: plan B de la decisión D-2)
+### 3.9 `bya_ledger` — libro MRSC de intentos de pago (D-2b, requerido)
 
-**Para qué existe.** Miguel y David aceptaron D-2 (una sola región escribe; tras perder la región, modo seguro con conciliación contra la pasarela) **con dos condiciones**: (1) tras perder la región, la lista de sillas de un pago aprobado vive en `ORDER.sil`, que puede no haberse replicado en el último segundo, y la pasarela solo conoce `<oid>#<nn>` y el monto; (2) la conciliación de desastre no puede partir de `gsi_pendientes`. La condición (2) se resuelve en el proceso (modo desastre parte de la lista de transacciones aprobadas de la pasarela y lee la réplica con lectura fuerte: `miguel/respuesta_a_david.md` §3). La condición (1) tiene dos opciones:
+**Razón:** el sandbox de Mercado Pago confirmó que `metadata` se guarda/devuelve y que la llave idempotente retorna el mismo pago, pero la búsqueda `/v1/payments/search` no encontró los pagos de la corrida por rango de fechas ni 14 minutos después. La lista de sillas en duda del runbook 2b, por tanto, se obtiene del ledger resistente a pérdida regional, no de una búsqueda por fecha. La lectura del estado de Mercado Pago se hace luego por `gid`. Evidencia reproducible: `david/pruebas/resultados_sandbox.json` y `david/pasarelas.md` §7.
 
-| Opción | Qué es | Dependencia |
-|---|---|---|
-| **A (principal)** | Enviar a la pasarela el evento y las sillas como **metadato del cobro** | Que la pasarela elegida lo permita y permita **listar transacciones por rango de fechas** (**PENDIENTE**: elegir pasarela entre Miguel, David y yo) |
-| **B (plan B, esta tabla)** | Escribir un **libro mínimo** en una tabla global **MRSC**, antes de cobrar | Costo y latencia (abajo) |
-
-**Diseño de la opción B** (solo si A no es viable):
-
-| Elemento | Valor |
+| Elemento | Diseño |
 |---|---|
-| **PK / SK** | `pk = LED#<oid>` · `sk = P` |
-| Atributos | `eid`, `uid`, `sil` (claves de las sillas), `amt`, `nn` (n.º de intento), `st` (INTENT / CHARGED / VOID), `cre` |
-| Escritura | `PutItem` **condicional** (`attribute_not_exists(pk)`), **sin transacción**, **antes** de llamar a la pasarela; el paso de INTENT a CHARGED es un `UpdateItem` condicional |
-| Consistencia | **MRSC**: la escritura se replica de forma sincrónica a otra región antes de responder, y una lectura fuerte en cualquier réplica devuelve lo último → **RPO 0** para este dato [R-17] |
-| Restricciones de MRSC que condicionan | **Exactamente tres regiones** (dos réplicas + un testigo, p. ej. us-east-1, us-east-2 y testigo en una tercera de la lista oficial); **sin transacciones, sin TTL, sin LSI**; solo se crea sobre una tabla **vacía** y no admite agregar réplicas después [R-17] → la limpieza se hace por exportación + borrado de la aplicación |
-| Costo en rendimiento | Una escritura **más** en el camino del pago (≈ 24.000 por preventa grande) y su latencia **depende de la distancia entre regiones**; **no la medí** (**PENDIENTE**). Costo en USD: Juan Pablo |
-| GSI | Ninguno |
+| PK / SK | `pk = LED#<YYYYMMDDHHmm>#<fragmento 00..07>` · `sk = <oid>#<nn>`; 8 fragmentos por minuto para distribución y consulta de ventana |
+| Atributos | `eid`, `uid`, `sil` (sillas), `amt`, `nn`, `st` (`INTENT`/`CHARGED`/`VOID`), `gid` (id de pago Mercado Pago), `cre` |
+| Consulta | La PK primaria es minuto+fragmento y la SK es `oid#nn`; ejecutar las 8 consultas a la tabla por minuto en paralelo y filtrar el intervalo `T-W..T`. No hace falta GSI adicional |
+| Escritura | `PutItem` condicional INTENT antes del cobro; si falla, no cobrar. Tras crear el pago, `UpdateItem` condicional a CHARGED y guardar `gid`. Registrar VOID/rechazo sin borrar el rastro |
+| Consistencia | Tabla global DynamoDB **MRSC** para ledger; lectura fuerte en us-east-2 después de perder us-east-1. La tabla de sillas/órdenes de compra sigue MREC, una región escribe |
+| Restricciones | El ledger no participa en la transacción de compra. MRSC admite esta escritura individual sin transacción/TTL; la retención se aplica por exportación y eliminación controlada. Usar topología MRSC vigente con réplica y testigo según regiones admitidas |
+| Costo/rendimiento | Hasta 24.000 pagos por preventa grande (48.000 operaciones lógicas si se cuentan Put INTENT + Update CHARGED), más reintentos; la latencia sincrónica entre regiones no está medida. Juan Pablo modela throughput y storage/backup por separado |
 
-**Decisión que falta (D-2b, grupo):** elegir la pasarela; si no admite metadato ni listado por fechas, se activa esta tabla. Hasta entonces **no se incluye en el costo base**.
-
----
+**Consulta de desastre:** por cada minuto de `T-W` a `T`, consultar los fragmentos 00..07 con lectura fuerte; por cada ledger no `VOID`, consultar Mercado Pago por `gid`. Si aún no tiene `gid`, congelar igual y volver a consultar webhook/estado. Excluir solo `rejected` o `cancelled` confirmados; congelar `in_process`, intentos sin respuesta y ledger `INTENT`.
 
 ## 4. Evitar particiones calientes
 

@@ -1,8 +1,8 @@
-# Registro de decisiones (anexo de la propuesta) — BORRADOR
+# Registro de decisiones (anexo de la propuesta)
 
-**Estado:** borrador de integración del 2026-11-04. Consolida decisiones que **ya están tomadas o propuestas** en las carpetas de cada integrante; no agrega decisiones nuevas. Lo consolida y cierra **Samuel** (dueño del registro según el plan); cualquiera puede corregir su propia ficha avisándole.
-**Mínimo exigido:** 8 fichas con contexto, alternativas, criterio, elección y sacrificio. Aquí hay **16 fichas** (13 cerradas, 3 abiertas).
-**Regla de esta carpeta:** no se copió ni se cambió nada de las carpetas de los demás. Cada ficha dice de dónde sale.
+**Estado:** registro integrado 2026-11-04. Incluye decisiones de diseño tomadas y recomendaciones del equipo; las aprobaciones externas/cotizaciones pendientes se señalan explícitamente.
+**Mínimo exigido:** 8 fichas con contexto, alternativas, criterio, elección y sacrificio. Hay 19 fichas; las decisiones presupuestales son propuestas del equipo, no aceptación de proveedor o del cliente.
+Las fichas enlazan a sus fuentes; las propuestas presupuestales no sustituyen aprobación del cliente o contratos.
 
 | # | Decisión | Dueño | Estado |
 |---|---|---|---|
@@ -19,9 +19,12 @@
 | F-11 | Pasarela de pagos: Mercado Pago | David, Miguel, Jacobo | Cerrada (D-11) |
 | F-12 | Respaldo inmutable en otra región y otra cuenta | Miguel | Cerrada en diseño; costo abierto (R-2) |
 | F-13 | Estadio: un nodo por puerta como autoridad | David | Cerrada |
-| F-14 | Equipo de puerta del estadio (torniquetes) | David, Juan Pablo | **Abierta** (grupo) |
-| F-15 | Cola virtual: construir o comprar | Jacobo, Juan Pablo | **Abierta** |
+| F-14 | Equipo de puerta del estadio (torniquetes) | David, Juan Pablo | Propuesta del grupo: opción 2; compatibilidad por verificar |
+| F-15 | Cola virtual: construir o comprar | Jacobo, Juan Pablo | Propuesta: comprar con SLA/precio aceptable; proveedor pendiente |
 | F-16 | Uso de la reserva del 10 % | Juan Pablo | **Abierta** (solo si hace falta) |
+| F-17 | Retención y transferencia de datos | Samuel | Propuesta cerrada, requiere validación jurídica/contractual antes de producción |
+| F-18 | Escenario recomendado | Grupo | Propuesta: A; costo total pendiente de cotizaciones |
+| F-19 | Torniquetes y cola virtual | Grupo | Opción 2 de estadio; comprar cola virtual si SLA y cotización caben; sin proveedor contratado |
 
 ---
 
@@ -35,7 +38,7 @@
 | Elección | (c). El profesor la aceptó el 2026-11-04 y pidió una sección de máximo 2 páginas que explique por qué no se puede *on premise* y evalúe (b) sin diseñarla |
 | Sacrificio | B depende del enlace Bogotá–AWS: si cae, no se vende. Añade Direct Connect, VPN redundante y una aplicación en espera en AWS. Cada compra suma unos 353 ms de ida y vuelta frente a unos 22 ms en A |
 | Fuente | `jacobo/arquitectura.md` §3; `jacobo/resumen_sustentacion.md` P10 y P18; `david/respuestas_profesor.md` resp. 1 |
-| Pendiente | Sección de 2 páginas (Jacobo) |
+| Estado | Sección en `jacobo/arquitectura.md` §2.5 (máximo 2 páginas de texto) |
 
 ## F-02. Región us-east-1 con alterna us-east-2
 
@@ -47,7 +50,7 @@
 | Elección | (b). Ping medido por un tercero desde Bogotá: 77,1 ms a Washington frente a 112,2 ms a São Paulo. DynamoDB cuesta un 50 % más en São Paulo, que además no tiene MRSC |
 | Sacrificio | Los datos personales quedan fuera de Colombia y exigen el análisis de transferencia internacional de la Ley 1581. La latencia es un ping de un tercero, no una medición contra AWS |
 | Fuente | `jacobo/arquitectura.md` §1; `jacobo/calculos/evidencia/latencia_wondernetwork_bogota_2026-10-29.txt` |
-| Pendiente | Ley 1581 (Samuel); infraestructura de AWS en Colombia y latencia (Jacobo); plan B sa-east-1 si se rechaza |
+| Pendiente | Validación jurídica/contractual del tratamiento; revisión de región alternativa si cambia norma o requisito |
 
 ## F-03. Ocho tablas en vez de una
 
@@ -125,7 +128,7 @@
 | Elección | (c). Ante la pérdida de región se congelan solo las sillas en duda, se reabre y la conciliación termina después. El profesor lo aceptó con tres condiciones, todas atendidas: atraso de replicación con fuente (típicamente ≤ 1 s, diseño para 60 s con alarma), sillas en duda congeladas y RTO dentro de 15 minutos |
 | Sacrificio | La base queda con RPO de segundos ante pérdida de región; el RPO 0 de pagos depende de un proceso, no de la réplica. RTO estimado de 4 a 11 minutos desde la declaración (más 2 a 5 de detección), **sin medir**: solo el simulacro lo confirma. Si pasara de 15, se automatiza el cambio de tráfico con Application Recovery Controller (costo por cotizar) |
 | Fuente | `david/alta_disponibilidad.md` §2–§5; `miguel/fichas_decision_miguel.md` R-1; `david/respuestas_profesor.md` resp. 3 y 6 |
-| Pendiente | Conformidad de Samuel |
+| Estado | Propuesta en `integracion/propuesta_borrador.md` §8; validación contractual pendiente |
 
 ## F-10. `bya_ledger` como fuente de las sillas en duda (D-2b)
 
@@ -137,7 +140,7 @@
 | Elección | (b), aprobada por el grupo el 2026-11-04. Cada pago se consulta luego en Mercado Pago por su `id` |
 | Sacrificio | Una escritura sincrónica entre regiones en el camino del pago (latencia sin medir); tabla MRSC en tres regiones con unas 24.000 escrituras por preventa grande (costo por calcular) |
 | Fuente | `david/pasarelas.md` §7; `david/alta_disponibilidad.md` §5.0 |
-| Pendiente | Clave listable por minuto y medición de latencia (Jacobo); costo (Juan Pablo) |
+| Estado | Diseño `bya_ledger` y runbook actualizado; prueba de latencia entre regiones/costo siguen pendientes |
 
 ## F-11. Pasarela de pagos: Mercado Pago
 
@@ -183,7 +186,7 @@
 | Propuesta de David | (2) como base, (4) como respaldo en estadios sin torniquetes compatibles, (1) solo si el cliente exige equipo propio |
 | Sacrificio | (2) depende de integrar equipos ajenos y de cada estadio; (4) no tiene barrera física y exige más personal |
 | Fuente | `david/estadio.md` §9.2 |
-| Pendiente | Decisión del grupo; la pregunta 45 al profesor no tiene respuesta |
+| Estado | Opción 2 propuesta, sujeto a inventario y compatibilidad física del estadio |
 
 ## F-15. Cola virtual: construir o comprar — ABIERTA
 
@@ -195,7 +198,7 @@
 | Elección | Sin decidir |
 | Sacrificio | — |
 | Fuente | `jacobo/entrega_para_el_equipo.md` D-8; `juanpablo/costos_y_dimensionamiento.md` §6 |
-| Pendiente | Cotizar ambas (Juan Pablo, Jacobo). Es uno de los costos que pueden dominar el total |
+| Estado | Opción 2 seleccionada; lectores y compatibilidad física siguen por cotizar/verificar |
 
 ## F-16. Reserva del 10 % — ABIERTA
 
@@ -215,3 +218,37 @@
 * **Historial por Streams y auditoría administrativa síncrona** (D-10 de Jacobo): está propuesta pero no aprobada formalmente.
 * **Sistema operativo del estadio** (Ubuntu 26.04 LTS + Ubuntu Pro o cambio de versión hacia 2031; PostgreSQL 18 con una migración hacia 2030): `david/estadio.md` §9.1 y `miguel/recuperacion_licenciamiento_carta.md` §5.3.
 * **Recomendación final** (5.8): qué escenario y, si aplica, en qué año cambiar.
+
+
+## F-17. Transferencia internacional y conservación
+
+| Campo | Contenido |
+|---|---|
+| Contexto | Los datos se procesan en AWS us-east-1/us-east-2; el profesor condiciona la aceptación a analizar Ley 1581 y retención tributaria. |
+| Alternativas | Mantener región EE. UU. con cumplimiento documentado; migrar a otra jurisdicción adecuada; mantener datos en Colombia cuando exista servicio compatible/disponible. |
+| Criterio | Adecuación SIC, contrato responsable-encargado, minimización, seguridad, derechos y evidencia. |
+| Elección | Mantener EE. UU. sujeto a contrato y responsabilidad demostrada. Estados Unidos aparece en el numeral 3.2 del Título V de la Circular Única SIC vigente. El flujo AWS se clasifica primero como transmisión internacional si AWS actúa como encargado. |
+| Sacrificio | Datos fuera del país y dependencia de controles/contrato AWS; la lista de adecuación no elimina obligaciones. Retener comprobantes tributarios hasta firmeza aplicable; no imponer TTL de 2 años sobre evidencia tributaria. |
+| Fuente | Ley 1581/2012 art. 26; Circular Única SIC Título V §3.2; E.T. art. 632; Ley 962/2005 art. 46. `integracion/propuesta_borrador.md` §8.4. |
+
+## F-18. Recomendación A
+
+| Campo | Contenido |
+|---|---|
+| Contexto | A ubica aplicación/base en AWS; B deja aplicación/caché en Bogotá y base AWS. |
+| Alternativas | A o B. |
+| Criterio | Latencia estimada de compra, dependencia de enlace, recuperación, complejidad y costo verificable. |
+| Elección | Proponer A como arquitectura objetivo; estadio local en ambos. |
+| Sacrificio | A requiere operar la aplicación en nube. El costo total A y B aún no es certificable; los costos parcialmente cuantificados favorecen A y la aprobación presupuestal queda pendiente. |
+| Fuente | `integracion/propuesta_borrador.md` §10; `juanpablo/costos_boletaya.xlsx` Resumen. |
+
+## F-19. Equipos del estadio y cola virtual
+
+| Campo | Contenido |
+|---|---|
+| Contexto | Torniquetes propios exceden presupuesto B; la sala de espera soporta hasta 250.000 usuarios y el servicio de AWS antes evaluado está discontinuado. |
+| Alternativas | F-14 opción 1: comprar torniquetes; opción 2: usar los del estadio y añadir lectores/controlador compatibles. F-15: construir cola o comprar proveedor especializado. |
+| Criterio | No duplicar infraestructura que el estadio ya provee; admitir 250.000 usuarios con orden estable, seguridad, SLA, pruebas y salida/retención documentadas. |
+| Elección | Opción 2 para torniquetes, sujeto a inventario y compatibilidad en sitio. Comprar cola virtual a proveedor especializado si SLA/pruebas/cotización caben; mantener diseño de construcción propia como contingencia de evaluación. Ningún proveedor está contratado. |
+| Sacrificio | Dependencia de equipos del estadio y del proveedor; costos de lectores y cola siguen pendientes y pueden cambiar el veredicto presupuestal. |
+| Fuente | `david/estadio.md` §9.2; `juanpablo/costos_boletaya.xlsx` `Costos_Anuales`; `jacobo/capacidad_y_volumetria.md` §6. |
