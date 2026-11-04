@@ -196,6 +196,35 @@ Cantidades con los supuestos E-02 y E-03. **Los precios los pone Juan Pablo.**
 | Plan de datos 4G/5G | 1 | Bajo volumen (≈ 45.000 escaneos × ≈ 1 KB por evento) | Respaldo de internet |
 | Rack, cableado, instalación | 1 lote | — | — |
 
+### 9.2 Los torniquetes rompen el presupuesto del Escenario B (actualización del 2026-11-04)
+
+Con los precios de Juan Pablo (`juanpablo/costos_boletaya.xlsx`), el Escenario B suma **COP 336,6 M en el año 1** frente a un tope de 280 M, aunque todavía faltan cotizaciones. Los 48 torniquetes son **COP 216,1 M** (48 × 3.784.000 + IVA, referencia AXCSS AX-KATRAX) y **solo cubren el cuerpo del torniquete**: el lector QR y el controlador van aparte. Son casi dos tercios del total.
+
+**¿Sobran torniquetes? No.** La entrada necesita unas 500 personas por minuto de promedio (45.000 en 90 minutos) y unas 1.500 en el pico (E-03). Un torniquete de trípode pasa 25 personas por minuto según la ficha del ZKTeco T2000 [D-19]; el Hikvision DS-K3G530X declara entre 30 y 60, "según la forma de paso" [D-20].
+
+| Torniquetes | Capacidad a 25 por minuto | ¿Alcanza para el promedio (500/min)? | ¿Y para el pico (1.500/min)? |
+|---|---|---|---|
+| 20 | 500/min | Justo | No: se forma cola |
+| 24 | 600/min | Sí | No: se forma cola |
+| 48 (diseño actual) | 1.200/min | Sí | Casi: cola corta |
+| 60 | 1.500/min | Sí | Sí |
+
+Reducir el número ahorra poco sin empeorar el ingreso. **El ahorro grande está en no comprarlos.** Mi diseño no depende del torniquete: la autoridad es el nodo de la puerta, y cualquier lector que le envíe el `tid` funciona con el mismo `UPDATE` de §5. Por eso cambiar el tipo de equipo de la puerta **no toca** la regla contra el doble ingreso.
+
+| Opción | Qué compra BoletaYa | Torniquetes en el año 1 | Total B año 1 (aprox.) | Ventajas | Riesgos |
+|---|---|---|---|---|---|
+| **1. Actual** | 48 torniquetes + lectores | COP 216,1 M + lectores | 336,6 M + lectores | Control físico total | **Supera el tope** |
+| **2. Usar los torniquetes del estadio** | 48 lectores QR con salida Wiegand o relé que abren el torniquete existente | 0 | ≈ 120,5 M + lectores + integración | El mayor ahorro; los estadios grandes suelen tener control de acceso (por confirmar) | Integrar con equipos ajenos; depende de cada estadio |
+| **3. Alquilar torniquetes por evento** | Lectores; torniquetes en arriendo | Costo por evento (OPEX) | Sin cifra | Sin inversión inicial | Sin cotización; montaje en cada evento |
+| **4. Carriles con lector portátil** | 48 terminales Android con lector 2D, vallas y personal | 0 | ≈ 120,5 M + terminales + personal | Barato y flexible | Sin barrera física; más personal. El paso por persona no lo pude verificar |
+| **5. Comprar 24 torniquetes** | 24 torniquetes + lectores | ≈ COP 108,1 M | ≈ 228,6 M + lectores | Cabe en el tope con lo que hay hoy | Cola en el pico; los pendientes pueden volver a romper el tope |
+
+Notas de precio:
+* La referencia de terminal portátil es el Zebra TC22 a 940,95 EUR en una tienda de España [D-21]. **No es precio de Colombia ni cotización**; sirve solo para el orden de magnitud. El Excel ya tiene 24 lectores portátiles sin precio.
+* No encontré un precio en Colombia de un lector QR fijo con salida Wiegand. Sirven las fichas de los torniquetes de [D-19] y [D-20], que tienen entradas Wiegand para lectores externos.
+
+**Propuesta:** opción 2 como base, con la 4 como respaldo en estadios sin torniquetes compatibles, y la 1 solo si el cliente exige equipo propio. Depende de la pregunta 45 que ya se le envió al profesor ("¿Tienen ya equipos en los estadios o debemos comprar todo?"). Mientras no responda, Juan Pablo puede mostrar el Escenario B con la opción 1 y con la 2, para que se vea que la diferencia es el equipo de puerta y no la arquitectura.
+
 ### 9.1 Sistema operativo y fin de soporte (regla de Miguel: al menos 5 años desde la compra)
 
 Miguel dejó el sistema operativo de los servidores y del nodo de puerta sin definir y puso la regla de elegir uno con soporte de al menos 5 años desde la compra, o costear su actualización. Propuesta, con fechas consultadas el 2026-11-03 [D-15, D-16]. Supuesto mío: compra a inicios de 2027, por lo que 5 años llegan a inicios de 2032.
@@ -230,5 +259,8 @@ Costos recurrentes a considerar: garantía y soporte de los equipos, reposición
 | D-15 | [Ubuntu release cycle](https://ubuntu.com/about/release-cycle) | Ubuntu 26.04 LTS: mantenimiento estándar hasta mayo de 2031 y ampliado hasta mayo de 2036; 24.04 LTS: mayo de 2029 y mayo de 2034; las LTS reciben 5 años de mantenimiento estándar |
 | D-16 | [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/) | Cada versión mayor recibe 5 años de soporte; PostgreSQL 18 llega a fin de vida el 14 de noviembre de 2030 |
 | D-17 | [Ubuntu Pro pricing](https://ubuntu.com/pricing/pro) | Ubuntu Pro: USD 500 por servidor al año (máquinas virtuales ilimitadas) y USD 25 por escritorio al año; soporte 24/7 aparte |
+| D-19 | [ZKTeco T2000, ficha técnica (TVC)](https://cdn.tvc.mx/media/1825683/Torniquete-T2000-ZKTECO-TVC-Ficha-Tecnica-Español.pdf) | Torniquete de trípode: 25 personas por minuto |
+| D-20 | [Hikvision DS-K3G530X, ficha técnica](https://assets.hikvision.com/prd/normal/all/doc/m000125280/es-la/DS-K3G530X_Datasheet_20251027.pdf) | 30 a 60 personas por minuto según la forma de paso; 2 entradas Wiegand para lectores externos |
+| D-21 | [Zebra TC22 en LDLC (España)](https://www.ldlc.com/es-es/ficha/PB00746032.html) | 940,95 EUR; Android 13, lector 2D SE4710, Wi-Fi 6 (referencia de orden de magnitud, no de Colombia) |
 
-Consultadas el 2026-10-30 (D-05, D-06) y el 2026-11-03 (D-15 a D-17).
+Consultadas el 2026-10-30 (D-05, D-06) y el 2026-11-03 (D-15 a D-17) y el 2026-11-04 (D-19 a D-21).

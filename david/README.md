@@ -31,6 +31,8 @@
 * Samuel: confirmar la devolución del cupo al expirar un bloqueo (`:max` = 10 ya acordado).
 * Juan Pablo: costear el equipo de `estadio.md` §9, las réplicas, Ubuntu Pro o el cambio de versión de Ubuntu y una migración de PostgreSQL hacia 2030 (§9.1, con precios).
 
+* Juan Pablo: mostrar el Escenario B con la opción 1 (torniquetes propios) y la 2 (usar los del estadio) de `estadio.md` §9.2; corregir el signo del "Saldo" del Resumen; cobrar Ubuntu Pro solo el último año.
+
 **Entre varios**
 * Miguel, Jacobo y David: D-11 **decidida: Mercado Pago** (2026-11-03). Falta comprobar en el sandbox `metadata` y `X-Idempotency-Key` (`pasarelas.md` §2).
-* Grupo: decidir los riesgos E-R1 y E-R2 de `estadio.md` §8.
+* Grupo: decidir los riesgos E-R1 y E-R2 de `estadio.md` §8 y la opción de equipo de puerta de §9.2 (depende de la pregunta 45 al profesor).
