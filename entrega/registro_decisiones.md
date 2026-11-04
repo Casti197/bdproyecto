@@ -1,7 +1,7 @@
 # Registro de decisiones (anexo A de la propuesta)
 
-**Versión de entrega del 2026-11-04.** Las fichas F-01 a F-15 consolidan decisiones tomadas en las carpetas de cada integrante; F-16 a F-22 se cerraron al integrar la propuesta (`entrega/propuesta_boletaya.pdf`) y la hoja de costos (`entrega/costos_boletaya_final.xlsx`).
-**Mínimo exigido:** 8 fichas con contexto, alternativas, criterio, elección y sacrificio. Aquí hay **22 fichas**, todas cerradas.
+**Versión de entrega del 2026-11-04.** Las fichas F-01 a F-15 consolidan decisiones tomadas en las carpetas de cada integrante; F-16 a F-25 se cerraron al integrar la propuesta (`entrega/propuesta_boletaya.pdf`) y la hoja de costos (`entrega/costos_boletaya_final.xlsx`).
+**Mínimo exigido:** 8 fichas con contexto, alternativas, criterio, elección y sacrificio. Aquí hay **25 fichas**, todas cerradas.
 **Regla de esta carpeta:** no se copió ni se cambió nada de las carpetas de los demás. Cada ficha dice de dónde sale.
 
 | # | Decisión | Dueño | Estado |
@@ -21,13 +21,16 @@
 | F-13 | Estadio: un nodo por puerta como autoridad | David | Cerrada |
 | F-14 | Equipo de puerta: usar los torniquetes del estadio | David, Juan Pablo | Cerrada |
 | F-15 | Cola virtual propia sobre AWS | Jacobo, Juan Pablo | Cerrada |
-| F-16 | No usar la reserva del 10 % | Juan Pablo | Cerrada |
+| F-16 | Reserva del 10 %: solo B la usa | Juan Pablo | Cerrada |
 | F-17 | AWS Backup semanal y mensual (PITR cubre los 35 días) | Miguel, Juan Pablo | Cerrada |
 | F-18 | Escenario B: VPN sobre dos enlaces dedicados en vez de Direct Connect | Jacobo, Juan Pablo | Cerrada |
 | F-19 | Comisión de la pasarela fuera del presupuesto de infraestructura | Juan Pablo | Cerrada |
 | F-20 | PCI fuera de alcance: tarjeta tokenizada en el navegador por la pasarela | Samuel | Cerrada |
 | F-21 | Retención: 2 años en línea y 10 años en S3 con Object Lock | Samuel, Miguel | Cerrada |
 | F-22 | Recomendación final: Escenario A | Grupo | Cerrada |
+| F-23 | 12 terminales portátiles en vez de 24 | David, Juan Pablo | Cerrada |
+| F-24 | Fondo de reposición del hardware del estadio | Juan Pablo | Cerrada |
+| F-25 | B sin caché en espera en us-east-2 | Jacobo, Miguel | Cerrada |
 
 ---
 
@@ -203,14 +206,14 @@
 | Fuente | `jacobo/entrega_para_el_equipo.md` D-8; `juanpablo/costos_y_dimensionamiento.md` §6 |
 | Pendiente | Prueba de carga antes de la primera preventa |
 
-## F-16. No usar la reserva del 10 %
+## F-16. Reserva del 10 %: solo B la usa
 
 | Campo | Contenido |
 |---|---|
 | Contexto | El enunciado permite hasta un 10 % adicional sobre el año 1, una sola vez, con una solicitud de adición presupuestal |
 | Alternativas | (a) No usarla. (b) Usarla para cubrir variaciones verificadas de precios |
 | Criterio | Solo si el total cotizado supera el presupuesto base y no lo supera con la reserva |
-| Elección | (a). Con los precios conocidos A deja COP 146,4 M libres en el año 1 y B 38,7 M. Si las cotizaciones pendientes de B superaran su margen, se usaría la reserva con la solicitud ya redactada |
+| Elección | A no la usa (sobran COP 86,0 M en el año 1). B se pasa COP 11,1 M en el año 1 y la usa con la solicitud de adición presupuestal de `juanpablo/sensibilidad_y_tco.md` §7; le quedan 16,9 M de margen |
 | Fuente | Borrador de solicitud en `juanpablo/sensibilidad_y_tco.md` §7 |
 
 ---
@@ -276,6 +279,37 @@
 | Contexto | Hay que recomendar un escenario y decir si conviene cambiar en algún año |
 | Alternativas | A (todo en AWS + estadio local) o B (aplicación en Bogotá + base en AWS + estadio local) |
 | Criterio | Costo, riesgo, RPO/RTO, pico, operación y crecimiento |
-| Elección | A: COP 347,6 M de caja en 5 años frente a 626,4 M; latencia ≈ 22 ms frente a ≈ 353 ms; sin depender del enlace Bogotá–AWS; sigue cabiendo con doble preventa y doble cola, y B no en el año 5 |
+| Elección | A: COP 473,7 M de caja en 5 años frente a 699,8 M; latencia ≈ 22 ms frente a ≈ 353 ms; sin depender del enlace Bogotá–AWS; sigue cabiendo con doble preventa y doble cola, y B no en el año 5 |
 | Sacrificio | Toda la operación depende de AWS; los datos quedan fuera de Colombia (también en B) |
 | Cuándo cambiar | No hay un año en que B resulte mejor. Se revisaría si una norma exigiera los datos en Colombia o si AWS abriera una región en Colombia con DynamoDB (A se mudaría a esa región) |
+
+## F-23. 12 terminales portátiles en vez de 24
+
+| Campo | Contenido |
+|---|---|
+| Contexto | El diseño del estadio pedía 2 lectores portátiles por puerta; la referencia disponible (Zebra TC21, COP 1.973.336) haría que 24 unidades costaran 47,4 M |
+| Alternativas | (a) 24 portátiles. (b) 12, uno por puerta. (c) Terminales genéricos importados (≈ COP 730.000, sin soporte local) |
+| Criterio | Cubrir accesibilidad y un carril caído por puerta con soporte de marca |
+| Elección | (b): COP 23,7 M |
+| Sacrificio | Si caen dos carriles de una misma puerta a la vez, solo uno se cubre con portátil; la gente pasa por los otros carriles de esa puerta |
+
+## F-24. Fondo de reposición del hardware del estadio
+
+| Campo | Contenido |
+|---|---|
+| Contexto | El enunciado pide garantía y soporte por 5 años o su renovación; los precios de tienda traen 1 año de garantía y no hay cotización de soporte extendido |
+| Alternativas | (a) Suponer soporte de 5 años sin precio. (b) Reservar cada año un porcentaje del hardware para reponer equipos. (c) Cotizar soporte del fabricante (no disponible hoy) |
+| Criterio | No omitir un costo que podría cambiar la conclusión (−0,5) |
+| Elección | (b): 10 % anual del hardware del estadio desde el año 2 (COP 15,9 M/año), más los 3 nodos de repuesto ya incluidos |
+| Sacrificio | Es un supuesto del grupo, no una cotización; con una cotización real del fabricante se reemplaza |
+
+## F-25. Escenario B sin caché en espera en us-east-2
+
+| Campo | Contenido |
+|---|---|
+| Contexto | Con todo costeado, B costaba COP 301,7 M en el año 1 y COP 132,5 M en el año 5: no cabía ni con la reserva en el año 5 |
+| Alternativas | (a) Declarar B no viable. (b) Quitar la caché en espera de us-east-2 (−10,5 M/año) y usar la reserva en el año 1 |
+| Criterio | Presentar dos escenarios viables, con el sacrificio dicho |
+| Elección | (b): B queda en 291,1 M (año 1, con reserva) y 122,0 M (año 5) |
+| Sacrificio | Si se pierde la región, B pierde el estado de la cola virtual y readmite a los compradores por sorteo (runbook 2c de Miguel ya lo prevé); A conserva la cola |
+

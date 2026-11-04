@@ -12,14 +12,14 @@ date: "4 de noviembre de 2026"
 | | Escenario A — nube | Escenario B — híbrido |
 |---|---|---|
 | Qué es | Aplicación y base en AWS (us-east-1, alterna us-east-2); estadio local | Aplicación y caché en el data center de Bogotá; base en AWS; estadio local |
-| Costo año 1 (caja) | **COP 133,6 M** de 280 M (sobran 146,4 M) | **COP 241,3 M** de 280 M (sobran 38,7 M) |
-| Peor año 2–5 | COP 69,6 M de 130 M (año 5) | COP 116,1 M de 130 M (año 5) |
-| Caja 5 años / TCO con horas | COP 347,6 M / 493,8 M | COP 626,4 M / 801,4 M |
+| Costo año 1 (caja) | **COP 194,0 M** de 280 M (sobran 86,0 M) | **COP 291,1 M**: se pasa 11,1 M y **usa la reserva del 10 %** (queda margen de 16,9 M) |
+| Peor año 2–5 | COP 86,1 M de 130 M (año 5) | COP 122,0 M de 130 M (año 5) |
+| Caja 5 años / TCO con horas | COP 473,7 M / 619,9 M | COP 699,8 M / 874,8 M |
 | Latencia de base por compra | ≈ 22 ms (aplicación junto a la base) | ≈ 353 ms (≈ 4,3 viajes × 77 ms al cruzar el enlace) |
 | RPO / RTO de la venta ante pérdida del sitio | Pagos 0; 4 a 11 min (región) | Igual, más 3 a 11 min si cae el data center |
-| Doble preventa + doble cola, año 5 | Sigue cabiendo (sobran 41,0 M) | **No cabe** (faltan 5,4 M) |
+| Doble preventa + doble cola, año 5 | Sigue cabiendo (sobran 24,6 M) | **No cabe** (faltan 11,3 M) |
 
-Los costos salen de `costos_boletaya_final.xlsx` (anexo H). Cinco rubros del estadio no tienen todavía un precio verificable (lectores QR, portátiles, UPS, núcleo y plan de datos) y suman cero; con la reserva del 10 %, A tiene **COP 174,4 M** de margen para cubrirlos y B solo **66,7 M**.
+Los costos salen de `costos_boletaya_final.xlsx` (anexo H): todas las líneas tienen precio con fuente y fecha, y las de hardware y las principales de AWS tienen captura en `entrega/evidencias/`. B solo cabe en el año 1 usando la reserva del 10 % y quitando la caché en espera de us-east-2 (F-25).
 
 **Cinco ideas sostienen el diseño:**
 
@@ -268,21 +268,25 @@ Fuente: `costos_boletaya_final.xlsx` (anexo H), con parámetros en celdas propia
 
 | | Año 1 | Año 2 | Año 3 | Año 4 | Año 5 | 5 años |
 |---|---|---|---|---|---|---|
-| **A** total | 133.641.911 | 42.222.513 | 47.580.128 | 54.508.400 | 69.637.373 | 347.590.325 |
-| A saldo | 146.358.089 | 87.777.487 | 82.419.872 | 75.491.600 | 60.362.627 | |
-| **B** total | 241.327.724 | 83.761.424 | 89.148.816 | 96.115.797 | 116.055.093 | 626.408.854 |
-| B saldo | 38.672.276 | 46.238.576 | 40.851.184 | 33.884.203 | 13.944.907 | |
-| TCO con horas | A: 493.750.325 | | | | | B: 801.368.854 |
+| **A** total | 193.985.458 | 58.664.181 | 64.021.797 | 70.950.069 | 86.079.042 | 473.700.546 |
+| A saldo | 86.014.542 | 71.335.819 | 65.978.203 | 59.049.931 | 43.920.958 | |
+| **B** total | 291.130.117 | 89.661.939 | 95.049.331 | 102.016.313 | 121.955.608 | 699.813.308 |
+| B saldo | −11.130.117 (16.869.883 con la reserva) | 40.338.061 | 34.950.669 | 27.983.687 | 8.044.392 | |
+| TCO con horas | A: 619.860.546 | | | | | B: 874.773.308 |
 
-**De dónde sale cada uno:** el estadio (servidores, nodos, switches y energía) es ≈ COP 99,5 M del año 1 en los dos escenarios. La nube de A cuesta ≈ COP 34 M al año 1 (ElastiCache principal y en espera ≈ 21,1 M, AWS Backup ≈ 3,2 M, CloudFront ≈ 3,0 M, DynamoDB y réplica ≈ 3,3 M). B suma 2 servidores en Bogotá (64,6 M), energía con PUE 1,8 (9,9 M/año), dos enlaces dedicados (26,9 M/año con IVA) y la VPN (4,2 M/año).
+**De dónde sale cada uno:** el estadio es ≈ COP 159,8 M del año 1 en los dos escenarios (servidores 64,6 M, nodos 30,4 M, terminales portátiles 23,7 M, UPS 16,9 M, lectores QR 16,0 M, switches, routers y gabinete 7,5 M, energía y plan 4G 0,7 M), más un fondo de reposición de 15,9 M al año desde el año 2 (F-24). La nube de A cuesta ≈ COP 34,2 M al año 1 (ElastiCache principal y en espera ≈ 21,1 M, AWS Backup ≈ 3,2 M, CloudFront ≈ 3,0 M, DynamoDB y réplica ≈ 3,3 M). B no tiene la caché en espera (−10,5 M/año) y suma 2 servidores en Bogotá (64,6 M), energía con PUE 1,8 (9,9 M/año), dos enlaces dedicados (26,9 M/año con IVA) y la VPN (4,2 M/año).
 
 **El costo de las 25 preventas** está en las líneas que dependen de ellas: escrituras de preventa (≈ USD 1,42 por preventa en DynamoDB), CloudFront (≈ USD 25,3 por preventa en el caso moderado), API y Lambda (1,124 M llamadas por preventa), WAF y 6 h de DBA por preventa (COP 18 M al año, en el TCO).
 
 **Cambios frente a la hoja anterior:** el estadio se costea en A y en B (respuesta 2 del profesor); se agregaron cómputo de la aplicación, cola, seguridad y monitoreo; el saldo es presupuesto − total; torniquetes del estadio (F-14); Ubuntu Pro solo el último año; VPN con precio público en vez de Direct Connect sin precio.
 
-## 9.2 Lo que falta cotizar y el margen que hay
+## 9.2 Decisiones de costo para cerrar el presupuesto
 
-Cinco rubros del estadio no tienen precio verificable: 48 lectores QR fijos con salida Wiegand, 24 lectores portátiles, 14 UPS, núcleo/router/rack y el plan de datos 4G. **Con la reserva del 10 % (28 M), A tiene 174,4 M de margen y B 66,7 M.** La única referencia de los portátiles (Zebra TC22, EUR 940,95 en España) sugiere ≈ 4,2 M c/u: 24 unidades costarían ≈ 100 M, que **no caben en B**; por eso se proponen 12 (uno por puerta) si se elige B. A los absorbe sin problema. No se pide adición presupuestal (F-16): ningún escenario la necesita con los precios conocidos; si las cotizaciones de B superaran su margen, se usaría la reserva con la solicitud de `juanpablo/sensibilidad_y_tco.md` §7.
+* **Torniquetes del estadio (F-14):** se usan los que ya tiene el estadio, abiertos por 48 lectores QR con salida Wiegand (COP 334.000 c/u). Comprar 48 torniquetes propios costaría ≈ 216 M y ningún escenario cabría.
+* **12 terminales portátiles en vez de 24 (F-23):** uno por puerta para accesibilidad y apoyo; la autoridad sigue siendo el nodo, así que no cambia la regla contra el doble ingreso.
+* **Fondo de reposición (F-24):** las referencias de tienda traen 1 año de garantía; en vez de suponer soporte de 5 años sin cotización, se reserva el 10 % anual del hardware del estadio desde el año 2.
+* **B sin caché en espera en us-east-2 y con la reserva del 10 % (F-25):** aun así B se pasa 11,1 M en el año 1; se cubre con la reserva (solicitud de adición presupuestal en `juanpablo/sensibilidad_y_tco.md` §7). Si se pierde la región, B readmite la cola por sorteo. A no necesita la reserva.
+* **Cableado:** lo pone el estadio (supuesto E-04 de `david/estadio.md`).
 
 ## 9.3 Sensibilidad
 
@@ -290,8 +294,8 @@ Cinco rubros del estadio no tienen precio verificable: 48 lectores QR fijos con 
 |---|---|---|
 | Doble de preventas (caja + 18 M de DBA) | +22,6 M | +28,1 M |
 | Doble de personas en cola | +3,8 M | +9,3 M |
-| **Saldo de A con ambas** | 137,9 M | **41,0 M** |
-| **Saldo de B con ambas** | 30,3 M | **−5,4 M** |
+| **Saldo de A con ambas** | 77,6 M | **24,6 M** |
+| **Saldo de B con ambas** | −19,5 M (8,5 M con la reserva) | **−11,3 M** |
 
 El mapa y el WAF son lo que más crece con la cola; DynamoDB casi no cambia porque la admisión regula las compras. **B deja de caber en el año 5** con ambas sensibilidades; A conserva margen todos los años.
 
@@ -299,7 +303,7 @@ El mapa y el WAF son lo que más crece con la cola; DynamoDB casi no cambia porq
 
 | Criterio | A — nube | B — híbrido | Gana |
 |---|---|---|---|
-| Costo | 347,6 M en 5 años; TCO 493,8 M | 626,4 M; TCO 801,4 M (+278,8 M de caja) | **A** |
+| Costo | 473,7 M en 5 años; TCO 619,9 M | 699,8 M; TCO 874,8 M (+226,1 M de caja); necesita la reserva en el año 1 | **A** |
 | Riesgo | Depende de AWS y de la región | Además del enlace Bogotá–AWS y de un data center sin planta eléctrica | **A** |
 | RPO/RTO | Cumple con conciliación (4 a 11 min estimado) | Igual, más el runbook 2c (3 a 11 min) | **A** |
 | Manejo del pico | DynamoDB on-demand + cola + CDN | Igual en la base; servidores de Bogotá dimensionados fijos | **A** |
@@ -308,26 +312,26 @@ El mapa y el WAF son lo que más crece con la cola; DynamoDB casi no cambia porq
 | Crecimiento | Elástico; cabe con doble preventa y doble cola | No cabe en el año 5 con ambas sensibilidades | **A** |
 | Datos en Colombia | No | Tampoco: la base sigue en AWS | Empate |
 
-**Recomendación: Escenario A.** B no compra nada a cambio de su costo: la verdad transaccional sigue en AWS, así que tener la aplicación en Bogotá solo añade latencia, un enlace del que depende la venta y 278,8 M de caja en 5 años.
+**Recomendación: Escenario A.** B no compra nada a cambio de su costo: la verdad transaccional sigue en AWS, así que tener la aplicación en Bogotá solo añade latencia, un enlace del que depende la venta y 226,1 M de caja en 5 años, además de agotar la reserva del 10 % en el año 1.
 
 **¿Cuándo convendría cambiar?** En los 5 años no hay un año en que B resulte más barato. Se revisaría solo si (1) una norma exigiera los datos en Colombia (ni B lo resuelve; habría que volver a evaluar el motor) o (2) AWS abriera una región en Colombia con DynamoDB, caso en que A se mudaría a esa región, no a B.
 
-# 11. Respuesta a la carta de evento
+# 11. Carta de evento
 
-La carta llega en la semana 3 y se responde en 72 horas con un memorando de máximo 2 páginas. El procedimiento está en `miguel/recuperacion_licenciamiento_carta.md` (sección "Carta de evento"): Miguel reparte el impacto por área, Juan Pablo lo costea en esta hoja, y la respuesta se incorpora aquí y en el registro de decisiones. **Al cierre de este documento la carta no había llegado.**
+Al grupo no se le asignó carta de evento. El procedimiento de respuesta en 72 horas queda en `miguel/recuperacion_licenciamiento_carta.md` (sección "Carta de evento") para la segunda carta que el jurado puede sacar en la sustentación: cada integrante responde el impacto en su área con la hoja del anexo H.
 
 # Anexos
 
 | Anexo | Contenido | Archivo |
 |---|---|---|
-| A | Registro de decisiones (22 fichas) | `entrega/registro_decisiones.md` |
+| A | Registro de decisiones (25 fichas) | `entrega/registro_decisiones.md` |
 | B | Análisis de concurrencia: transacción y 4 escenarios con líneas de tiempo | `david/anexo_concurrencia.md` |
 | C | Estudio de conmutación | `david/alta_disponibilidad.md` |
 | D | Modelo de datos completo (20 patrones de acceso, claves, transacciones) | `jacobo/modelo_datos.md` |
 | E | Volumetría y fórmulas; script reproducible | `jacobo/capacidad_y_volumetria.md`, `jacobo/calculos/` |
 | F | Runbooks, plan de pruebas y licenciamiento | `miguel/recuperacion_licenciamiento_carta.md` |
 | G | Respuestas del profesor | `david/respuestas_profesor.md` |
-| H | Hoja de costos | `entrega/costos_boletaya_final.xlsx` |
+| H | Hoja de costos y capturas de precios | `entrega/costos_boletaya_final.xlsx`, `entrega/evidencias/` |
 | I | Ingreso al estadio | `david/estadio.md` |
 
 # Referencias
@@ -343,4 +347,4 @@ La carta llega en la semana 3 y se responde en 72 horas con un memorando de máx
 * [S-09] ScyllaDB, Alternator. https://docs.scylladb.com/manual/master/using-scylla/alternator/index.md
 * [S-10] ScyllaDB, caso GE Healthcare. https://www.scylladb.com/users/case-study-ge-healthcare-takes-dynamodb-on-premises-with-scyllas-project-alternator/
 * [S-11] Colombia Compra Eficiente, Orden de compra 160603 (enlaces dedicados en Bogotá, 13-feb-2026). https://operaciones.colombiacompra.gov.co/tienda-virtual-del-estado-colombiano/ordenes-compra/160603
-* Precios de AWS (Lambda, Route 53, WAF, KMS, CloudTrail, CloudWatch, VPN) y fuentes secundarias de transferencia: hoja `Precios` del anexo H, con URL y fecha por línea.
+* Precios de AWS (DynamoDB, ElastiCache, Lambda, Route 53, WAF, KMS, CloudTrail, CloudWatch, VPN), del hardware del estadio (Mercado Libre Colombia) y fuentes secundarias de transferencia y plan móvil: hoja `Precios` del anexo H, con URL y fecha por línea; capturas en `entrega/evidencias/`.
