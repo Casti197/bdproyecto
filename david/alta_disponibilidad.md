@@ -149,7 +149,15 @@ funcion congelarSillasEnDuda(T, W, incidente):
 * El mapa mostrará esas sillas como no disponibles. El profesor acepta que el mapa vaya con atraso mientras la validación final sea contra la base (respuesta 5).
 * El límite de 10 sillas por usuario (`LIM#`) puede estar desactualizado en la réplica al reabrir. Eso no causa doble venta y se recalcula al final de la conciliación (§5.4).
 
-**Al terminar la conciliación**, cada silla congelada que no quedó vendida vuelve a estar libre:
+**Cuándo se libera una silla congelada.** Según el estado final de su pago:
+
+| Estado del pago | Qué se hace con sus sillas |
+|---|---|
+| Aprobado | `confirmarDesastre` las vende a esa orden (§5.2) |
+| Rechazado o cancelado | Se liberan |
+| Todavía en proceso (por ejemplo, un pago que tarda en confirmarse) | **Siguen congeladas** hasta que la pasarela dé el estado final. El webhook o el reconciliador decide entonces: aprobado, se confirma; rechazado, se liberan |
+
+Liberar es esta escritura, que solo toca sillas que siguen a nombre del incidente:
 
 ```text
 Update bya_seats Key de s  IF st = 'L' AND lo = :conc  SET st = 'A'  REMOVE lx, lo  ADD v :uno
@@ -157,7 +165,7 @@ Update bya_seats Key de s  IF st = 'L' AND lo = :conc  SET st = 'A'  REMOVE lx, 
 
 ### 5.1 Datos de partida y precondiciones
 
-* **Entrada:** cada pago aprobado que devuelve `GET /v1/payments/search` de Mercado Pago (con `range=date_created`) desde `T − ventana` (propuesta: **5 minutos**; AWS dice "un segundo o menos" típico pero sin SLA [D-08]). Cada cobro trae `oid`, `nn`, `gtx`, `uid`, `eid`, `sillas[]`, `monto` y `aprobado_en` (los metadatos).
+* **Entrada:** **los mismos pagos que se usaron para congelar** (§5.0): todo pago de Mercado Pago creado desde `T − W`, no solo los últimos 5 minutos. Conciliar una ventana más corta que la del congelamiento dejaría sillas congeladas sin revisar, y al liberarlas se podría perder una compra pagada. Cada pago trae `oid`, `nn`, `gtx`, `uid`, `eid`, `sillas[]`, `monto` y `aprobado_en` en su `metadata`. Los aprobados pasan por `confirmarDesastre`; los que siguen en proceso esperan (ver abajo).
 * **Precondiciones:** las sillas en duda ya están congeladas (§5.0); la aplicación en us-east-2 apunta a la réplica local; nadie escribe en us-east-1. Las ventas pueden estar **abiertas**: ninguna otra compra puede tocar una silla congelada.
 * **Orden de proceso:** por `aprobado_en` ascendente. Si dos cobros aprobados reclaman la misma silla, gana el primero y el otro se reembolsa. Nunca hay doble venta; en el caso raro puede que la silla vaya a quien no la tenía en us-east-1, y por eso el criterio es explícito.
 
