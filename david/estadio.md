@@ -224,7 +224,7 @@ La capacidad de acceso sigue siendo la misma: con 48 carriles a 25 personas/minu
 - F-14: 48 lectores QR fijos sobre los torniquetes existentes; no se compran torniquetes propios.
 - F-23: 12 terminales portátiles, uno por puerta, para accesibilidad y contingencia. Se acepta que no alcanzan para asistir dos carriles caídos en una misma puerta a la vez.
 - F-24: fondo de reposición del 10 % anual del hardware desde el año 2, como supuesto de presupuesto ante la garantía limitada de precios de tienda; no sustituye una garantía escrita de cinco años.
-- El presupuesto consolidado del estadio queda en ≈ COP 159,8 M el año 1 en ambos escenarios, incluyendo servidores, nodos, terminales, lectores, UPS, red, gabinete, energía y datos móviles. Los costos completos de A y B están en `entrega/costos_boletaya_final.xlsx`.
+- El presupuesto consolidado del estadio queda en ≈ COP 157,0 M el año 1 en ambos escenarios, incluyendo servidores, nodos, terminales, lectores, UPS, red, gabinete, energía y datos móviles. Los costos completos de A y B están en `entrega/costos_boletaya_final.xlsx`.
 
 ### 9.1 Sistema operativo y fin de soporte (regla de Miguel: al menos 5 años desde la compra)
 

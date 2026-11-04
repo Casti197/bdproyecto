@@ -4,13 +4,13 @@ Versión integrada del 2026-11-04. Recomendación: **Escenario A (todo en AWS, e
 
 | Entregable del enunciado (§7) | Archivo | Estado |
 |---|---|---|
-| Propuesta escrita (PDF, ≤ 25 págs.) | [`propuesta_boletaya.pdf`](propuesta_boletaya.pdf) (10 páginas; fuente en `fuentes_pdf/propuesta.md`) | Lista |
-| Hoja de costos | [`costos_boletaya_final.xlsx`](costos_boletaya_final.xlsx) y capturas en [`evidencias/`](evidencias/) | Modelo con fuentes, fechas y estimaciones; confirmar condiciones comerciales |
+| Propuesta escrita (PDF, ≤ 25 págs.) | [`propuesta_boletaya.pdf`](propuesta_boletaya.pdf) (12 páginas; fuente en `fuentes_pdf/propuesta.md`) | Lista |
+| Hoja de costos | [`costos_boletaya_final.xlsx`](costos_boletaya_final.xlsx) y capturas en [`evidencias/`](evidencias/) | Lista: cada precio con fuente, fecha y captura (salvo el servidor Dell, agotado, con URL y fecha) |
 | Registro de decisiones (≥ 8 fichas) | [`registro_decisiones.md`](registro_decisiones.md) (25 fichas) y en [`anexos_boletaya.pdf`](anexos_boletaya.pdf) | Lista |
 | Análisis de concurrencia | `david/anexo_concurrencia.md`, también en `anexos_boletaya.pdf` | Lista |
 | Estudio de conmutación | `david/alta_disponibilidad.md`, también en `anexos_boletaya.pdf` | Lista |
 | Memorando de la carta de evento | — | No se asignó carta al grupo |
-| Presentación (≤ 20 diapositivas) | Deck externo de 20 diapositivas; guion en `integracion/presentacion_guion.md` | Guion listo; revisar, compartir y ensayar |
+| Presentación (≤ 20 diapositivas) | Deck de 20 diapositivas en claude.ai (se descarga como PowerPoint o PDF); guion en `integracion/presentacion_guion.md` | Lista |
 
 ## Qué se integró
 
@@ -23,15 +23,11 @@ Versión integrada del 2026-11-04. Recomendación: **Escenario A (todo en AWS, e
 
 | COP millones | Año 1 (tope base 280) | Peor año 2–5 (tope 130) | Caja 5 años | TCO 5 años |
 |---|---:|---:|---:|---:|
-| A | 194,0 | 86,1 | 473,7 | 619,9 |
-| B | 291,1 (usa la reserva del 10 %) | 122,0 | 699,8 | 874,8 |
+| A | 191,1 | 85,8 | 469,7 | 615,9 |
+| B | 289,6 (usa la reserva del 10 %) | 121,7 | 697,1 | 872,1 |
 
-B excede el tope base del año 1 en COP 11,13 M y requiere la reserva única; el año 5 queda bajo el tope anual por COP 8,04 M. Son cifras de modelo con precios públicos y supuestos, no cotizaciones vinculantes.
+B excede el tope base del año 1 en COP 9,59 M y requiere la reserva única; el año 5 queda bajo el tope anual por COP 8,33 M. Son cifras de modelo con precios públicos y supuestos, no cotizaciones vinculantes.
 
-## Pendientes para el grupo
+## Pendientes
 
-1. Validar en sitio la compatibilidad entre torniquetes existentes y lectores/controladores; confirmar stock, instalación, IVA y garantía de los precios consultados.
-2. Revisar los supuestos de AWS Pricing Calculator, AWS Backup y conectividad con proveedores.
-3. Confirmar con adquirente/asesor el SAQ PCI y revisar matriz de retención y contrato de transmisión a AWS.
-4. Miguel redacta el memorando cuando llegue una carta concreta del evento; aún no fue asignada.
-5. Compartir el deck externo, revisar las cifras y ensayar la sustentación.
+Ninguno para la entrega. Lo que queda antes de una implementación real (cotización formal y compatibilidad de los torniquetes en sitio, SAQ PCI con el adquirente, contrato de transmisión con AWS, validación de la matriz de retención con un asesor tributario) está declarado como supuesto en la propuesta y no es un entregable del curso. No se asignó carta de evento.
