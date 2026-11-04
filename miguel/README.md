@@ -16,7 +16,14 @@ Cubre: 5.5 Recuperación, 5.3 Versiones y licenciamiento, sitio alterno del Esce
 
 ## Resultado en una línea
 
-Tres capas: DynamoDB replica en 3 zonas (falla de zona, RPO 0); PITR de 35 días y AWS Backup con copia inmutable en otra región y cuenta (errores humanos, corrupción, ransomware); región alterna us-east-2 con modo seguro y conciliación contra la pasarela (pérdida de región). RTO desde la declaración de la falla: **7 a 13 minutos** si se pierde la región (7 a 16 sin traslape de pasos), **3 a 11** si se pierde el data center de Bogotá.
+Tres capas: DynamoDB replica en 3 zonas (falla de zona, RPO 0); PITR de 35 días y AWS Backup con copia inmutable en otra región y cuenta (errores humanos, corrupción, ransomware); región alterna us-east-2 con congelamiento de las sillas en duda y conciliación contra la pasarela (pérdida de región). RTO desde la declaración de la falla: **4 a 8 minutos** si se pierde la región (4 a 11 en secuencia; detección y declaración aparte, 2 a 5 minutos), **3 a 11** si se pierde el data center de Bogotá.
+
+## Cambios del 4 de noviembre (respuestas del profesor)
+
+- La pérdida del sitio es la **región** (nube) o el **data center** (Bogotá); una zona es la falla del servidor principal (RPO 0, RTO 15 min).
+- Ya no se cierra toda la venta al perder la región: se **congelan solo las sillas en duda**, se reabre y la conciliación termina después. RTO estimado: 4 a 8 min (4 a 11 en secuencia).
+- Escenario A es todo en AWS: no hay runbook 2c ni aplicación en Bogotá. Escenario B es híbrido.
+- El estadio opera aislado **4 horas** (antes 40 minutos).
 
 ## Qué está verificado y qué no
 
@@ -26,7 +33,7 @@ Tres capas: DynamoDB replica en 3 zonas (falla de zona, RPO 0); PITR de 35 días
 
 **Supuestos, no datos** (están marcados así en el documento):
 - Los tiempos de cada paso de los runbooks. AWS no publica tiempos de restauración ni de conmutación de una región.
-- Que la pasarela de pagos permita enviar metadatos en el cobro. El listado de transacciones por rango de fechas **ya se decidió usar** (3-nov-2026, Miguel, Jacobo y David), pero falta confirmarlo con la pasarela concreta, que no está elegida.
+- Que Mercado Pago (elegida el 3-nov-2026) permita guardar las sillas en `metadata` y devolver el mismo pago al repetir un cobro: su documentación lo indica, pero no se probó en el sandbox.
 - Que AWS Backup no consuma capacidad de las tablas (la documentación consultada no lo dice; por eso hay reglas de congelamiento y horario).
 - Si AWS Backup factura incrementalmente los puntos de DynamoDB (la lista de Juan Pablo da una cota superior).
 - Las horas de DBA (68 al año) y de actualización (104 en 5 años): son estimaciones mías.
@@ -43,7 +50,7 @@ Tres capas: DynamoDB replica en 3 zonas (falla de zona, RPO 0); PITR de 35 días
 | Juan Pablo | Costear la lista; avisar si el año 1 no cabe en COP 280.000.000 |
 | Samuel | Plazo legal de retención; confirmar que los respaldos no guardan números de tarjeta |
 | Profesor (P-1, P-4) | Qué significa Escenario B con DynamoDB; qué es "pérdida total del sitio" |
-| Miguel, David, Jacobo | Fijar la pasarela: listado por fechas decidido; faltan llave de idempotencia y metadatos en el cobro |
+| David, Jacobo | Probar en el sandbox de Mercado Pago (elegida el 3-nov) que `metadata` guarda las sillas y que la idempotencia devuelve el mismo pago |
 
 ## Cifras de costo que entrego
 
