@@ -29,14 +29,14 @@ Decisiones abiertas que afectan este documento:
 
 ## 5.5 Estrategia de respaldo
 
-Las cuatro tablas críticas llevan PITR de 35 días, una copia diaria de AWS Backup en otra región y otra cuenta, y una bóveda con Vault Lock. PITR cubre errores humanos y corrupción con granularidad de un segundo. La copia inmutable cubre el caso en que alguien con acceso borre las tablas y los respaldos de la cuenta principal.
+Las ocho tablas llevan PITR de 35 días. Las tres tablas con la verdad de la venta llevan además copias semanales (5) y mensuales (13) de AWS Backup en una bóveda con Vault Lock, copiadas a otra región y otra cuenta (ficha F-17 del registro final: PITR ya da cualquier segundo de los 35 días). PITR cubre errores humanos y corrupción con granularidad de un segundo. La copia inmutable cubre el caso en que alguien con acceso borre las tablas y los respaldos de la cuenta principal.
 
 | Tabla | PITR | AWS Backup (propuesta) | Copia fuera de la región | Exportación a S3 |
 | --- | --- | --- | --- | --- |
-| `bya_seats`, `bya_orders`, `bya_tickets` | 35 días | Diaria, retención 35 días; mensual, 13 meses | us-east-2, cuenta de respaldo, bóveda con Vault Lock | Incremental diaria (plan de Jacobo) |
-| `bya_counters` | 35 días | Diaria, 35 días | us-east-2, bóveda con Vault Lock | No: se reconstruye contando sillas `S` |
-| `bya_users`, `bya_catalog` | 35 días | Diaria, 35 días | us-east-2 | Solo `bya_catalog` |
-| `bya_audit` | 35 días | Diaria, 35 días | us-east-2, bóveda con Vault Lock | Incremental diaria a S3 con Object Lock |
+| `bya_seats`, `bya_orders`, `bya_tickets` | 35 días | Semanal, 5 copias; mensual, 13 meses | us-east-2, cuenta de respaldo, bóveda con Vault Lock | Incremental diaria (plan de Jacobo) |
+| `bya_counters` | 35 días | No: se reconstruye contando sillas `S` | No | No: se reconstruye contando sillas `S` |
+| `bya_users`, `bya_catalog` | 35 días | No (PITR en las dos regiones) | Réplica MREC | Solo `bya_catalog` |
+| `bya_audit` | 35 días | No: la copia inmutable es la exportación a S3 | Bucket replicado con Object Lock | Incremental diaria a S3 con Object Lock |
 | `bya_seat_history` | 35 días (requisito de la exportación) | No: se reconstruye desde exportaciones | No | Incremental diaria |
 
 Lo que dice la documentación y sostiene el diseño:
@@ -48,7 +48,7 @@ Lo que dice la documentación y sostiene el diseño:
 
 Para el archivo legal en S3: Object Lock exige versionado. En modo cumplimiento nadie puede borrar ni acortar la retención, ni siquiera la cuenta raíz, y la única forma de borrar antes del plazo es eliminar la cuenta de AWS [\[AWS, Object Lock\]](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html). El bucket se replica a us-east-2 con Replication Time Control, que replica el 99,9 % de los objetos en 15 minutos [\[AWS, RTC\]](https://docs.aws.amazon.com/AmazonS3/latest/userguide/replication-time-control.html).
 
-Decisión pendiente de costo: la copia inmutable es diaria en esta propuesta. Una copia horaria baja el RPO ante una cuenta comprometida a 1 hora, y Juan Pablo debe costear la diferencia.
+Decisión de costo (F-17): la copia inmutable es semanal y mensual. Ante una cuenta comprometida arriesga hasta 7 días en la copia inmutable; mientras la cuenta no se pierda, PITR cubre cualquier segundo de los 35 días. Costo en `entrega/costos_boletaya_final.xlsx`.
 
 ## 5.5 Cómo respaldar sin afectar la preventa
 
@@ -93,8 +93,8 @@ El RPO 0 es real solo dentro de la región. Si se pierde la región, la base tie
 
 **Pasarela: Mercado Pago** (D-11, `david/pasarelas.md`). Su documentación publica las tres capacidades que necesitamos: llave de idempotencia obligatoria (`X-Idempotency-Key`), listado de pagos por rango de fechas (`/v1/payments/search`) y un campo `metadata` en el pago. Resultados del sandbox (11/13):
 
-- Falta comprobar en el sandbox que `metadata` guarda y devuelve un objeto propio con las sillas.
-- Falta comprobar que repetir un cobro con la misma llave devuelve el mismo pago, no un error.
+- Confirmado en el sandbox (2026-11-04): `metadata` guarda y devuelve las sillas.
+- Confirmado: repetir un cobro con la misma llave devuelve el mismo pago (HTTP 201 y luego 200).
 - La búsqueda por fechas falló en sandbox; `bya_ledger` es parte de la ruta normal de pagos (D-2b), aunque se conserve `metadata` como referencia redundante.
 
 **Nota sobre el SLA.** El SLA de 99,999 % de las tablas globales exige que todas las tablas de la región sean globales y que se intente la conmutación [\[AWS, SLA\]](https://aws.amazon.com/dynamodb/sla/). Con solo algunas tablas replicadas aplica el SLA estándar de 99,99 %, que coincide con el mínimo del enunciado para la preventa.
@@ -349,17 +349,17 @@ En el ensayo de la semana 5 cada integrante responde una carta inventada en 3 mi
 | Alternativas | (a) Solo PITR. (b) PITR más AWS Backup en la misma cuenta y región. (c) PITR más AWS Backup con copia a otra región y cuenta, en una bóveda con Vault Lock |
 | Criterio | Sobrevivir al borrado malicioso o por error de la cuenta principal, con un costo que quepa en el tope del año 1 |
 | Elección | (c), con Vault Lock probado antes en modo gobernanza |
-| Sacrificio | Costo de almacenamiento comprometido hasta que venza la retención; el modo cumplimiento es irreversible; la copia diaria deja hasta 24 h de datos en riesgo ante una cuenta comprometida; hay que operar dos cuentas y dos regiones |
+| Sacrificio | Costo de almacenamiento comprometido hasta que venza la retención; el modo cumplimiento es irreversible; la copia semanal deja hasta 7 días de datos en riesgo ante una cuenta comprometida (F-17); hay que operar dos cuentas y dos regiones |
 
 ## Pendientes y qué necesito de los demás
 
 | Persona | Qué falta |
 | --- | --- |
-| David | Todo lo que pedí está hecho: D-2 aceptado, RTO de 4 a 11 minutos, RPO/RTO del ingreso y estadio de 4 horas. Falta que él (o Jacobo) pruebe en el sandbox de Mercado Pago el `metadata` y la idempotencia, y que envíe las preguntas que queden al profesor |
+| David | Hecho: D-2 aceptado, RTO de 4 a 11 minutos, RPO/RTO del ingreso, estadio de 4 horas y sandbox de Mercado Pago (11 de 13; `metadata` e idempotencia confirmadas, búsqueda por fechas no; de ahí D-2b) |
 | Jacobo | Hechos: sección de DynamoDB on premise/API compatible, Escenario A todo en AWS, estado AWS/Local Zone en Colombia y latencia; actualizar clave por minuto y GSI de `bya_ledger`, y medir latencia MRSC (pendiente) |
-| Juan Pablo | Costear AWS Backup (diario u horario), copias a us-east-2 y a la cuenta de respaldo, almacenamiento bajo Vault Lock, restauraciones de prueba, el testigo de MRSC si se usa, la aplicación en espera y el enlace redundante del Escenario B. Incluir en el TCO 68 horas de DBA al año (COP 8.160.000) y 15.360.000 en actualizaciones a 5 años (12.480.000 de la aplicación y 2.880.000 de PostgreSQL del estadio), más Ubuntu Pro de 14 equipos, que no tiene precio verificado |
-| Samuel | Plazo legal de retención y regla de Object Lock en S3. Los respaldos y la réplica de us-east-2 son otra transferencia de datos personales. Verificar que ningún respaldo contenga números de tarjeta (−1,0). AWS permite cifrar los respaldos con una llave KMS distinta a la de la tabla [\[AWS\]](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/backuprestore_HowItWorksAWS.html) |
-| Profesor | Respondió P-1, P-3, P-4, P-6, P-16, P-30 y P-41 el 4-nov-2026. Queda sin responder si el estadio ya tiene equipos propios (decisión de los torniquetes abierta) |
+| Juan Pablo | Hecho en `entrega/costos_boletaya_final.xlsx`: AWS Backup semanal y mensual con copia a otra cuenta y región (F-17), restauraciones de prueba, `bya_ledger`, aplicación en espera, enlaces de B, 68 h/año de DBA, COP 15.360.000 de actualizaciones y Ubuntu Pro solo el último año |
+| Samuel | Hecho en la propuesta §8: retención por clase documental con S3 Object Lock (F-21), transmisión internacional a AWS (Ley 1581) y verificación de que ningún respaldo ni log contenga tarjetas (F-20). Debe poder defenderlo |
+| Profesor | Respondió P-1, P-3, P-4, P-6, P-16, P-30 y P-41 el 4-nov-2026. La pregunta de los torniquetes quedó sin respuesta: el grupo decidió usar los del estadio (F-14) |
 | Yo | AWS no publica tiempos de restauración ni fechas de fin de vida de Valkey, así que esos dos datos se miden en los simulacros o se vigilan, no se citan |
 
 ## Fuentes
