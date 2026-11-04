@@ -213,7 +213,7 @@
 | Contexto | El enunciado permite hasta un 10 % adicional sobre el año 1, una sola vez, con una solicitud de adición presupuestal |
 | Alternativas | (a) No usarla. (b) Usarla para cubrir variaciones verificadas de precios |
 | Criterio | Solo si el total cotizado supera el presupuesto base y no lo supera con la reserva |
-| Elección | A no la usa (sobran COP 86,0 M en el año 1). B se pasa COP 11,1 M en el año 1 y la usa con la solicitud de adición presupuestal de `juanpablo/sensibilidad_y_tco.md` §7; le quedan 16,9 M de margen |
+| Elección | A no la usa (sobran COP 88,9 M en el año 1). B se pasa COP 9,6 M en el año 1 y la usa con la solicitud de adición presupuestal de `juanpablo/sensibilidad_y_tco.md` §7; le quedan 18,4 M de margen |
 | Fuente | Borrador de solicitud en `juanpablo/sensibilidad_y_tco.md` §7 |
 
 ---
@@ -279,7 +279,7 @@
 | Contexto | Hay que recomendar un escenario y decir si conviene cambiar en algún año |
 | Alternativas | A (todo en AWS + estadio local) o B (aplicación en Bogotá + base en AWS + estadio local) |
 | Criterio | Costo, riesgo, RPO/RTO, pico, operación y crecimiento |
-| Elección | A: COP 473,7 M de caja en 5 años frente a 699,8 M; latencia ≈ 22 ms frente a ≈ 353 ms; sin depender del enlace Bogotá–AWS; sigue cabiendo con doble preventa y doble cola, y B no en el año 5 |
+| Elección | A: COP 469,7 M de caja en 5 años frente a 697,1 M; latencia ≈ 22 ms frente a ≈ 353 ms; sin depender del enlace Bogotá–AWS; sigue cabiendo con doble preventa y doble cola, y B no en el año 5 |
 | Sacrificio | Toda la operación depende de AWS; los datos quedan fuera de Colombia (también en B) |
 | Cuándo cambiar | No hay un año en que B resulte mejor. Se revisaría si una norma exigiera los datos en Colombia o si AWS abriera una región en Colombia con DynamoDB (A se mudaría a esa región) |
 
@@ -300,15 +300,15 @@
 | Contexto | El enunciado pide garantía y soporte por 5 años o su renovación; los precios de tienda traen 1 año de garantía y no hay cotización de soporte extendido |
 | Alternativas | (a) Suponer soporte de 5 años sin precio. (b) Reservar cada año un porcentaje del hardware para reponer equipos. (c) Cotizar soporte del fabricante (no disponible hoy) |
 | Criterio | No omitir un costo que podría cambiar la conclusión (−0,5) |
-| Elección | (b): 10 % anual del hardware del estadio desde el año 2 (COP 15,9 M/año), más los 3 nodos de repuesto ya incluidos |
+| Elección | (b): 10 % anual del hardware del estadio desde el año 2 (COP 15,6 M/año), más los 3 nodos de repuesto ya incluidos |
 | Sacrificio | Es un supuesto del grupo, no una cotización; con una cotización real del fabricante se reemplaza |
 
 ## F-25. Escenario B sin caché en espera en us-east-2
 
 | Campo | Contenido |
 |---|---|
-| Contexto | Con todo costeado, B costaba COP 301,7 M en el año 1 y COP 132,5 M en el año 5: no cabía ni con la reserva en el año 5 |
+| Contexto | Con todo costeado, B costaba ≈ COP 300,1 M en el año 1 y ≈ COP 132,2 M en el año 5: no cabía ni con la reserva en el año 5 |
 | Alternativas | (a) Declarar B no viable. (b) Quitar la caché en espera de us-east-2 (−10,5 M/año) y usar la reserva en el año 1 |
 | Criterio | Presentar dos escenarios viables, con el sacrificio dicho |
-| Elección | (b): B queda en 291,1 M (año 1, con reserva) y 122,0 M (año 5) |
+| Elección | (b): B queda en 289,6 M (año 1, con reserva) y 121,7 M (año 5) |
 | Sacrificio | Si se pierde la región, B pierde el estado de la cola virtual y readmite a los compradores por sorteo (runbook 2c de Miguel ya lo prevé); A conserva la cola |
