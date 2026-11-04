@@ -23,7 +23,8 @@
 ## Pendientes
 
 **Míos (David)**
-* Sandbox de Mercado Pago (2026-11-04): `metadata` e idempotencia confirmadas; **la búsqueda por fechas no devolvió nada**. Repetir pasados unos minutos y con credenciales `APP_USR` del entorno Prueba (`pasarelas.md` §7).
+* Sandbox de Mercado Pago (2026-11-04): `metadata` e idempotencia confirmadas. **La búsqueda por fechas no funciona**: sigue en 0 resultados 14 minutos después, y la aplicación no tiene credenciales `APP_USR` para repetirla (`pasarelas.md` §7). Queda la decisión D-2b del grupo.
+* Si el grupo confirma D-2b: actualizar `pasarelas.md` (fila de Mercado Pago en §4, que dice que `bya_ledger` no hace falta) y `alta_disponibilidad.md` §5.0 para que el libro sea la fuente principal de las sillas en duda.
 * Entregar a Miguel el verificador de `pruebas/` para su simulacro de conmutación.
 * Preparar la sustentación de mis cuatro partes.
 

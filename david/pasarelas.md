@@ -2,7 +2,7 @@
 
 > **Decisión (2026-11-03):** Miguel, Jacobo y David aceptan **Mercado Pago**.
 >
-> **Sandbox (2026-11-04, §7):** `metadata` e idempotencia **confirmadas**. La **búsqueda por fechas no devolvió nada** en el sandbox, así que no está confirmada. Sin ella no se puede armar la lista de sillas en duda: se propone activar `bya_ledger` como fuente de esa lista (decisión D-2b del grupo).
+> **Sandbox (2026-11-04, §7):** `metadata` e idempotencia **confirmadas**. La **búsqueda por fechas no devolvió nada** en el sandbox, ni siquiera 14 minutos después, y la aplicación no tiene credenciales `APP_USR` para repetir la prueba, así que no está confirmada. Sin ella no se puede armar la lista de sillas en duda: se propone activar `bya_ledger` como fuente de esa lista (decisión D-2b del grupo).
 
 **Autor:** David · **Fecha:** 2026-11-03 · **Para:** Miguel y Jacobo (decisión D-11)
 **Qué necesitamos** (`alta_disponibilidad.md` §4, `miguel/` runbook 2b):
@@ -67,10 +67,10 @@ Corrida `60978573`, con credenciales `TEST-` de una aplicación de **API de Paym
 | Largo de `external_reference` | Acepta 64 y 128 caracteres; con 256 responde HTTP 400, "too much large" | La idea de §3 (guardar ahí las sillas) no hace falta, porque `metadata` funciona |
 | **Búsqueda por rango de fechas** | **Falla en el sandbox.** `/v1/payments/search` responde HTTP 200 pero sin resultados, también sin filtros, por estado, por vendedor o por `external_reference`. Solo funciona filtrando por el `id` del pago, y en ese caso sí trae la `metadata` | **No queda confirmado** que en producción se pueda listar por fechas. De esa búsqueda sale la lista de sillas en duda |
 
-**Qué falta para cerrar la búsqueda:**
-1. Repetir la corrida pasados unos minutos, por si el índice de búsqueda tarda.
-2. Repetir con las credenciales `APP_USR` del entorno Prueba (con `MP_CONFIRMO_PRUEBA = "1"`), por si las `TEST-` no permiten listar.
-3. Si sigue sin funcionar: activar `bya_ledger` como fuente de la lista de sillas en duda (`alta_disponibilidad.md` §5.0, "Si la búsqueda no está disponible"). No se puede descubrir en pleno desastre que la búsqueda no sirve.
+**Pasos para cerrar la búsqueda:**
+1. ~~Repetir la búsqueda pasados unos minutos, por si el índice tarda.~~ **Hecho.** A las 11:51, unos 14 minutos después de crear los pagos, la búsqueda por fechas y la búsqueda sin filtros siguen devolviendo 0 resultados. Se descarta un retraso del índice.
+2. ~~Repetir con las credenciales `APP_USR` del entorno Prueba.~~ **No se pudo:** la aplicación no tiene credenciales `APP_USR`, solo las `TEST-`.
+3. **Pendiente de decisión del grupo (D-2b):** activar `bya_ledger` como fuente de la lista de sillas en duda (`alta_disponibilidad.md` §5.0, "Si la búsqueda no está disponible"); Jacobo ajusta la clave. No se puede descubrir en pleno desastre que la búsqueda no sirve.
 
 ## 6. Referencias
 

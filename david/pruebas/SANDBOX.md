@@ -2,7 +2,7 @@
 
 **Para qué:** confirmar lo que el modo desastre necesita de Mercado Pago (`pasarelas.md` §2, `alta_disponibilidad.md` §5.0). Hay que correrlo **en un computador del grupo**: el entorno donde se escribió el script no tiene salida a la API de Mercado Pago.
 
-El script `sandbox_mercadopago.py` se probó contra un servidor que imita la API (13 de 13 casos). **Contra Mercado Pago real todavía no se ha corrido.**
+El script `sandbox_mercadopago.py` se probó contra un servidor que imita la API (13 de 13 casos). **Contra el sandbox de Mercado Pago se corrió el 2026-11-04 (corrida `60978573`): 11 de 13 pasan.** Falla la búsqueda por fechas; ver `pasarelas.md` §7.
 
 ## Qué comprueba
 
