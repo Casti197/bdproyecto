@@ -15,14 +15,15 @@
 | [`respuesta_a_miguel.md`](respuesta_a_miguel.md) | Condiciones de D-2 aceptadas y cambios al runbook 2b | Listo |
 | [`preguntas_para_el_cliente.md`](preguntas_para_el_cliente.md) | 64 preguntas en lenguaje de negocio para el profesor (cliente) | Listo |
 | [`preguntas_para_el_profesor.md`](preguntas_para_el_profesor.md) | Versión técnica, numeración P-1 a P-67 | Listo |
-| [`pruebas/`](pruebas/) | Prueba de las transacciones en un simulador (moto): 37 casos, resultado en `resultado.txt`; verificador de invariantes para el simulacro | Listo |
+| [`pruebas/`](pruebas/) | Prueba de las transacciones en un simulador (moto): 46 casos, resultado en `resultado.txt`; verificador de invariantes para el simulacro | Listo |
+| [`respuestas_profesor.md`](respuestas_profesor.md) | Las 7 respuestas del profesor (2026-11-04) y a quién le toca cada una | Registrado |
 | [`pasarelas.md`](pasarelas.md) | Comparación de pasarelas para D-11; elegida Mercado Pago | Decidido |
 | [`estadio.md`](estadio.md) | Nodo por puerta como autoridad, doble ingreso entre puertas, fallas, sincronización con DynamoDB, equipo para Juan Pablo | Listo (borrador para revisión) |
 
 ## Pendientes
 
 **Míos (David)**
-* Esperar las respuestas del profesor (preguntas ya enviadas) y ajustar los documentos.
+* Hecho el 2026-11-04: respuestas 3, 5, 6 y 7 del profesor aplicadas a mis documentos.
 * Entregar a Miguel el verificador de `pruebas/` para su simulacro de conmutación.
 
 **De otros**
@@ -33,6 +34,11 @@
 
 * Juan Pablo: mostrar el Escenario B con la opción 1 (torniquetes propios) y la 2 (usar los del estadio) de `estadio.md` §9.2; corregir el signo del "Saldo" del Resumen; cobrar Ubuntu Pro solo el último año.
 
+* Jacobo: sección de máximo 2 páginas sobre por qué DynamoDB no va *on premise* y si hay alternativa compatible (respuesta 1); Escenario A todo en AWS (respuesta 2); AWS en Colombia y latencia desde Bogotá (respuesta 4).
+* Miguel: runbook 2b y tabla de RTO con el congelamiento de sillas en duda (`alta_disponibilidad.md` §3.3 y §5.0); carta del estadio de 40 min a 4 h (respuesta 7).
+* Samuel: análisis de transferencia internacional de la Ley 1581 (respuesta 4).
+* Juan Pablo: comparar A (todo en AWS) contra B en latencia, conectividad, egress y costos (respuesta 2).
+
 **Entre varios**
 * Miguel, Jacobo y David: D-11 **decidida: Mercado Pago** (2026-11-03). Falta comprobar en el sandbox `metadata` y `X-Idempotency-Key` (`pasarelas.md` §2).
-* Grupo: decidir los riesgos E-R1 y E-R2 de `estadio.md` §8 y la opción de equipo de puerta de §9.2 (depende de la pregunta 45 al profesor).
+* Grupo: decidir los riesgos E-R1 y E-R2 de `estadio.md` §8 y la opción de equipo de puerta de §9.2 (la pregunta 45 sigue sin respuesta).

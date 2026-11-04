@@ -7,6 +7,16 @@
 
 ---
 
+## 0. Qué es doble venta (respuesta 5 del profesor, 2026-11-04)
+
+| Regla del profesor | Cómo la cumple el diseño | Dónde |
+|---|---|---|
+| Prohibido que una silla termine con dos boletas válidas o dos órdenes pagadas | La silla pasa a `S` solo en la transacción que exige `st = 'L' AND lo = :oid`; la boleta usa `attribute_not_exists` con un `tid` determinista; si la silla ya es de otro, la orden queda `FULFILL_FAIL` y se reembolsa, **nunca** `PAID` | §5; anexo, escenarios 1 y 2b |
+| Prohibido que dos usuarios tengan a la vez un bloqueo activo sobre la misma silla; el de 8 minutos es exclusivo | Solo se bloquea una silla `A` o una `L` vencida hace más de `:skew` (`lx < now − 2 s`). Mientras el bloqueo esté vigente, nadie más lo toma. Con relojes sincronizados por NTP con menos de 2 s de diferencia, los bloqueos no se traslapan. En desastre, un bloqueo que no llegó a la réplica no puede terminar en compra (anexo, escenario 4b) | §3; pruebas: ":skew protege al dueño" |
+| Se permite que el mapa muestre un estado con atraso, si la validación final es contra la base | El mapa sale de instantáneas en la CDN (Jacobo) y de `Query`/GSI, que pueden ir atrasados. **Ninguna decisión de venta se toma con ellos**: solo con las condiciones de la transacción | §5, "Aislamiento" |
+
+**Supuesto que queda explícito:** la exclusividad del bloqueo depende de que los relojes de los servidores difieran en menos de `:skew` = 2 s. Es lo que justifica ese margen (`respuesta_a_jacobo.md`).
+
 ## 1. Resumen
 
 | Riesgo | Mecanismo | Garantía |

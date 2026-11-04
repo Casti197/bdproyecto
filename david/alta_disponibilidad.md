@@ -1,7 +1,9 @@
 # Conmutación y alta disponibilidad
 
-**Autor:** David · **Fecha:** 2026-11-03 · **Rúbrica:** Estudio de conmutación y alta disponibilidad (3 puntos)
+**Autor:** David · **Fecha:** 2026-11-03, actualizado el 2026-11-04 con las respuestas del profesor (`respuestas_profesor.md`) · **Rúbrica:** Estudio de conmutación y alta disponibilidad (3 puntos)
 **Insumos:** `jacobo/arquitectura.md` §4.1, `miguel/recuperacion_licenciamiento_carta.md` (tabla de RTO y runbooks), `miguel/respuesta_a_david.md`. Referencias `[R-xx]` en `jacobo/referencias.md` (citas de Jacobo que no abrí yo); `[D-xx]` al final de este documento (páginas que abrí yo el 2026-11-03).
+
+> **Cambio del 2026-11-04 (respuestas 3 y 6 del profesor):** ya no se cierra toda la venta al perder la región. Se **congelan solo las sillas en duda** (§5.0), se reabre, y la conciliación termina después con esas sillas congeladas. El RTO termina en la reapertura y baja a **4 a 11 minutos** desde la declaración (§3.3).
 
 > **Idea central:** la base no tiene un "servidor principal" que conmutar. Dentro de la región DynamoDB replica en 3 zonas y no hay nada que hacer. Lo que sí se conmuta, y es lo que cuesta tiempo, es **el tráfico y la aplicación** hacia otra región, y ahí el RPO 0 de los **pagos** se logra con un **proceso** (conciliar contra la pasarela), no con la réplica.
 
@@ -12,9 +14,9 @@
 | Falla | RPO de la base | RPO de pagos | RTO | Mecanismo | Fuente |
 |---|---|---|---|---|---|
 | Servidor de aplicación | 0 | 0 | Lo que tarde el escalado | El estado vive en la base; la confirmación es idempotente | `concurrencia.md` §5 |
-| Zona de disponibilidad | 0 | 0 | Sin conmutación | Replicación en 3 zonas, SLA 99,99 % | [D-11, D-12] |
-| Región completa | Segundos (MREC asíncrona) | 0 **si** se cumple la conciliación de §5 | 7 a 13 min **desde la declaración**, o 7 a 16 si los pasos van en secuencia (estimación de Miguel, §3.3) | Réplica en us-east-2 + modo seguro + conciliación contra la pasarela | [D-07, D-08] |
-| Data center de Bogotá (Escenario B) | 0 (la base no está allí) | 0 | 3 a 11 min (Miguel) | Aplicación en espera en AWS; runbook 2c | `miguel/` runbook 2c |
+| Zona de disponibilidad (para el profesor es la falla del "servidor principal", no del sitio) | 0 | 0 | Sin conmutación de la base; la aplicación corre en varias zonas | Replicación en 3 zonas, SLA 99,99 % | [D-11, D-12] |
+| Región completa (= pérdida del sitio en la nube) | El atraso de replicación: típicamente ≤ 1 s, sin SLA (§3.1) | 0, con las sillas en duda congeladas hasta conciliar | **4 a 11 min desde la declaración** hasta aceptar compras (§3.3); detección y declaración aparte, 2 a 5 min | Réplica en us-east-2 + congelamiento de sillas en duda + conciliación contra la pasarela | [D-07, D-08] |
+| Data center de Bogotá (= pérdida del sitio en el Escenario B) | 0 (la base no está allí) | 0 | 3 a 11 min (Miguel) | Aplicación en espera en AWS; runbook 2c | `miguel/` runbook 2c |
 
 ## 2. Cómo funciona la alta disponibilidad elegida
 
@@ -55,6 +57,8 @@ De los puntos 1 y 2 sale la regla: **solo una región escribe**. De los puntos 1
 | Revisión de salud de Route 53 | Cada 10 o cada 30 s; el tiempo total depende del umbral de fallos y **AWS no da una fórmula** | [D-13] |
 | RTO absoluto de la conmutación de una región de DynamoDB | **AWS no publica una cifra** | [D-08, D-10] |
 
+**Atraso de replicación que asumimos (condición a del profesor).** Típicamente 1 s o menos [D-07]; Capital One midió ≈ 1 s y vio que crece bajo carga [D-14]; AWS no da SLA [D-08]. Diseñamos para **hasta 60 s**: una alarma salta si `ReplicationLatency` pasa de 60 s durante la preventa, y en ese caso el coordinador sabe que la ventana de §5.0 debe crecer en lo mismo. **La seguridad no depende de esa cifra**: las sillas en duda salen de la pasarela, no de la réplica, y la ventana se fija como 8 minutos de bloqueo + 2 de margen + el último atraso medido.
+
 **Consecuencia honesta:** el único dato con número es el de enrutamiento (segundos a minutos). Todo el resto del RTO (congelar, levantar la aplicación, conciliar) son **tiempos de nuestro propio procedimiento**, y solo un simulacro los confirma.
 
 ### 3.2 Criterio para declarar la falla
@@ -62,25 +66,39 @@ De los puntos 1 y 2 sale la regla: **solo una región escribe**. De los puntos 1
 El enunciado mide el RTO "desde que se declara la falla" (hallazgo H-2 de Miguel), así que el criterio debe estar acordado **antes** de la preventa. Propuesta, basada en lo que AWS recomienda [D-10]:
 
 * **Alarma compuesta** de CloudWatch con `SystemErrors` de DynamoDB, `ReplicationLatency` y el porcentaje de errores 5xx de la API. AWS da como ejemplo una alarma que se activa cuando los 5xx "superan 5 % durante tres periodos consecutivos de 1 minuto" [D-10].
-* **Confirmación humana:** el coordinador del incidente y el DBA de guardia revisan el estado de AWS (AWS Health) y **declaran**. Es una decisión manual a propósito: el modo seguro cierra las ventas.
+* **Confirmación humana:** el coordinador del incidente y el DBA de guardia revisan el estado de AWS (AWS Health) y **declaran**. Es una decisión manual a propósito: declarar congela sillas y mueve todo el tráfico de región.
+* **Revisión de salud de Route 53** contra el punto de compra de us-east-1: cada 30 s y falla tras 3 revisiones seguidas, que son los valores por defecto (umbral entre 1 y 10; intervalo de 10 o 30 s) [D-22]. Con eso la detección automática tarda unos **90 s**; con el intervalo rápido de 10 s, unos 30 s, con costo adicional [D-13].
 * Se anotan la hora **T** de la última escritura visible y la última `ReplicationLatency` (paso 1 del runbook 2b).
 
-La detección (hasta que la alarma se activa) queda **fuera** del RTO, pero se reporta aparte.
+**Tiempo de detección y declaración, reportado aparte del RTO (respuesta 6 del profesor):**
 
-### 3.3 Alineación con la tabla de RTO de Miguel (7 a 13 min, o 7 a 16 sin traslape)
-
-| Paso (Miguel) | Minutos | Mi observación |
+| Etapa | Tiempo | Fuente |
 |---|---|---|
-| 1. Congelar escrituras en us-east-1 | 1 a 2 | De acuerdo. Con la región caída puede no ser posible escribir la política: en ese caso el congelamiento real es **cerrar la admisión** y no enrutar tráfico a us-east-1 |
-| 2. Cambiar el tráfico a us-east-2 | 1 a 3 | **Es el paso más optimista.** AWS dice "varios minutos" para DNS solo, y "segundos a pocos minutos" con ARC [D-10]. El rango de Miguel vale si el cambio es manual y preparado, con TTL de 60 s |
-| 3. Aplicación en us-east-2 con capacidad de pico | 0 a 3 | Requiere aplicación en espera encendida **y la réplica pre-calentada**, que se cumple sola (ver §7) |
-| 4. Conciliar contra la pasarela | 3 a 5 | De acuerdo con su cálculo; ahora con el procedimiento de §5 |
-| 5. **Reconstruir** contadores | 1 a 2 | Cambia de "verificar" a "reconstruir" (ver §5.4) |
-| 6. Reapertura gradual | 1 | De acuerdo |
+| Route 53 marca la falla (3 revisiones × 30 s) | ≈ 1,5 min | [D-22] |
+| La alarma compuesta de CloudWatch se activa (3 periodos de 1 min) | ≈ 3 min, en paralelo | [D-10] |
+| El coordinador y el DBA confirman en AWS Health y declaran | 0 a 2 min | Supuesto |
+| **Detección y declaración** | **≈ 2 a 5 min** | Se mide en el simulacro |
 
-**Orden.** La tabla de Miguel cambia el tráfico en el paso 2 y su runbook 2b lo hace en el paso 6. Propongo el de la **tabla**: el tráfico va a us-east-2 primero, con la admisión cerrada (la gente ve la sala de espera desde la región sana), y la apertura es lo último.
+**Criterio de declaración:** alarma compuesta activa **y** Route 53 en falla **y** confirmación humana. Es manual a propósito: congelar y conmutar no se hace por un falso positivo.
 
-**Actualización del 2026-11-03.** Miguel aplicó estos cambios a su runbook 2b. Como reconstruir contadores va **después** de conciliar, y ya no en paralelo, su total pasó a **7 a 16 minutos** con los pasos en secuencia. Si la aplicación en espera se levanta mientras cambia el DNS, queda en **7 a 13 minutos**. El extremo de 16 supera los 15 del enunciado: el traslape del paso 3 no es opcional, y solo el simulacro dirá si alcanza. Si no alcanza, Miguel propone reabrir por localidades a medida que cada una queda conciliada.
+### 3.3 RTO nuevo: la conciliación sale del camino crítico
+
+El profesor dice que el RTO termina "hasta que la plataforma acepta compras otra vez con datos correctos", y que "la conciliación de pagos pendientes puede terminar después, siempre que esas sillas sigan congeladas" (respuesta 6). Eso saca la conciliación y la reconstrucción de contadores del RTO.
+
+| Paso | Minutos | Fuente u observación |
+|---|---|---|
+| 1. Cerrar la admisión y no enrutar a us-east-1 | 1 a 2 | Miguel |
+| 2. Cambiar el tráfico a us-east-2 (la gente ve la sala de espera) | 1 a 3 | "Segundos a pocos minutos" con ARC, "varios minutos" solo con DNS [D-10]; vale con TTL de 60 s y el cambio preparado |
+| 3. Aplicación en us-east-2 lista (en paralelo con el paso 2) | 0 a 3 | Miguel; réplica pre-calentada automáticamente [D-18] |
+| 4. **Congelar las sillas en duda** (§5.0) | 1 a 2 | Supuesto: una búsqueda en Mercado Pago y unos pocos miles de escrituras |
+| 5. Reabrir por tramos | 1 | Miguel |
+| **RTO (pasos 2 y 3 en paralelo)** | **4 a 8** | Suma de mínimos y máximos |
+| **RTO (todo en secuencia)** | **4 a 11** | Peor caso |
+| Después del RTO: conciliar (§5.1–5.3) y reconstruir contadores (§5.4) | 4 a 7 | No cuenta en el RTO: las sillas en duda siguen congeladas |
+
+**Cumplimiento de la condición c del profesor:** el peor caso estimado (11 min) queda **por debajo de 15**, con 4 minutos de margen. Si el simulacro midiera más de 15, la diferencia se cierra con lo que más pesa: automatizar el cambio de tráfico con Application Recovery Controller en vez de DNS manual [D-10], cuyo costo debe cotizar Juan Pablo. Ningún tiempo de esta tabla está medido.
+
+**Total desde la falla**, para informarlo completo: 2 a 5 min de detección y declaración más 4 a 11 de RTO, es decir **6 a 16 minutos**.
 
 ## 4. Por qué ninguna orden confirmada se pierde (RPO 0)
 
@@ -88,8 +106,9 @@ La detección (hasta que la alarma se activa) queda **fuera** del RTO, pero se r
 |---|---|
 | ¿Se pierde una orden si cae un servidor? | No. La orden y el pago están en la base y la confirmación es idempotente (`concurrencia.md` §5–§6) |
 | ¿Y si cae una zona? | No. Se confirma tras replicar en 3 zonas [D-11] |
-| ¿Y si cae una región? | La **base** puede perder los últimos segundos (RPO = retraso de replicación [D-07]). Pero el **dinero** no se pierde: la pasarela guarda cada cobro aprobado y, antes de reabrir, se reaplican en us-east-2 todos los aprobados |
-| ¿Puede entonces venderse dos veces una silla? | No, porque las ventas permanecen **cerradas** hasta terminar la conciliación y porque solo escribe una región |
+| ¿Y si cae una región? | La **base** puede perder los últimos segundos (RPO = retraso de replicación [D-07]). Pero el **dinero** no se pierde: la pasarela guarda cada cobro, las sillas de esos cobros se congelan antes de reabrir y se concilian después |
+| ¿Puede entonces venderse dos veces una silla? | No. Toda silla que pudo venderse en us-east-1 sin llegar a la réplica tiene un cobro en la pasarela, y esa silla queda congelada hasta conciliarla. Además, solo escribe una región |
+| ¿Pueden dos personas tener la misma silla bloqueada a la vez? | No. Un bloqueo que no llegó a la réplica queda anulado: su orden no existe en us-east-2, así que ese cliente no puede pagar con él y debe volver a elegir. Si ya había empezado a pagar, su cobro está en la pasarela y la silla queda congelada (§5.0) |
 
 La afirmación "RPO 0 de pagos" depende de **tres capacidades de la pasarela**. El 2026-11-03 Miguel, Jacobo y David eligieron **Mercado Pago** (D-11, `pasarelas.md`), que documenta las tres: llave de idempotencia obligatoria (`X-Idempotency-Key`), campo `metadata` en el pago (evento, usuario y sillas) y búsqueda de pagos por rango de fechas (`/v1/payments/search`). **Falta comprobar en el sandbox** que `metadata` guarda y devuelve un objeto propio y que repetir con la misma llave devuelve el mismo pago. Si `metadata` no sirve, las sillas de un pago no se pueden reconstruir: se reembolsa o se activa el libro de pagos de Jacobo (`bya_ledger`). Es la condición 1 y 2 de Miguel, y las acepto.
 
@@ -103,10 +122,43 @@ Este es el paso 4 del runbook 2b de Miguel. **No sirve la confirmación normal**
 | Exige `st='L' AND lo=:oid` | En la réplica la silla puede estar `A` (el bloqueo no alcanzó a replicarse) y la condición falla |
 | Cuenta con que la compra se aplicó completa o nada | Una réplica puede mostrar una compra **a medias** [D-07]: `ORDER` en `PAID` y la silla todavía en `L` |
 
+### 5.0 Congelar las sillas en duda (respuesta 3b del profesor)
+
+**Qué silla está en duda.** Una silla solo puede estar vendida en us-east-1 sin que la réplica lo sepa si su pago existe en la pasarela: para vender, la compra pasa siempre por un cobro (`concurrencia.md` §4). Por eso:
+
+> **Sillas en duda** = las sillas del `metadata` de **todo pago de Mercado Pago creado desde `T − W`**, en cualquier estado salvo rechazado o cancelado (los nombres exactos de estado se confirman en el sandbox). `W` = 8 min de bloqueo + 2 min de margen + el último `ReplicationLatency` medido.
+
+Un pago creado antes de `T − W` corresponde a un bloqueo que ya venció en us-east-1. Si se aprueba después, se trata como en el escenario 2b del anexo: si la silla sigue libre se confirma; si otro la tomó, se reembolsa. Es lo mismo que pasaría sin desastre.
+
+**Cómo se congela, sin estado nuevo.** Cada silla en duda se bloquea a nombre del incidente, con un vencimiento lejano. La condición normal de bloqueo (`st = 'A' OR (st = 'L' AND lx < :vencido_antes_de)`) ya rechaza esa silla para cualquier otro cliente:
+
+```text
+funcion congelarSillasEnDuda(T, W, incidente):
+    pagos = MercadoPago GET /v1/payments/search  range=date_created  begin_date=T-W  end_date=NOW
+    si la búsqueda falla: NO reabrir; seguir con las ventas cerradas y reintentar        # respaldo seguro
+    para cada pago p que no esté rechazado ni cancelado:
+        para cada silla s de p.metadata.sillas:
+            Update bya_seats Key de s
+                IF  st <> 'S'                                   # una vendida ya no se puede comprar
+                SET st = 'L', lo = :conc, lx = :lejos ADD v :uno   # :conc = "CONC#<incidente>", :lejos = T + 1 día
+    registrar en el incidente cuántas sillas quedaron congeladas
+```
+
+* Si el `Update` falla porque la silla está `S`, ya está protegida: no hace falta congelarla.
+* Pisar un bloqueo `L` de la misma orden no hace daño: `confirmarDesastre` acepta las sillas congeladas por el incidente (§5.2).
+* El mapa mostrará esas sillas como no disponibles. El profesor acepta que el mapa vaya con atraso mientras la validación final sea contra la base (respuesta 5).
+* El límite de 10 sillas por usuario (`LIM#`) puede estar desactualizado en la réplica al reabrir. Eso no causa doble venta y se recalcula al final de la conciliación (§5.4).
+
+**Al terminar la conciliación**, cada silla congelada que no quedó vendida vuelve a estar libre:
+
+```text
+Update bya_seats Key de s  IF st = 'L' AND lo = :conc  SET st = 'A'  REMOVE lx, lo  ADD v :uno
+```
+
 ### 5.1 Datos de partida y precondiciones
 
 * **Entrada:** cada pago aprobado que devuelve `GET /v1/payments/search` de Mercado Pago (con `range=date_created`) desde `T − ventana` (propuesta: **5 minutos**; AWS dice "un segundo o menos" típico pero sin SLA [D-08]). Cada cobro trae `oid`, `nn`, `gtx`, `uid`, `eid`, `sillas[]`, `monto` y `aprobado_en` (los metadatos).
-* **Precondiciones:** ventas cerradas; la aplicación en us-east-2 apunta a la réplica local; nadie escribe en us-east-1.
+* **Precondiciones:** las sillas en duda ya están congeladas (§5.0); la aplicación en us-east-2 apunta a la réplica local; nadie escribe en us-east-1. Las ventas pueden estar **abiertas**: ninguna otra compra puede tocar una silla congelada.
 * **Orden de proceso:** por `aprobado_en` ascendente. Si dos cobros aprobados reclaman la misma silla, gana el primero y el otro se reembolsa. Nunca hay doble venta; en el caso raro puede que la silla vaya a quien no la tenía en us-east-1, y por eso el criterio es explícito.
 
 ### 5.2 Pseudocódigo
@@ -128,7 +180,7 @@ funcion confirmarDesastre(cobro):                    # cobro viene de la pasarel
         para cada silla s:
             mia   = (s.st == 'S' y s.so == oid)
             libre = (s.st == 'A')
-                 o (s.st == 'L' y (s.lo == oid o s.lx < :vencido_antes_de))
+                 o (s.st == 'L' y (s.lo == oid o s.lo == :conc o s.lx < :vencido_antes_de))
             si no (mia o libre): conflicto = verdadero
 
         si conflicto:
@@ -142,7 +194,7 @@ funcion confirmarDesastre(cobro):                    # cobro viene de la pasarel
         para cada silla s que no es 'mia':
             acciones += Update bya_seats  Key de s
                 IF  (st = 'A')
-                 OR (st = 'L' AND (lo = :oid OR lx < :vencido_antes_de))
+                 OR (st = 'L' AND (lo = :oid OR lo = :conc OR lx < :vencido_antes_de))
                  OR (st = 'S' AND so = :oid)                     # por si otra ejecución ya la tomó
                 SET st = 'S', so = :oid, tk = :tid  REMOVE lx, lo  ADD v :uno
         para cada ticket ausente:
@@ -168,7 +220,7 @@ funcion confirmarDesastre(cobro):                    # cobro viene de la pasarel
 
 ### 5.3 Por qué esto es seguro
 
-* **No hay doble venta.** Una silla pasa a `S` solo si está libre, vencida, ya es de esta orden o ya es vendida a esta orden. Si es de otra orden, el cobro va a reembolso. Como las ventas están cerradas y solo escribe una región, nadie más compite durante la conciliación [D-07].
+* **No hay doble venta.** Una silla pasa a `S` solo si está libre, vencida, ya es de esta orden o ya es vendida a esta orden. Si es de otra orden, el cobro va a reembolso. Aunque las ventas estén abiertas, ninguna compra nueva puede tomar una silla congelada, y solo escribe una región [D-07].
 * **Es idempotente.** Se puede ejecutar dos veces (o por el webhook y por el reconciliador a la vez): el segundo plan solo encuentra lo que falta, y la condición `st = 'S' AND so = :oid` hace que repetir la silla no falle.
 * **Cubre "PAID" a medias.** Miguel indica "si está `PAID`, no hacer nada". Con transacciones que no se replican como unidad [D-07], una orden en `PAID` puede tener la silla en `L` o la boleta sin crear. Por eso **también las órdenes `PAID` de la ventana pasan por `confirmarDesastre`**, que no hace nada si todo está completo (`YA_COMPLETA`) y repara si no.
 * **Las boletas no se pisan.** Cada acción de boleta es `attribute_not_exists`: si la boleta ya estaba (incluso `USED`), no se toca.
@@ -176,7 +228,7 @@ funcion confirmarDesastre(cobro):                    # cobro viene de la pasarel
 
 ### 5.4 Contadores: de "verificar" a "reconstruir"
 
-Miguel propone verificar que la suma de fragmentos iguale las sillas `S`. Con transacciones a medias el contador puede haberse replicado sin la silla, o al revés, y `confirmarDesastre` no lo toca. Propongo: **al terminar la conciliación**, para cada localidad se cuentan las sillas `S` (consulta por filas, como el constructor del mapa) y se **fijan** los fragmentos (`SH#00` = el total, el resto en 0). Es válido porque el contador es **derivado** de las sillas (Jacobo, `entrega_para_el_equipo.md` §3.1) y no hay ventas en curso. El límite por usuario `LIM#` se recalcula desde las órdenes, como indica Miguel.
+Miguel propone verificar que la suma de fragmentos iguale las sillas `S`. Con transacciones a medias el contador puede haberse replicado sin la silla, o al revés, y `confirmarDesastre` no lo toca. Propongo: **al terminar la conciliación**, para cada localidad se cuentan las sillas `S` (consulta por filas, como el constructor del mapa) y se **fijan** los fragmentos (`SH#00` = el total, el resto en 0). Es válido porque el contador es **derivado** de las sillas (Jacobo, `entrega_para_el_equipo.md` §3.1). Como las ventas ya están abiertas, contar y fijar no es atómico: una venta que ocurra entre las dos operaciones puede dejar el contador corrido en unas pocas sillas. **Eso no afecta la doble venta**, porque la decisión de vender nunca usa el contador sino la silla, y el profesor acepta que lo que se muestra vaya con atraso (respuesta 5). El contador se reconstruye otra vez, exacto, cuando la preventa cierra. El límite por usuario `LIM#` se recalcula desde las órdenes, como indica Miguel.
 
 ### 5.5 Pagos que llegan después de abrir
 
@@ -206,7 +258,8 @@ Miguel pregunta si su lectura es correcta: la región original **no recibe tráf
 * **Pasarela:** elegida Mercado Pago (2026-11-03). Falta la prueba de sandbox de `pasarelas.md` §2 (Miguel, Jacobo, David).
 * **Jacobo:** ya diseñó el libro de pagos en MRSC (`bya_ledger`, opcional) por si la pasarela no permite metadatos; se activa según la pasarela que se elija.
 * **Miguel:** hecho el 2026-11-03 (runbook 2b de 10 pasos).
-* **Profesor:** P-4, "pérdida total del sitio".
+* **Profesor:** P-4 respondida el 2026-11-04: región en la nube, data center en Bogotá.
+* **Miguel:** pasar el runbook 2b al congelamiento de sillas en duda (§5.0) y a la tabla de RTO de §3.3.
 * **Simulacro:** ningún tiempo de este documento se ha medido; el plan de pruebas es de Miguel.
 
 ## 9. Referencias propias
@@ -224,3 +277,4 @@ Consultadas el 2026-11-03. Las citas en español son traducciones mías.
 | D-13 | [How Route 53 determines the health of endpoints](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-determining-health-of-endpoints.html) | Revisión cada 10 o 30 s; sin fórmula del tiempo total |
 | D-14 | [Capital One: Moving to DynamoDB to increase application resiliency](https://www.capitalone.com/tech/software-engineering/comparing-dynamodb-and-aurora-global-database-and-aurora-multi-master/) | Caso publicado: replicación ≈ 1 s en operación normal, mayor bajo carga; sin tiempo de conmutación absoluto |
 | D-18 | [Understanding DynamoDB warm throughput](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/warm-throughput.html) | En tablas globales, el *warm throughput* se aplica automáticamente a todas las réplicas; la duración del pre-calentamiento depende de los valores y del tamaño de la tabla |
+| D-22 | [Route 53 API: HealthCheckConfig](https://docs.aws.amazon.com/Route53/latest/APIReference/API_HealthCheckConfig.html) | `FailureThreshold` entre 1 y 10, por defecto 3; `RequestInterval` de 10 o 30 s, por defecto 30 |

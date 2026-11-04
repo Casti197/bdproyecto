@@ -23,6 +23,7 @@ MAX_POR_USUARIO = 10
 NSH = 8
 EID = "1234"
 REGION = "us-east-1"
+CONC = "CONC#INC-1"   # dueño de las sillas congeladas por el incidente (alta_disponibilidad.md §5.0)
 
 resultados = []
 
@@ -224,7 +225,7 @@ def confirmar_desastre(ddb, cobro, now):
             s = silla(ddb, loc, fila, nro)
             st = s["st"]["S"]
             mia = st == "S" and s.get("so", {}).get("S") == oid
-            libre = st == "A" or (st == "L" and (s.get("lo", {}).get("S") == oid
+            libre = st == "A" or (st == "L" and (s.get("lo", {}).get("S") in (oid, CONC)
                                                 or int(s["lx"]["N"]) < now - SKEW))
             if not (mia or libre):
                 conflicto = True
@@ -232,9 +233,9 @@ def confirmar_desastre(ddb, cobro, now):
                 tid = tid_de(oid, f"{loc}|{fila}|{nro}")
                 acciones.append({"Update": {
                     "TableName": "bya_seats", "Key": key_silla(loc, fila, nro),
-                    "ConditionExpression": "(st = :a) OR (st = :l AND (lo = :oid OR lx < :vencido_antes_de)) OR (st = :s AND so = :oid)",
+                    "ConditionExpression": "(st = :a) OR (st = :l AND (lo = :oid OR lo = :conc OR lx < :vencido_antes_de)) OR (st = :s AND so = :oid)",
                     "UpdateExpression": "SET st = :s, so = :oid, tk = :tid REMOVE lx, lo ADD v :uno",
-                    "ExpressionAttributeValues": {":a": S("A"), ":l": S("L"), ":s": S("S"), ":oid": S(oid),
+                    "ExpressionAttributeValues": {":a": S("A"), ":l": S("L"), ":s": S("S"), ":oid": S(oid), ":conc": S(CONC),
                                                   ":vencido_antes_de": N(now - SKEW), ":tid": S(tid), ":uno": N(1)}}})
             tid = tid_de(oid, f"{loc}|{fila}|{nro}")
             if not get(ddb, "bya_tickets", f"TKT#{tid}", "T"):
@@ -285,6 +286,38 @@ def confirmar_desastre(ddb, cobro, now):
             if e.response["Error"]["Code"] != "TransactionCanceledException":
                 raise
     return "ERROR_REVISAR_A_MANO"
+
+
+def congelar_sillas_en_duda(ddb, pagos, T):
+    """alta_disponibilidad.md §5.0. pagos = lista de dicts como los devuelve la pasarela."""
+    congeladas = 0
+    for p in pagos:
+        if p["status"] in ("rejected", "cancelled"):
+            continue
+        for (loc, fila, nro) in p["sillas"]:
+            try:
+                ddb.update_item(TableName="bya_seats", Key=key_silla(loc, fila, nro),
+                                ConditionExpression="st <> :s",
+                                UpdateExpression="SET st = :l, lo = :conc, lx = :lejos ADD v :uno",
+                                ExpressionAttributeValues={":s": S("S"), ":l": S("L"), ":conc": S(CONC),
+                                                           ":lejos": N(T + 86400), ":uno": N(1)})
+                congeladas += 1
+            except ClientError as e:
+                if e.response["Error"]["Code"] != "ConditionalCheckFailedException":
+                    raise
+    return congeladas
+
+
+def liberar_congeladas(ddb, sillas):
+    for (loc, fila, nro) in sillas:
+        try:
+            ddb.update_item(TableName="bya_seats", Key=key_silla(loc, fila, nro),
+                            ConditionExpression="st = :l AND lo = :conc",
+                            UpdateExpression="SET st = :a REMOVE lx, lo ADD v :uno",
+                            ExpressionAttributeValues={":l": S("L"), ":conc": S(CONC), ":a": S("A"), ":uno": N(1)})
+        except ClientError as e:
+            if e.response["Error"]["Code"] != "ConditionalCheckFailedException":
+                raise
 
 
 # ---------------------------------------------------------------- verificador (para el simulacro)
@@ -451,6 +484,33 @@ def main():
     ddb.put_item(TableName="bya_seats", Item={**key_silla("07", "20", 4), "st": S("L"), "lo": S("O-OTRO"), "lx": N(9999), "v": N(1)})
     cobro_d = dict(oid="O-D4", nn=1, gtx="g4", uid="ivan", sillas=[("07", "20", 4)], monto=100)
     ok("(d) Bloqueo vigente de otro: reembolso", confirmar_desastre(ddb, cobro_d, now=5004) == "REEMBOLSO")
+
+    print("\n== Congelar solo las sillas en duda y reabrir (respuesta 3b del profesor) ==")
+    sembrar_sillas(ddb, fila="30", nros=range(1, 7))
+    T = 8000
+    # La región cayó en T. La réplica no alcanzó a recibir nada de estas compras: todas las sillas aparecen libres.
+    pagos = [
+        dict(oid="O-C1", nn=1, gtx="c1", uid="ana2", status="approved", sillas=[("07", "30", 1)], monto=100),
+        dict(oid="O-C2", nn=1, gtx="c2", uid="beto2", status="in_process", sillas=[("07", "30", 2)], monto=100),
+        dict(oid="O-C3", nn=1, gtx="c3", uid="caro2", status="rejected", sillas=[("07", "30", 3)], monto=100),
+    ]
+    n = congelar_sillas_en_duda(ddb, pagos, T)
+    ok("Se congelan las 2 sillas en duda y no la del pago rechazado", n == 2, f"congeladas = {n}")
+    r = bloquear(ddb, "otro", "O-OTRO1", [("07", "30", 1)], now=T + 300)
+    ok("Con la venta reabierta, nadie puede bloquear una silla congelada", r[0] == "CANCELADA")
+    r = bloquear(ddb, "otro", "O-OTRO2", [("07", "30", 3)], now=T + 300)
+    ok("La silla del pago rechazado sí se puede comprar", r[0] == "OK")
+    r = bloquear(ddb, "otro", "O-OTRO3", [("07", "30", 4)], now=T + 300)
+    ok("Las sillas sin pago en duda siguen a la venta", r[0] == "OK")
+    ok("La conciliación confirma el pago aprobado sobre la silla congelada",
+       confirmar_desastre(ddb, pagos[0], now=T + 400) == "CONFIRMADA")
+    ok("La silla queda vendida a O-C1", silla(ddb, "07", "30", 1)["so"]["S"] == "O-C1")
+    # el pago in_process termina rechazado: la silla se libera al cerrar la conciliación
+    liberar_congeladas(ddb, [("07", "30", 1), ("07", "30", 2)])
+    ok("Al terminar, la silla del pago no aprobado vuelve a estar libre", silla(ddb, "07", "30", 2)["st"]["S"] == "A")
+    ok("Liberar no toca la silla ya vendida", silla(ddb, "07", "30", 1)["st"]["S"] == "S")
+    n = congelar_sillas_en_duda(ddb, [pagos[0]], T)
+    ok("Congelar de nuevo no toca una silla vendida", n == 0 and silla(ddb, "07", "30", 1)["st"]["S"] == "S")
 
     print("\n== Verificador de invariantes (para el simulacro de Miguel) ==")
     errores = verificar_invariantes(ddb)

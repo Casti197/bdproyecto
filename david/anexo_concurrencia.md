@@ -162,45 +162,49 @@ Si el webhook se pierde, el reconciliador (índice disperso `gsi_pendientes`, ca
 
 ## Escenario 4: conmutación (falla de servidor, zona o región)
 
-**Respuesta corta:** servidor y zona no pierden nada y no exigen conmutar la base. La región sí: la base puede perder los últimos segundos (MREC es asíncrona), pero el dinero no, porque las ventas se mantienen cerradas hasta conciliar con la pasarela. Detalle en [`alta_disponibilidad.md`](alta_disponibilidad.md).
+**Respuesta corta:** servidor y zona no pierden nada y no exigen conmutar la base. La región sí: la base puede perder los últimos segundos (MREC es asíncrona), pero el dinero no: las sillas de todo pago reciente se congelan antes de reabrir y se concilian después con la pasarela. Detalle en [`alta_disponibilidad.md`](alta_disponibilidad.md).
 
 | Falla | RPO | Qué hacer | Fuente |
 |---|---|---|---|
 | Servidor de aplicación | 0 (el estado vive en la base) | Otro servidor retoma; los reintentos son idempotentes | Escenario 3 |
 | Zona de disponibilidad | 0 | Nada: DynamoDB replica en 3 zonas | [R-01], [D-11] |
-| Región completa | > 0 en la base (segundos); 0 en pagos por proceso | Modo seguro: cerrar ventas, mover tráfico, conciliar, reconstruir contadores, reabrir | [D-07], D-2 |
+| Región completa | > 0 en la base (segundos); 0 en pagos por proceso | Cerrar admisión, mover tráfico, congelar sillas en duda, reabrir; conciliar después | [D-07], D-2 |
 
 ### 4a. Línea de tiempo: pérdida de la región principal en plena preventa
 
 | t | us-east-1 (activa) | us-east-2 (réplica) | Pasarela | Acción |
 |---|---|---|---|---|
-| 0 | Opera; las ventas escriben | Recibe replicación (≈ 1 s) [D-07] | Cobra | — |
-| 100 | **Falla** | Último dato replicado: T | Sigue cobrando a quien ya estaba pagando | — |
-| 100 a 104 | — | — | — | Alarma compuesta y declaración humana (fuera del RTO) [D-10] |
-| 104 | — | — | — | **Declaración.** Se registra T |
-| +1 a +2 min | — | Cierra admisión | — | Congelar |
-| +2 a +5 min | — | Recibe el tráfico (DNS, TTL 60 s) [D-09] | — | Cambiar tráfico |
-| +5 a +8 min | — | Aplicación con capacidad de pico | — | Levantar |
-| +8 a +13 min | — | `confirmarDesastre` por cada cobro aprobado desde T−5 min, en orden | Lista aprobados | Conciliar |
-| +13 a +15 min | — | Reconstruye contadores | — | Reconstruir |
-| +15 min | — | Reapertura gradual | — | Reabrir |
+| 0 | Opera; las ventas escriben | Recibe replicación (típicamente ≤ 1 s) [D-07] | Cobra | — |
+| 100 s | **Falla** | Último dato replicado: T | Sigue cobrando a quien ya estaba pagando | — |
+| +1,5 a +5 min | — | — | — | Route 53 (3 revisiones × 30 s) y alarma compuesta; confirmación humana. **Detección, fuera del RTO** [D-22, D-10] |
+| 0 (declaración) | — | — | — | **Declaración.** Se registran T y el último `ReplicationLatency` |
+| +1 a +2 min | — | Cierra admisión | — | Congelar escrituras |
+| +2 a +5 min | — | Recibe el tráfico; aplicación lista en paralelo | — | Cambiar tráfico |
+| +3 a +7 min | — | Congela las sillas de todo pago creado desde `T − W` | Búsqueda por fechas | **Congelar sillas en duda** |
+| +4 a +8 min | — | **Reabre por tramos** | — | **Fin del RTO** |
+| Después | — | `confirmarDesastre` por cada pago; libera las congeladas no vendidas; reconstruye contadores | Lista pagos | Conciliar con la venta abierta |
 
-Los tiempos son **estimados**. La tabla de Miguel da de 7 a 13 minutos si la aplicación se levanta mientras cambia el DNS, y de 7 a 16 si todo va en secuencia: el extremo alto supera el RTO de 15 minutos. Solo un simulacro los confirma (`alta_disponibilidad.md` §3.3).
+Peor caso, con todo en secuencia: 11 minutos desde la declaración (`alta_disponibilidad.md` §3.3). Los tiempos son **estimados** y solo un simulacro los confirma.
 
 ### 4b. Por qué no hay doble venta en el cambio
 
-Dos regiones escribiendo la misma silla podrían venderla dos veces, porque la condición se evalúa contra la versión local y gana la última escritura [D-07]. Por eso escribe **una sola región** y las ventas se reabren solo tras conciliar.
+Dos regiones escribiendo la misma silla podrían venderla dos veces, porque la condición se evalúa contra la versión local y gana la última escritura [D-07]. Por eso escribe **una sola región**. Y como el profesor acepta reabrir antes de terminar la conciliación si las sillas en duda siguen congeladas (respuestas 3b y 6), toda silla que pudo venderse en us-east-1 sin llegar a la réplica queda bloqueada a nombre del incidente:
 
 ```text
 funcion conmutar(T):
     cerrarAdmision()
-    enrutarTrafico(regionAlterna)
-    esperar aplicacionLista()
-    para cada cobro en pasarela.aprobados(desde = T - 5min) ordenado por aprobado_en:
-        confirmarDesastre(cobro)                  # alta_disponibilidad.md §5
+    enrutarTrafico(regionAlterna)                 # en paralelo: esperar aplicacionLista()
+    W = 8 min + 2 min + ultimo ReplicationLatency
+    si no congelarSillasEnDuda(T, W):             # alta_disponibilidad.md §5.0
+        mantener la venta cerrada y reintentar     # sin la pasarela no se sabe qué está en duda
+    reabrirGradual()                              # FIN DEL RTO
+    para cada pago en pasarela.pagos(desde = T - W) ordenado por fecha:
+        confirmarDesastre(pago)                   # §5.2; acepta sillas congeladas por el incidente
+    liberarCongeladasNoVendidas()
     reconstruirContadores()
-    reabrirGradual()
 ```
+
+**Dos bloqueos a la vez sobre la misma silla** (prohibido, respuesta 5) tampoco ocurre. Un bloqueo que no llegó a la réplica queda anulado: su orden no existe en us-east-2, y sin orden no se puede pagar. Si el cliente ya había empezado a pagar, su pago está en la pasarela y la silla queda congelada.
 
 ### 4c. Qué se pierde y qué no
 
@@ -208,9 +212,9 @@ funcion conmutar(T):
 |---|---|---|
 | Bloqueos de sillas de los últimos segundos | Sí | Las sillas vuelven a `A`; el cliente reintenta |
 | Órdenes `PENDING` sin cobrar | Sí | El cliente vuelve a comprar |
-| Compras **cobradas** | Segundos de base | Se reaplican desde la pasarela; sin metadatos, se reembolsan |
+| Compras **cobradas** | Segundos de base | Sus sillas quedan congeladas y se reaplican desde la pasarela; sin metadatos, se reembolsan |
 | Boletas ya entregadas | Posible | `confirmarDesastre` las recrea con `TKT#UUIDv5(oid, silla)`, el mismo identificador |
 
 ---
 
-**Referencias.** [R-xx]: `jacobo/referencias.md`. [D-01] a [D-04]: `concurrencia.md` §9. [D-05], [D-06]: `estadio.md`. [D-07] a [D-14]: `alta_disponibilidad.md` §9.
+**Referencias.** [R-xx]: `jacobo/referencias.md`. [D-01] a [D-04]: `concurrencia.md` §9. [D-05], [D-06]: `estadio.md`. [D-07] a [D-14], [D-18] y [D-22]: `alta_disponibilidad.md` §9.

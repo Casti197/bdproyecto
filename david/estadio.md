@@ -1,6 +1,6 @@
 # Ingreso al estadio sin internet
 
-**Autor:** David · **Fecha:** 2026-10-30 · **Rúbrica:** Ingreso al estadio sin internet (2 puntos)
+**Autor:** David · **Fecha:** 2026-10-30, actualizado el 2026-11-04 con la respuesta 7 del profesor · **Rúbrica:** Ingreso al estadio sin internet (2 puntos)
 **Insumos:** `jacobo/modelo_datos.md` §3.5 (`bya_tickets`), `jacobo/arquitectura.md` §7. Referencias `[R-xx]` en `jacobo/referencias.md`; `[D-xx]` en `david/concurrencia.md` §9 y al final de este documento.
 
 > **Idea central:** cada boleta tiene **una sola puerta dueña**, y cada puerta tiene **un solo nodo** que decide con una escritura atómica. Dos puertas no pueden aceptar la misma boleta porque solo una tiene autoridad sobre ella, y dentro de la puerta el nodo serializa los escaneos. No hace falta internet ni conexión entre puertas para que esto se cumpla.
@@ -11,8 +11,10 @@
 
 | Pregunta | Respuesta |
 |---|---|
-| ¿Qué pasa si se cae internet? | Nada visible. El ingreso funciona con datos locales; internet solo sirve para sincronizar |
+| ¿Qué significa "sin internet"? (respuesta 7 del profesor) | El estadio pierde la conexión con AWS **y** con Bogotá, pero su red interna funciona. Hay que operar aislado **todo el ingreso: 4 horas**. La caída total de la red interna queda fuera del alcance |
+| ¿Qué pasa si se cae internet? | Nada visible, durante las 4 horas o más. El ingreso funciona con datos locales; internet solo sirve para sincronizar |
 | ¿Qué pasa si una puerta queda aislada de la red del estadio? | Sigue operando sola, porque ya tiene todo lo que necesita para sus boletas |
+| ¿Y si un solo torniquete o lector pierde la red? | Ese carril se detiene y la gente pasa por los otros carriles **de la misma puerta**. El lector no decide solo, así que no puede dejar entrar dos veces (§6.2) |
 | ¿Cómo se evita el doble ingreso entre dos puertas? | Asignación fija boleta → puerta. La otra puerta rechaza con "ingrese por la puerta X" |
 | ¿Y dentro de la misma puerta, con dos torniquetes? | Un solo nodo por puerta marca la boleta con `UPDATE … WHERE st='VALID'`, que es atómico [D-05] |
 | ¿Cuándo llega el registro a DynamoDB? | Apenas hay internet, con la transacción condicional de Jacobo; es idempotente y detecta duplicados [R-04] |
@@ -25,6 +27,7 @@
 | E-02 | Estadio de 45.000 personas con **12 puertas**, **4 torniquetes** por puerta | Para dimensionar el equipo; Juan Pablo puede ajustar las cantidades |
 | E-03 | El ingreso dura 90 minutos: 45.000 / 5.400 s ≈ **8,3 escaneos/s** de promedio y **≈ 25/s** en el pico (×3, supuesto de Jacobo para AP-10) | Por puerta son ≈ 2/s en el pico: carga trivial para un nodo |
 | E-04 | La red del estadio (cableado, energía) existe y la opera el estadio; BoletaYa instala sus equipos sobre ella | Fuera del alcance del curso |
+| E-05 | El estadio opera **aislado durante 4 horas** (todo el ingreso), con su red interna funcionando | Respuesta 7 del profesor, 2026-11-04. Reemplaza los 40 minutos de la carta de Miguel |
 
 ## 3. Componentes
 
@@ -144,6 +147,18 @@ El enunciado fija RPO 0 y RTO 15 minutos para la plataforma. Para el ingreso pro
 
 Los RTO son supuestos míos y se miden en el ensayo previo al evento (Miguel). No hay cifra publicada que citar: dependen del procedimiento.
 
+### 6.2 Un punto de acceso pierde la red interna (respuesta 7 del profesor)
+
+"Punto de acceso" puede ser tres cosas distintas, y en ninguna una boleta entra dos veces:
+
+| Qué pierde la red | Qué pasa en esa puerta | Por qué no hay doble ingreso |
+|---|---|---|
+| **Un torniquete o lector** pierde la conexión con su nodo | Ese carril muestra "fuera de servicio" y la gente pasa por los otros 3 carriles de la puerta. El lector portátil de apoyo puede cubrir ese carril conectándose por Wi-Fi al mismo nodo | El lector **nunca** decide solo: sin respuesta del nodo no abre. La boleta sigue `VALID` en el nodo y se marca cuando la escanee otro carril |
+| **Toda la puerta** (nodo, switch y torniquetes) pierde el enlace con el núcleo | La puerta sigue funcionando completa: el nodo es la autoridad de sus boletas y guarda los ingresos en su cola local | Las otras puertas no tienen esas boletas como `VALID`, así que rechazan con "ingrese por la puerta X" (§5) |
+| **El nodo** de la puerta se cae | La puerta se detiene hasta que el operador apaga el nodo y el central toma la autoridad, o se instala uno de repuesto (5 a 10 min, §6.1) | Mientras el nodo no esté apagado, el central no toma la puerta: nunca hay dos autoridades para la misma boleta (§6) |
+
+**Durante 4 horas aislado** nada de esto cambia: el nodo no necesita a nadie fuera de su puerta, y la cola local de ingresos de una puerta aislada mide unos KB por escaneo, con disco de 128 GB. Lo que sí crece con 4 horas es el riesgo E-R1 (boletas reembolsadas que el nodo no conoce): por eso se cierran los reembolsos 2 horas antes de abrir puertas.
+
 ## 7. Sincronización con DynamoDB
 
 Cuando hay internet, el servidor central sube cada ingreso con la transacción de 2 ítems de Jacobo (`modelo_datos.md` §3.5), marcada como fuera de línea:
@@ -173,7 +188,7 @@ El orden de llegada no importa: cada boleta tiene un solo nodo que la marca, as�
 
 | # | Riesgo o decisión | Propuesta |
 |---|---|---|
-| E-R1 | **Boleta anulada (reembolso) sin internet:** el nodo no se entera y la deja entrar | Riesgo aceptado: se detecta en la sincronización (§7). Para reducirlo, cerrar reembolsos 2 h antes de abrir puertas |
+| E-R1 | **Boleta anulada (reembolso) sin internet:** el nodo no se entera y la deja entrar | Riesgo aceptado: se detecta en la sincronización (§7). Para reducirlo, cerrar reembolsos 2 h antes de abrir puertas. Con el aislamiento de 4 h del profesor, ese cierre es necesario: sin él, todo reembolso hecho durante el ingreso queda sin aplicar |
 | E-R2 | **Boleta vendida después de la última copia, sin internet:** el nodo no la conoce | Si el HMAC es válido, el evento coincide y la localidad es de esa puerta, **aceptar** y marcarla "fuera de copia". La firma garantiza que la emitió BoletaYa. Decisión del grupo |
 | E-R3 | Asignación fija de puerta: si una puerta se llena, no se puede desviar gente a otra | El organizador puede reasignar una localidad a otra puerta **antes** del evento. Durante el evento, solo con el procedimiento manual de §6 |
 | E-R4 | Clave HMAC robada de un nodo | Clave por evento, rotada después de cada uno; los nodos sin disco extraíble. Coordinar con Samuel |
