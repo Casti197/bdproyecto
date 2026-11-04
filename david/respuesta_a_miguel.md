@@ -1,5 +1,7 @@
 # Respuesta de David a Miguel (modo desastre D-2)
 
+> **Aviso (2026-11-04):** tras las respuestas 3 y 6 del profesor, ya no se cierra toda la venta hasta conciliar. Se congelan solo las sillas en duda y se reabre antes (`alta_disponibilidad.md` §3.3 y §5.0). Lo demás de este documento sigue vigente.
+
 **Fecha:** 2026-11-03 · Detalle técnico en [`alta_disponibilidad.md`](alta_disponibilidad.md) §3 a §6.
 
 ## Qué acepto
