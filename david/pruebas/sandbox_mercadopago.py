@@ -15,6 +15,7 @@ Solo usa la biblioteca estándar de Python 3. Uso (PowerShell):
   $env:MP_ACCESS_TOKEN = "..."   # credencial de PRUEBA del vendedor
   $env:MP_PUBLIC_KEY   = "..."   # public key de PRUEBA del mismo vendedor
   $env:MP_PAYER_EMAIL  = "..."   # email de la cuenta de prueba Comprador
+  $env:MP_CONFIRMO_PRUEBA = "1"  # solo si el token empieza por APP_USR y es del entorno "Prueba"
   python sandbox_mercadopago.py
 
 Genera resultados_sandbox.json junto a este archivo. Ese es el archivo que se comparte.
@@ -74,7 +75,13 @@ def es_cuenta_de_prueba():
     etiquetas = yo.get("tags") or []
     if "test_user" in etiquetas:
         return True, f"usuario {yo.get('id')} con etiqueta test_user"
-    return False, f"el usuario {yo.get('id')} no tiene la etiqueta test_user (etiquetas: {etiquetas})"
+    # Las credenciales de prueba actuales también empiezan por APP_USR (documentación de Mercado Pago).
+    # Se acepta solo si la persona confirma que copió las del entorno "Prueba"; además, cada token de
+    # tarjeta se revisa: si Mercado Pago lo marca live_mode=true, el script se detiene (token_tarjeta).
+    if os.environ.get("MP_CONFIRMO_PRUEBA") == "1":
+        return True, "confirmado por MP_CONFIRMO_PRUEBA=1; se verifica live_mode=false en cada token"
+    return False, (f"el usuario {yo.get('id')} no tiene la etiqueta test_user. Si copiaste las credenciales "
+                   "del entorno 'Prueba', vuelve a correr con $env:MP_CONFIRMO_PRUEBA = \"1\"")
 
 
 def token_tarjeta(titular):
@@ -85,6 +92,8 @@ def token_tarjeta(titular):
     st, r = llamar("POST", "/v1/card_tokens?public_key=" + urllib.parse.quote(PUBLIC_KEY), cuerpo, con_token=False)
     if st not in (200, 201) or "id" not in r:
         raise RuntimeError(f"no se pudo crear el token de tarjeta ({st}): {r}")
+    if r.get("live_mode") is True:
+        sys.exit("ALTO: Mercado Pago marcó el token como real (live_mode=true). Estas no son credenciales de prueba.")
     return r["id"]
 
 

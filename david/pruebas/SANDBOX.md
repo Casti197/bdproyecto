@@ -17,16 +17,18 @@ El script `sandbox_mercadopago.py` se probó contra un servidor que imita la API
 
 ## Pasos
 
-1. **Python 3.** En PowerShell: `python --version`. Si no está: `winget install Python.Python.3.12`.
-2. **Aplicación de prueba.** Entrar a [Mercado Pago Developers Colombia](https://www.mercadopago.com.co/developers/es) → *Tus integraciones* → crear una aplicación de pagos en línea (Checkout API).
-3. **Cuentas de prueba.** En la aplicación → *Cuentas de prueba* → crear una **Vendedor** y una **Comprador**, las dos de **Colombia** (deben ser del mismo país). Anotar el email del comprador.
-4. **Credenciales de prueba.** *Credenciales* de la aplicación: el **Access Token** y la **Public Key** de prueba. Si no aparecen credenciales `TEST-`, iniciar sesión con la cuenta Vendedor de prueba y usar las credenciales de una aplicación creada con ella.
+1. **Python 3.** Descargarlo de [python.org/downloads](https://www.python.org/downloads/) y, en la primera pantalla del instalador, marcar **"Add python.exe to PATH"**. Cerrar y abrir PowerShell, y comprobar con `python --version` (o `py --version`).
+2. **Aplicación.** Entrar al [Panel de integración](https://www.mercadopago.com.co/developers/panel/app) con una cuenta de Mercado Pago y elegir **Crear manualmente**. Si el formulario pregunta qué se va a integrar, elegir pagos en línea con **Checkout API** (pago con tarjeta desde nuestra propia página). Al crearla, Mercado Pago genera solas las credenciales de prueba.
+3. **Credenciales de prueba.** Dentro de la aplicación, elegir **Prueba** en el selector de entorno de arriba y abrir **Credenciales** (en el menú lateral o en el bloque de Inicio). Copiar la **Public Key** y el **Access Token**. El Access Token de prueba **empieza por `APP_USR`**, igual que el de producción: por eso hay que fijarse en que el selector diga **Prueba**. No activar el ambiente de producción.
+4. **Cuenta compradora de prueba.** En la aplicación, **Cuentas de prueba** → crear una de tipo **Comprador**, de **Colombia** (debe ser del mismo país que el vendedor). Anotar su email.
 5. **Correr** desde la carpeta `david\pruebas`:
 
    ```powershell
-   $env:MP_ACCESS_TOKEN = "<access token de prueba>"
-   $env:MP_PUBLIC_KEY   = "<public key de prueba>"
-   $env:MP_PAYER_EMAIL  = "<email de la cuenta Comprador de prueba>"
+   cd "D:\Bases de datos\Proyecto final\david\pruebas"
+   $env:MP_ACCESS_TOKEN    = "<access token de prueba>"
+   $env:MP_PUBLIC_KEY      = "<public key de prueba>"
+   $env:MP_PAYER_EMAIL     = "<email de la cuenta Comprador de prueba>"
+   $env:MP_CONFIRMO_PRUEBA = "1"
    python sandbox_mercadopago.py
    ```
 
@@ -34,11 +36,11 @@ El script `sandbox_mercadopago.py` se probó contra un servidor que imita la API
 
 ## Seguridad
 
-* **Freno incluido:** si la credencial no empieza por `TEST-` ni pertenece a un usuario con la etiqueta `test_user`, el script se detiene sin hacer nada. Así no se puede cobrar con una cuenta real por error.
-* Usa la tarjeta de prueba Mastercard de Colombia (5254 1336 7440 3564, CVV 123, vencimiento 11/30) con los titulares APRO (aprobado), CONT (pendiente) y OTHE (rechazado), y el documento 123456789, como indica Mercado Pago.
+* **Doble freno.** El script corre si la credencial empieza por `TEST-`, si su usuario tiene la etiqueta `test_user`, o si se confirma con `MP_CONFIRMO_PRUEBA = "1"` que se copió del entorno Prueba. En el último caso, además, revisa cada token de tarjeta: si Mercado Pago lo marca como real (`live_mode = true`), se detiene.
+* Usa la tarjeta de prueba Mastercard de Colombia (5254 1336 7440 3564, CVV 123, vencimiento 11/30) con los titulares APRO (aprobado), CONT (pendiente) y OTHE (rechazado), y el documento 123456789, como indica Mercado Pago. No es una tarjeta real.
 * Crea unos 9 pagos de prueba de COP 50.000. No mueven dinero real.
 
 ## Dudas que quedan abiertas en la documentación
 
 * El endpoint `/v1/card_tokens` que usa el script para tokenizar la tarjeta en el servidor no aparece en la referencia de pagos. Si responde con error, la tarjeta se tokeniza desde una página con el SDK de JavaScript de Mercado Pago. Avisen si pasa.
-* La página de cuentas de prueba no explica cómo se obtienen las credenciales; el paso 4 cubre las dos formas habituales.
+* La documentación no detalla los campos del formulario de creación de la aplicación; el paso 2 da la elección esperada. Si aparece algo distinto, anotar qué se eligió.
