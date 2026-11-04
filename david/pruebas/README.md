@@ -12,6 +12,17 @@ python3 prueba_concurrencia.py
 * Las dos condiciones con aritmética de `modelo_datos.md` §7.1 no se pueden interpretar (en AWS dan `ValidationException` [D-01]).
 * `verificar_invariantes()` detecta sillas con boletas de dos órdenes, pagos aprobados sin orden y órdenes `PAID` incompletas. Sirve para revisar el estado al final del simulacro de Miguel.
 
+## Verificador para el simulacro de Miguel
+
+`verificar_simulacro.py` es el mismo verificador, separado para correrlo **contra las tablas reales** al terminar el simulacro de conmutación (runbook 2b). Solo lee. Revisa 6 reglas: silla con boletas de dos órdenes; silla vendida sin dueño; pago aprobado sin orden; orden pagada incompleta; sillas que siguen congeladas por el incidente; intentos del libro sin resolver. Sale con código 1 si hay alguna violación y deja el detalle en `verificacion_simulacro.json`.
+
+```
+pip install boto3
+python verificar_simulacro.py --region us-east-2 --evento 1234 --incidente INC-1
+```
+
+Se probó contra el simulador: con datos limpios no reporta violaciones, y con errores metidos a propósito detecta la silla con dos boletas y el pago aprobado sin orden.
+
 ## Qué no demuestra
 * Concurrencia real: moto ejecuta una transacción a la vez y no es seguro con hilos. Tampoco produce `TransactionConflict` ni mide latencia.
 * `ClientRequestToken`: moto lo ignora. Por eso se prueba la segunda defensa (`concurrencia.md` §3), que no depende del token.

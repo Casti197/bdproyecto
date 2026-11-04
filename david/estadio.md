@@ -211,7 +211,9 @@ Cantidades con los supuestos E-02 y E-03. **Los precios los pone Juan Pablo.**
 | Plan de datos 4G/5G | 1 | Bajo volumen (≈ 45.000 escaneos × ≈ 1 KB por evento) | Respaldo de internet |
 | Rack, cableado, instalación | 1 lote | — | — |
 
-### 9.2 Los torniquetes rompen el presupuesto del Escenario B (actualización del 2026-11-04)
+### 9.2 Los torniquetes rompen el presupuesto (actualización del 2026-11-04)
+
+**Aplica a los dos escenarios.** El profesor dijo que la solución del estadio es local en A y en B (respuesta 2), así que este equipo se costea en los dos. Hoy la hoja de Juan Pablo lo tiene solo en B (`integracion/pendientes_entrega.md` §3).
 
 Con los precios de Juan Pablo (`juanpablo/costos_boletaya.xlsx`), el Escenario B suma **COP 336,6 M en el año 1** frente a un tope de 280 M, aunque todavía faltan cotizaciones. Los 48 torniquetes son **COP 216,1 M** (48 × 3.784.000 + IVA, referencia AXCSS AX-KATRAX) y **solo cubren el cuerpo del torniquete**: el lector QR y el controlador van aparte. Son casi dos tercios del total.
 
@@ -238,7 +240,7 @@ Notas de precio:
 * La referencia de terminal portátil es el Zebra TC22 a 940,95 EUR en una tienda de España [D-21]. **No es precio de Colombia ni cotización**; sirve solo para el orden de magnitud. El Excel ya tiene 24 lectores portátiles sin precio.
 * No encontré un precio en Colombia de un lector QR fijo con salida Wiegand. Sirven las fichas de los torniquetes de [D-19] y [D-20], que tienen entradas Wiegand para lectores externos.
 
-**Propuesta:** opción 2 como base, con la 4 como respaldo en estadios sin torniquetes compatibles, y la 1 solo si el cliente exige equipo propio. Depende de la pregunta 45 que ya se le envió al profesor ("¿Tienen ya equipos en los estadios o debemos comprar todo?"). Mientras no responda, Juan Pablo puede mostrar el Escenario B con la opción 1 y con la 2, para que se vea que la diferencia es el equipo de puerta y no la arquitectura.
+**Propuesta:** opción 2 como base, con la 4 como respaldo en estadios sin torniquetes compatibles, y la 1 solo si el cliente exige equipo propio. Depende de la pregunta 45 que ya se le envió al profesor ("¿Tienen ya equipos en los estadios o debemos comprar todo?"). Mientras no responda, Juan Pablo puede mostrar **A y B** con la opción 1 y con la 2, para que se vea que la diferencia es el equipo de puerta y no la arquitectura.
 
 ### 9.1 Sistema operativo y fin de soporte (regla de Miguel: al menos 5 años desde la compra)
 

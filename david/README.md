@@ -12,7 +12,7 @@
 | [`anexo_concurrencia.md`](anexo_concurrencia.md) | Los 4 escenarios con pseudocódigo y línea de tiempo; el 4 con el congelamiento de sillas en duda | Listo (actualizado 2026-11-04) |
 | [`alta_disponibilidad.md`](alta_disponibilidad.md) | Replicación en 3 zonas, MREC con una sola región que escribe, atraso de replicación asumido, detección y criterio de declaración, **congelamiento de sillas en duda** (§5.0), confirmación en modo desastre, RTO de **4 a 11 min** desde la declaración | Listo (borrador para revisión) |
 | [`estadio.md`](estadio.md) | Nodo por puerta como autoridad; aislamiento de 4 horas; punto de acceso sin red (§6.2); RPO/RTO del ingreso (§6.1); sincronización con DynamoDB; equipo (§9), soporte de 5 años (§9.1) y opciones de torniquetes ante el sobrecosto del Escenario B (§9.2) | Listo (borrador para revisión) |
-| [`pruebas/`](pruebas/) | Prueba de las transacciones en un simulador (moto): 50 casos, todos pasan (`resultado.txt`); verificador de invariantes para el simulacro de Miguel; prueba de sandbox de Mercado Pago (`SANDBOX.md`, `resultados_sandbox.json`: 11 de 13) | Listo; búsqueda por fechas sin confirmar |
+| [`pruebas/`](pruebas/) | Prueba de las transacciones en un simulador (moto): 50 casos, todos pasan (`resultado.txt`); verificador para el simulacro de Miguel (`verificar_simulacro.py`, solo lectura); prueba de sandbox de Mercado Pago (`SANDBOX.md`, `resultados_sandbox.json`: 11 de 13) | Listo; búsqueda por fechas sin confirmar |
 | [`pasarelas.md`](pasarelas.md) | Comparación de pasarelas para D-11 y resultados del sandbox (§7) | Decidido: Mercado Pago; búsqueda por fechas sin confirmar |
 | [`respuestas_profesor.md`](respuestas_profesor.md) | Las 7 respuestas del profesor (2026-11-04) y a quién le toca cada una | Registrado |
 | [`preguntas_para_el_cliente.md`](preguntas_para_el_cliente.md) | 64 preguntas en lenguaje de negocio para el profesor (cliente) | Enviadas; 7 respondidas el 2026-11-04 |
@@ -24,7 +24,6 @@
 
 **Míos (David)**
 * Sandbox de Mercado Pago (2026-11-04): `metadata` e idempotencia confirmadas. **La búsqueda por fechas no funciona**: sigue en 0 resultados 14 minutos después, y la aplicación no tiene credenciales `APP_USR` para repetirla (`pasarelas.md` §7). El grupo aprobó **D-2b** el 2026-11-04: la lista de sillas en duda sale de `bya_ledger`. Ya aplicado en `concurrencia.md` §4, `alta_disponibilidad.md` §4–§5, `anexo_concurrencia.md` 4a–4b y `pasarelas.md`.
-* Entregar a Miguel el verificador de `pruebas/` para su simulacro de conmutación.
 * Preparar la sustentación de mis cuatro partes.
 
 **Jacobo**
@@ -34,6 +33,7 @@
 * D-2b aprobada: activar `bya_ledger` con una clave que se pueda listar por minuto (propuesta: `LED#<minuto>#<fragmento>`, `alta_disponibilidad.md` §5.0), guardar el `id` del pago (`gid`) al pasar a `CHARGED`, y medir la latencia de la escritura entre regiones.
 
 **Miguel**
+* Incluir `david/pruebas/verificar_simulacro.py` en el plan del simulacro de conmutación: se corre al final, contra la región activa, y su resultado es el criterio "0 sillas con dos dueños; 0 pagos aprobados sin orden".
 * Runbook 2b, paso 4: las sillas en duda salen de `bya_ledger`, no de la búsqueda de Mercado Pago (D-2b). Pasos 6 y 7: misma ventana `T − W` y liberar solo con estado final.
 * Runbook 2b y tabla de RTO con el congelamiento de sillas en duda; detección y criterio de declaración (`alta_disponibilidad.md` §3.2, §3.3 y §5.0).
 * Carta del estadio: de 40 minutos a 4 horas aislado (respuesta 7).
@@ -47,7 +47,7 @@
 **Juan Pablo**
 * Comparar A (todo en AWS) contra B en latencia, conectividad, egress y costos (respuesta 2).
 * Costear `bya_ledger` (D-2b): tabla MRSC en tres regiones, unas 24.000 escrituras por preventa grande.
-* Mostrar el Escenario B con torniquetes propios y con los del estadio (`estadio.md` §9.2).
+* Costear el equipo del estadio en **A y en B** (el estadio es local en los dos, respuesta 2), con torniquetes propios y con los del estadio (`estadio.md` §9.2).
 * Corregir el signo del "Saldo" del Resumen y cobrar Ubuntu Pro solo el último año (`estadio.md` §9.1).
 
 **Entre varios**
@@ -61,4 +61,5 @@
 * 2026-11-03 · Pasarela decidida: Mercado Pago (D-11).
 * 2026-11-04 · Juan Pablo subió costos y dimensionamiento con las correcciones (`juanpablo/`).
 * 2026-11-04 · Respuestas 3, 5, 6 y 7 del profesor aplicadas a esta carpeta.
+* 2026-11-04 · Verificador del simulacro entregado a Miguel (`pruebas/verificar_simulacro.py`).
 * 2026-11-04 · Sandbox de Mercado Pago (11 de 13) y D-2b aprobada por el grupo: `bya_ledger` es la fuente de las sillas en duda.

@@ -16,4 +16,4 @@ Texto recibido por David el 2026-11-04. Se copia sin cambios en la columna "Qué
 
 * **RTO ante pérdida de región:** baja de 7 a 16 minutos (con la venta cerrada hasta conciliar) a **4 a 11 minutos** desde la declaración, porque la conciliación ya no está en el camino crítico. Cumple los 15 minutos **sin** usar la cláusula (c). Detección y declaración, aparte: 2 a 5 minutos.
 * **Atraso de replicación asumido:** típicamente 1 s o menos [D-07], sin SLA [D-08]; se diseña para hasta 60 s con alarma. La seguridad no depende de esa cifra: las sillas en duda salen de la pasarela.
-* **Pruebas:** 46 de 46 pasan, con 9 casos nuevos del congelamiento (`pruebas/resultado.txt`).
+* **Pruebas:** 50 de 50 pasan (`pruebas/resultado.txt`): 9 casos del congelamiento de sillas en duda y, desde la aprobación de D-2b el mismo día, 4 más con la lista sacada del libro de pagos `bya_ledger`.
