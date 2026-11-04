@@ -12,8 +12,8 @@
 | [`anexo_concurrencia.md`](anexo_concurrencia.md) | Los 4 escenarios con pseudocódigo y línea de tiempo; el 4 con el congelamiento de sillas en duda | Listo (actualizado 2026-11-04) |
 | [`alta_disponibilidad.md`](alta_disponibilidad.md) | Replicación en 3 zonas, MREC con una sola región que escribe, atraso de replicación asumido, detección y criterio de declaración, **congelamiento de sillas en duda** (§5.0), confirmación en modo desastre, RTO de **4 a 11 min** desde la declaración | Listo (borrador para revisión) |
 | [`estadio.md`](estadio.md) | Nodo por puerta como autoridad; aislamiento de 4 horas; punto de acceso sin red (§6.2); RPO/RTO del ingreso (§6.1); sincronización con DynamoDB; equipo (§9), soporte de 5 años (§9.1) y opciones de torniquetes ante el sobrecosto del Escenario B (§9.2) | Listo (borrador para revisión) |
-| [`pruebas/`](pruebas/) | Prueba de las transacciones en un simulador (moto): 46 casos, todos pasan (`resultado.txt`); verificador de invariantes para el simulacro de Miguel | Listo |
-| [`pasarelas.md`](pasarelas.md) | Comparación de pasarelas para D-11 | Decidido: Mercado Pago |
+| [`pruebas/`](pruebas/) | Prueba de las transacciones en un simulador (moto): 46 casos, todos pasan (`resultado.txt`); verificador de invariantes para el simulacro de Miguel; prueba de sandbox de Mercado Pago (`SANDBOX.md`, `resultados_sandbox.json`: 11 de 13) | Listo; búsqueda por fechas sin confirmar |
+| [`pasarelas.md`](pasarelas.md) | Comparación de pasarelas para D-11 y resultados del sandbox (§7) | Decidido: Mercado Pago; búsqueda por fechas sin confirmar |
 | [`respuestas_profesor.md`](respuestas_profesor.md) | Las 7 respuestas del profesor (2026-11-04) y a quién le toca cada una | Registrado |
 | [`preguntas_para_el_cliente.md`](preguntas_para_el_cliente.md) | 64 preguntas en lenguaje de negocio para el profesor (cliente) | Enviadas; 7 respondidas el 2026-11-04 |
 | [`preguntas_para_el_profesor.md`](preguntas_para_el_profesor.md) | Versión técnica, numeración P-1 a P-67 | Enviadas; 7 respondidas el 2026-11-04 |
@@ -23,7 +23,7 @@
 ## Pendientes
 
 **Míos (David)**
-* Prueba en el sandbox de Mercado Pago, con Miguel y Jacobo: que `metadata` guarde y devuelva las sillas, y que repetir con la misma `X-Idempotency-Key` devuelva el mismo pago (`pasarelas.md` §2). Falta definir quién crea la cuenta.
+* Sandbox de Mercado Pago (2026-11-04): `metadata` e idempotencia confirmadas; **la búsqueda por fechas no devolvió nada**. Repetir pasados unos minutos y con credenciales `APP_USR` del entorno Prueba (`pasarelas.md` §7).
 * Entregar a Miguel el verificador de `pruebas/` para su simulacro de conmutación.
 * Preparar la sustentación de mis cuatro partes.
 
@@ -31,6 +31,7 @@
 * Sección de máximo 2 páginas: por qué DynamoDB no va *on premise* y si hay una alternativa compatible con su API (respuesta 1).
 * Escenario A todo en AWS (respuesta 2).
 * Qué infraestructura tiene AWS hoy en Colombia, si hay DynamoDB y la latencia desde Bogotá (respuesta 4).
+* Si la búsqueda por fechas de Mercado Pago no se confirma: activar `bya_ledger` y darle una clave que se pueda listar por minuto (`alta_disponibilidad.md` §5.0). Es la decisión D-2b del grupo.
 
 **Miguel**
 * Runbook 2b y tabla de RTO con el congelamiento de sillas en duda; detección y criterio de declaración (`alta_disponibilidad.md` §3.2, §3.3 y §5.0).
@@ -50,6 +51,7 @@
 **Entre varios**
 * Grupo: decidir la opción de torniquetes (`estadio.md` §9.2); la pregunta 45 al profesor sigue sin respuesta, así que la decisión va al registro de decisiones.
 * Grupo: aprobar los riesgos E-R1 y E-R2 (`estadio.md` §8).
+* Grupo (D-2b): si la búsqueda por fechas no funciona, activar `bya_ledger` como fuente de las sillas en duda.
 
 ## Hecho
 

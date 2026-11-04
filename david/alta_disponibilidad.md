@@ -130,13 +130,24 @@ Este es el paso 4 del runbook 2b de Miguel. **No sirve la confirmación normal**
 
 Un pago creado antes de `T − W` corresponde a un bloqueo que ya venció en us-east-1. Si se aprueba después, se trata como en el escenario 2b del anexo: si la silla sigue libre se confirma; si otro la tomó, se reembolsa. Es lo mismo que pasaría sin desastre.
 
+**Estados confirmados en el sandbox (2026-11-04):** aprobado `approved`, en proceso `in_process` y rechazado `rejected` (`pasarelas.md` §7). La regla de abajo usa esos nombres.
+
+**Si la búsqueda por fechas no está disponible.** En el sandbox, `/v1/payments/search` solo encontró pagos filtrando por `id` (`pasarelas.md` §7). Si en producción tampoco lista por fechas, la lista de sillas en duda no puede salir de Mercado Pago. La fuente de respaldo es el libro de pagos de Jacobo (`bya_ledger`, tabla global **MRSC**, `jacobo/modelo_datos.md` §3.9): se escribe **antes** de cobrar, con el `oid` y las sillas, y se replica de forma sincrónica, así que sobrevive a la pérdida de la región con RPO 0 [R-17]. Para usarlo así hacen falta tres cosas:
+
+1. **Listar por fecha.** Con la clave actual (`pk = LED#<oid>`) solo se puede recorrer la tabla entera. Propongo a Jacobo una clave por minuto, repartida en fragmentos para no calentar una partición, por ejemplo `pk = LED#<minuto>#<fragmento 0..7>`, `sk = <oid>`. La decisión de claves es suya.
+2. **Guardar el `id` del pago** de Mercado Pago apenas responde (el paso `INTENT → CHARGED` de su diseño). Con el `id`, el estado se consulta pidiendo el pago por su id, que sí funcionó en el sandbox.
+3. **Un intento sin `id`** (el servidor cayó entre cobrar y guardar) se congela igual y se resuelve con la notificación de Mercado Pago, que reintenta cada 15 minutos hasta recibir respuesta [P-04 en `pasarelas.md`]. Cuando el tráfico ya está en us-east-2, la notificación llega allí.
+
+Con el libro, la lista de sillas en duda es **más amplia** que con la búsqueda: incluye intentos que nunca llegaron a cobrarse. Eso es más seguro, aunque congela algunas sillas de más por un rato. El costo es una escritura sincrónica entre regiones en cada compra, cuya latencia nadie ha medido (Jacobo, §3.9).
+
 **Cómo se congela, sin estado nuevo.** Cada silla en duda se bloquea a nombre del incidente, con un vencimiento lejano. La condición normal de bloqueo (`st = 'A' OR (st = 'L' AND lx < :vencido_antes_de)`) ya rechaza esa silla para cualquier otro cliente:
 
 ```text
 funcion congelarSillasEnDuda(T, W, incidente):
     pagos = MercadoPago GET /v1/payments/search  range=date_created  begin_date=T-W  end_date=NOW
+            # o, si se activa el libro: bya_ledger, claves LED#<minuto>#<fragmento> de T-W a NOW (lectura fuerte, MRSC)
     si la búsqueda falla: NO reabrir; seguir con las ventas cerradas y reintentar        # respaldo seguro
-    para cada pago p que no esté rechazado ni cancelado:
+    para cada pago p que no esté rechazado (rejected) ni cancelado:
         para cada silla s de p.metadata.sillas:
             Update bya_seats Key de s
                 IF  st <> 'S'                                   # una vendida ya no se puede comprar

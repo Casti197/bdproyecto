@@ -1,0 +1,111 @@
+{
+  "fecha": "2026-11-04T11:37:30",
+  "corrida": "60978573",
+  "pasan": 11,
+  "total": 13,
+  "resultados": [
+    {
+      "prueba": "Pago aprobado creado (titular APRO)",
+      "pasa": true,
+      "detalle": "HTTP 201, status=approved, id=1328620210"
+    },
+    {
+      "prueba": "Repetir con la misma X-Idempotency-Key devuelve el mismo pago",
+      "pasa": true,
+      "detalle": "HTTP 200, primer id=1328620210, segundo id=1328620210, error=None"
+    },
+    {
+      "prueba": "metadata se guarda y se devuelve con las 10 sillas",
+      "pasa": true,
+      "detalle": "enviada={\"eid\": \"1234\", \"uid\": \"usuario-prueba\", \"sillas\": [\"07|12|20\", \"07|12|21\", \"07|12|22\", \"07|12|23\", \"07|12|24\", \"07|12|25\", \"07|12|26\", \"07|12|27\", \"07|12|28\", \"07|12|29\"], \"corrida\": \"60978573\"} | devuelta={\"eid\": \"1234\", \"uid\": \"usuario-prueba\", \"corrida\": \"60978573\", \"sillas\": [\"07|12|20\", \"07|12|21\", \"07|12|22\", \"07|12|23\", \"07|12|24\", \"07|12|25\", \"07|12|26\", \"07|12|27\", \"07|12|28\", \"07|12|29\"]}"
+    },
+    {
+      "prueba": "external_reference se devuelve igual",
+      "pasa": true,
+      "detalle": "devuelta=O-60978573-A#01"
+    },
+    {
+      "prueba": "Con otra llave se crea un pago distinto",
+      "pasa": true,
+      "detalle": "HTTP 201, id=1328620214"
+    },
+    {
+      "prueba": "Titular CONT: estado pending o in_process",
+      "pasa": true,
+      "detalle": "HTTP 201, status=in_process, status_detail=pending_contingency"
+    },
+    {
+      "prueba": "Titular OTHE: estado rejected",
+      "pasa": true,
+      "detalle": "HTTP 201, status=rejected, status_detail=cc_rejected_other_reason"
+    },
+    {
+      "prueba": "external_reference de 64 caracteres (informativa)",
+      "pasa": true,
+      "detalle": "HTTP 201, acepta=True, se devuelve completa=True"
+    },
+    {
+      "prueba": "external_reference de 128 caracteres (informativa)",
+      "pasa": true,
+      "detalle": "HTTP 201, acepta=True, se devuelve completa=True"
+    },
+    {
+      "prueba": "external_reference de 256 caracteres (informativa)",
+      "pasa": true,
+      "detalle": "HTTP 400, acepta=False, se devuelve completa=False"
+    },
+    {
+      "prueba": "external_reference de 512 caracteres (informativa)",
+      "pasa": true,
+      "detalle": "HTTP 400, acepta=False, se devuelve completa=False"
+    },
+    {
+      "prueba": "La búsqueda por fechas encuentra los pagos de esta corrida",
+      "pasa": false,
+      "detalle": "HTTP 200, buscados=4, encontrados con metadata=0"
+    },
+    {
+      "prueba": "La búsqueda trae la metadata con las sillas (para congelar)",
+      "pasa": false,
+      "detalle": "estados vistos en la búsqueda: []"
+    }
+  ],
+  "estados_por_titular": {
+    "CONT": {
+      "status": "in_process",
+      "status_detail": "pending_contingency",
+      "id": 1328620218
+    },
+    "OTHE": {
+      "status": "rejected",
+      "status_detail": "cc_rejected_other_reason",
+      "id": 1328621860
+    }
+  },
+  "external_reference_por_largo": {
+    "64": {
+      "http": 201,
+      "acepta": true,
+      "devuelve_completa": true,
+      "error": null
+    },
+    "128": {
+      "http": 201,
+      "acepta": true,
+      "devuelve_completa": true,
+      "error": null
+    },
+    "256": {
+      "http": 400,
+      "acepta": false,
+      "devuelve_completa": false,
+      "error": "The following parameters is too much large: external_reference"
+    },
+    "512": {
+      "http": 400,
+      "acepta": false,
+      "devuelve_completa": false,
+      "error": "The following parameters is too much large: external_reference"
+    }
+  }
+}

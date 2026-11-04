@@ -1,6 +1,8 @@
 # Pasarelas de pago: comparación para la decisión D-11
 
-> **Decisión (2026-11-03):** Miguel, Jacobo y David aceptan **Mercado Pago**. Siguen pendientes las dos comprobaciones de sandbox de §2; si la de `metadata` falla, se activa `bya_ledger`.
+> **Decisión (2026-11-03):** Miguel, Jacobo y David aceptan **Mercado Pago**.
+>
+> **Sandbox (2026-11-04, §7):** `metadata` e idempotencia **confirmadas**. La **búsqueda por fechas no devolvió nada** en el sandbox, así que no está confirmada. Sin ella no se puede armar la lista de sillas en duda: se propone activar `bya_ledger` como fuente de esa lista (decisión D-2b del grupo).
 
 **Autor:** David · **Fecha:** 2026-11-03 · **Para:** Miguel y Jacobo (decisión D-11)
 **Qué necesitamos** (`alta_disponibilidad.md` §4, `miguel/` runbook 2b):
@@ -51,6 +53,24 @@ Las sillas de una orden caben en un texto corto: hasta 10 sillas como `07|12|24`
 * **Miguel, Jacobo y David:** crear una cuenta de prueba en Mercado Pago y comprobar los dos puntos de §2 (es poco trabajo y cierra D-11).
 * **Juan Pablo:** comparar las comisiones por transacción de Mercado Pago y Wompi para Colombia (no las consulté).
 * **Samuel:** revisar qué datos personales viajan en `metadata` (se propone solo identificadores, no nombres ni documentos).
+
+## 7. Resultados del sandbox (2026-11-04)
+
+Corrida `60978573`, con credenciales `TEST-` de una aplicación de **API de Payments**, ejecutada por David con `pruebas/sandbox_mercadopago.py`. Archivo completo: `pruebas/resultados_sandbox.json`. **11 de 13 pasan.**
+
+| Qué necesitábamos | Resultado | Efecto en el diseño |
+|---|---|---|
+| `metadata` guarda y devuelve las sillas | **Confirmado.** Las 10 sillas, el evento y el usuario vuelven iguales (cambia el orden de las claves, no los valores) | La compra se puede reconstruir desde Mercado Pago (`alta_disponibilidad.md` §5.2) |
+| La misma `X-Idempotency-Key` devuelve el mismo pago | **Confirmado.** El pago `1328620210` vuelve igual; la primera vez responde HTTP 201 y la repetición HTTP 200 | `concurrencia.md` §4 queda como está: un reintento no cobra dos veces |
+| Otra llave crea otro pago | **Confirmado** | La llave es la que decide |
+| Nombres de estados | **Confirmados:** aprobado `approved`; pendiente `in_process` (detalle `pending_contingency`); rechazado `rejected` (detalle `cc_rejected_other_reason`) | La regla de congelar y liberar usa `approved`, `in_process` y `rejected` (`alta_disponibilidad.md` §5.0) |
+| Largo de `external_reference` | Acepta 64 y 128 caracteres; con 256 responde HTTP 400, "too much large" | La idea de §3 (guardar ahí las sillas) no hace falta, porque `metadata` funciona |
+| **Búsqueda por rango de fechas** | **Falla en el sandbox.** `/v1/payments/search` responde HTTP 200 pero sin resultados, también sin filtros, por estado, por vendedor o por `external_reference`. Solo funciona filtrando por el `id` del pago, y en ese caso sí trae la `metadata` | **No queda confirmado** que en producción se pueda listar por fechas. De esa búsqueda sale la lista de sillas en duda |
+
+**Qué falta para cerrar la búsqueda:**
+1. Repetir la corrida pasados unos minutos, por si el índice de búsqueda tarda.
+2. Repetir con las credenciales `APP_USR` del entorno Prueba (con `MP_CONFIRMO_PRUEBA = "1"`), por si las `TEST-` no permiten listar.
+3. Si sigue sin funcionar: activar `bya_ledger` como fuente de la lista de sillas en duda (`alta_disponibilidad.md` §5.0, "Si la búsqueda no está disponible"). No se puede descubrir en pleno desastre que la búsqueda no sirve.
 
 ## 6. Referencias
 
