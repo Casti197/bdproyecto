@@ -10,6 +10,8 @@ Repositorio del grupo. Cada integrante trabaja en su propia carpeta.
 | `juanpablo/` | Juan Pablo | Costos |
 | `samuel/` | Samuel | Seguridad y cumplimiento |
 
+**Entrega final:** carpeta [`entrega/`](entrega/). **Preparación de la sustentación:** [`SUSTENTACION.md`](SUSTENTACION.md).
+
 ## Reglas para no pisarnos
 
 1. **Cada quien edita solo su carpeta.** Si algo de otra carpeta está mal, se lo dices a su dueño (en el chat o en un *issue* de GitHub), no lo cambias tú.
