@@ -4,7 +4,7 @@
 
 ## Criterio
 
-La hoja [`costos_boletaya_final.xlsx`](costos_boletaya.xlsx) es el modelo numérico autoritativo. Tiene precios o tarifas de referencia, fuente y fecha por línea; incluye capturas para hardware y servicios principales en `entrega/evidencias/`. Los precios públicos consultados no son cotizaciones vinculantes. Antes de comprar hay que confirmar existencia, compatibilidad, IVA, instalación y garantía.
+La hoja [`02_hoja_de_costos.xlsx`](costos_boletaya.xlsx) es el modelo numérico autoritativo. Tiene precios o tarifas de referencia, fuente y fecha por línea; incluye capturas para hardware y servicios principales en `entrega/02_hoja_de_costos_evidencias/`. Los precios públicos consultados no son cotizaciones vinculantes. Antes de comprar hay que confirmar existencia, compatibilidad, IVA, instalación y garantía.
 
 El total incorpora el estadio en ambos escenarios, precios del hardware, API Gateway/Lambda, ElastiCache, cola virtual propia, seguridad/monitoreo, enlaces y el ledger de recuperación D-2b. La hoja separa gasto de caja de administración incluida en TCO. Reserva: 10 % del presupuesto del año 1, disponible una sola vez; F-16 decide usarla solo para B.
 
@@ -26,7 +26,7 @@ Presupuesto: COP 280 M en año 1 y COP 130 M/año en años 2–5. A deja COP 88.
 
 ## Fuentes y conceptos pendientes
 
-Las URLs, tarifas, supuestos y fechas por rubro están en `Precios`; las capturas están en `entrega/evidencias/`. La hoja `Pendientes` deja cuatro validaciones abiertas:
+Las URLs, tarifas, supuestos y fechas por rubro están en `Precios`; las capturas están en `entrega/02_hoja_de_costos_evidencias/`. La hoja `Pendientes` deja cuatro validaciones abiertas:
 
 1. Si el jurado exige la AWS Pricing Calculator, exportar un estimado con los mismos parámetros y valores de `Precios`.
 2. Confirmar con AWS Backup el tratamiento de copias entre cuentas/regiones; se modela la tarifa publicada para DynamoDB.
