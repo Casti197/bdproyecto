@@ -1,0 +1,15 @@
+flowchart TB
+  U["Compradores<br/>hasta 250.000 en cola"] --> E["WAF + CloudFront<br/>PoP Bogotá"]
+  E -->|"mapa: instantánea cada 2 s"| S3[("S3")]
+  E -->|"admisión"| Q["Cola virtual<br/>Lambda + ElastiCache"]
+  Q -->|"token"| API["API Gateway"] --> L["Lambda de compra"]
+  L -->|"TransactWriteItems"| D[("DynamoDB us-east-1<br/>8 tablas on-demand")]
+  L -->|"antes de cobrar"| LED[("bya_ledger MRSC")]
+  L <-->|"idempotencia"| MP["Mercado Pago"]
+  D --> ST["Streams + Lambda<br/>historial, mapa, reconciliador"]
+  ST --> SQS["SQS + DLQ<br/>factura, reembolsos"] --> DIAN["Proveedor DIAN"]
+  D -.->|"MREC asíncrona"| D2[("Réplica us-east-2<br/>app y caché en espera")]
+  D --> BK["PITR 35 d + AWS Backup"] -.-> V[("Bóveda Vault Lock<br/>otra cuenta, us-east-2")]
+  D --> EX["Export a S3 + Athena<br/>histórico 10 años"]
+  EST["Estadio: 2 servidores centrales<br/>12 nodos de puerta"] <-->|"sync idempotente"| API
+  BOG["Bogotá: solo oficinas<br/>administración"] -.-> API
