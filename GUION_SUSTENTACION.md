@@ -1,7 +1,20 @@
 # Guion de sustentación — quién hizo qué
 
-**Orden y presentadores:** los mismos de siempre (`integracion/presentacion_guion.md`). Este guion solo cambia **lo que se dice**: en cada diapositiva se nombra a quién le pertenece ese sector del proyecto. Así el jurado ve que cada uno tiene un área y que todos la conocemos.
+**Orden:** el mismo de siempre. **Presentadores:** se le quitan a Jacobo las diapositivas 11 y 15; la 11 pasa a Samuel y la 15 a Miguel. Este guion cambia **lo que se dice**: en cada diapositiva se nombra a quién le pertenece ese sector del proyecto. Así el jurado ve que cada uno tiene un área y que todos la conocemos.
 **Tiempo:** unos 1,5 minutos por diapositiva (≈ 120–150 palabras habladas). Las cifras son las finales de `SUSTENTACION.md`.
+
+## Reparto de diapositivas
+
+| Integrante | Presenta | Total |
+|---|---|---|
+| Jacobo | 2, 5 | 2 |
+| David | 4, 7, 13, 18 | 4 |
+| Miguel | 3, 9, 12, **15**, 17 | 5 |
+| Juan Pablo | 6, 10, 14, 19 | 4 |
+| Samuel | 1, 8, **11**, 16 | 4 |
+| Todos | 20 | — |
+
+Jacobo presenta menos, pero su sector es el más grande: en las preguntas de datos, capacidad y arquitectura responde él primero.
 
 ## Los cinco sectores
 
@@ -92,14 +105,14 @@
 > "La capacidad la calculó **Jacobo**, y yo la convertí en costos. El pico de diseño es de 10.546 WRU por segundo.
 > Comparamos tres opciones para el año 1. La capacidad **provisionada fija al pico** costaría USD 63.176, y en promedio se usaría el 0,037 % de lo que se paga. La **provisionada con escalado programado** costaría USD 880. La **on-demand con pre-calentamiento** cuesta USD 83, y es la que elegimos.
 > El auto scaling reactivo no sirve aquí: tarda más de 2 minutos en reaccionar y, mientras tanto, rechaza tráfico. Por eso pedimos el pre-calentamiento 24 horas antes de cada preventa.
-> Jacobo les cuenta por qué estamos en Virginia."
+> Samuel les cuenta por qué estamos en Virginia."
 
-## 11. Región y latencia — presenta **Jacobo**
-**Sector: Jacobo (arquitectura)**
+## 11. Región y latencia — presenta **Samuel**
+**Sector: Jacobo (arquitectura) y Samuel (transferencia de datos)**
 
-> "La región fue otra decisión de mi sector. Elegí **us-east-1**, en Virginia: desde Bogotá tiene unos 77 ms de latencia, contra unos 112 de São Paulo. Además, en São Paulo DynamoDB cuesta un 50 % más y no tiene MRSC, que necesitamos para el libro de pagos.
+> "La región la eligió **Jacobo**, y yo revisé si era legal tener los datos allá. Jacobo eligió **us-east-1**, en Virginia: desde Bogotá tiene unos 77 ms de latencia, contra unos 112 de São Paulo. Además, en São Paulo DynamoDB cuesta un 50 % más y no tiene MRSC, que necesitamos para el libro de pagos.
 > La latencia la midió un tercero, no nosotros contra AWS; eso lo dejamos claro.
-> ¿Se pueden tener los datos en Estados Unidos? Samuel lo revisó: Estados Unidos está en la lista de países adecuados de la SIC, así que la transferencia es lícita con aviso y autorización.
+> ¿Se pueden tener los datos en Estados Unidos? Sí. Revisé la Ley 1581: Estados Unidos está en la lista de países adecuados de la SIC, así que la transferencia es lícita con aviso y autorización del titular.
 > La alterna es us-east-2. Miguel les explica qué pasa si cae la región principal."
 
 ## 12. Si cae una región — presenta **Miguel**
@@ -125,15 +138,15 @@
 > Cada localidad entra por una puerta. El nodo de esa puerta marca la boleta como usada **antes** de abrir el torniquete, así que dos lectores no pueden aceptar la misma boleta dos veces.
 > Sin internet, el estadio sigue funcionando hasta **4 horas** igual que siempre. Cuando vuelve la conexión, los escaneos suben con una transacción idempotente.
 > Usamos los torniquetes del propio estadio, con 48 lectores QR.
-> Jacobo les presenta la parte de Samuel: seguridad."
+> Miguel les presenta la parte de Samuel: seguridad."
 
-## 15. Seguridad y cumplimiento — presenta **Jacobo**
+## 15. Seguridad y cumplimiento — presenta **Miguel**
 **Sector: Samuel (seguridad y cumplimiento)**
 
 > "Este sector es de **Samuel**. Lo más importante es que la tarjeta nunca llega a nuestra base: Mercado Pago la tokeniza en el navegador y nosotros solo guardamos el id y el token. Eso reduce el alcance de PCI DSS; el adquirente confirma qué cuestionario aplica.
 > Hay un rol por función, y soporte ve los datos enmascarados. Para evitar fraude, el precio, el cupo y la silla cambian en la misma transacción que su registro de auditoría. Todo está cifrado con KMS.
 > En lo legal, Samuel revisó la Ley 1581 y la retención tributaria: 2 años de datos en línea y hasta 10 en S3 con Object Lock.
-> Samuel les cuenta ahora la parte de Miguel."
+> Ahora Samuel les presenta mi parte: las licencias."
 
 ## 16. Versiones y licencias — presenta **Samuel**
 **Sector: Miguel (licenciamiento)**

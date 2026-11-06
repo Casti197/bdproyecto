@@ -36,11 +36,11 @@ Pruebas ejecutables: `david/pruebas/` (50 de 50 pasan contra el simulador moto; 
 | 8 | Bloqueo de 8 minutos y pagos a medias | Samuel | El TTL solo limpia; el vencimiento se decide en la condición. Pago con llave de idempotencia |
 | 9 | El mapa no toca la base | Miguel | Directo serían 17,2× la cuota; con CDN, ≈ 450 RRU/s |
 | 10 | Capacidad sin pagar el pico todo el año | Juan Pablo | On-demand USD 83/año contra USD 63.176 del provisionado fijo |
-| 11 | Región y latencia | Jacobo | us-east-1: ≈ 77 ms desde Bogotá contra ≈ 112 ms de São Paulo, y más barata |
+| 11 | Región y latencia | Samuel | us-east-1: ≈ 77 ms desde Bogotá contra ≈ 112 ms de São Paulo, y más barata |
 | 12 | Si cae una región | Miguel | Una sola región escribe; RPO 0 de pagos por conciliación; RTO 4–11 min |
 | 13 | Respaldos que no frenan la preventa | David | PITR + AWS Backup + copia inmutable en otra cuenta y región |
 | 14 | El estadio sin internet | Juan Pablo | Un nodo por puerta es la autoridad: 4 horas aislado sin doble ingreso |
-| 15 | Seguridad y cumplimiento | Jacobo | La tarjeta nunca toca BoletaYa (token); Ley 1581; retención por norma |
+| 15 | Seguridad y cumplimiento | Miguel | La tarjeta nunca toca BoletaYa (token); Ley 1581; retención por norma |
 | 16 | Versiones y licencias | Samuel | DynamoDB no tiene versión ni licencia; lo que la rodea sí, y está costeado |
 | 17 | Costos por escenario | Miguel | A 191,1 M año 1; B 289,6 M, solo cabe usando la reserva |
 | 18 | Sensibilidad y TCO | David | Con doble preventa y doble cola, B no cabe en el año 5 |
