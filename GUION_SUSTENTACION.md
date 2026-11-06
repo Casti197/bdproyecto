@@ -1,20 +1,21 @@
 # Guion de sustentación — quién hizo qué
 
 **Orden:** el mismo de siempre. **Presentadores:** se le quitan a Jacobo las diapositivas 11 y 15; la 11 pasa a Samuel y la 15 a Miguel. Este guion cambia **lo que se dice**: en cada diapositiva se nombra a quién le pertenece ese sector del proyecto. Así el jurado ve que cada uno tiene un área y que todos la conocemos.
-**Tiempo:** unos 1,5 minutos por diapositiva (≈ 120–150 palabras habladas). Las cifras son las finales de `SUSTENTACION.md`.
+**Tiempo:** todos hablan **más o menos lo mismo, unos 4 minutos cada uno** (≈ 500 palabras). Jacobo tiene menos diapositivas, pero más largas (≈ 2 min cada una); Miguel tiene más, pero más cortas (≈ 1 min). Las cifras son las finales de `SUSTENTACION.md`.
 
 ## Reparto de diapositivas
 
-| Integrante | Presenta | Total |
-|---|---|---|
-| Jacobo | 2, 5 | 2 |
-| David | 4, 7, 13, 18 | 4 |
-| Miguel | 3, 9, 12, **15**, 17 | 5 |
-| Juan Pablo | 6, 10, 14, 19 | 4 |
-| Samuel | 1, 8, **11**, 16 | 4 |
-| Todos | 20 | — |
+| Integrante | Presenta | Diapositivas | Palabras habladas | Tiempo aprox. |
+|---|---|---|---|---|
+| Jacobo | 2, 5 y parte de la 20 | 2 | ≈ 500 | ≈ 4 min |
+| David | 4, 7, 13, 18 y parte de la 20 | 4 | ≈ 545 | ≈ 4 min |
+| Miguel | 3, 9, 12, **15**, 17 y parte de la 20 | 5 | ≈ 545 | ≈ 4 min |
+| Juan Pablo | 6, 10, 14, 19 y parte de la 20 | 4 | ≈ 495 | ≈ 4 min |
+| Samuel | 1, 8, **11**, 16 y parte de la 20 | 4 | ≈ 515 | ≈ 4 min |
 
-Jacobo presenta menos, pero su sector es el más grande: en las preguntas de datos, capacidad y arquitectura responde él primero.
+Con pausas, señalando la pantalla y los pases de palabra, el total queda en unos 25–28 minutos: sobra margen dentro de los 30.
+
+Jacobo presenta menos diapositivas, pero habla lo mismo que los demás porque las suyas son las más técnicas. En las preguntas de datos, capacidad y arquitectura responde él primero.
 
 ## Los cinco sectores
 
@@ -38,16 +39,19 @@ Jacobo presenta menos, pero su sector es el más grande: en las preguntas de dat
 ## 2. El problema en números — presenta **Jacobo**
 **Sector: Jacobo (capacidad y volumetría)**
 
-> "Mi sector fue entender cuánta carga tiene que aguantar la base. El 80 % del año BoletaYa vende unas 8.000 boletas al día: casi nada, unos 3,5 WRU por segundo. Pero hay unas 25 preventas al año, y en cada una se venden 60.000 boletas en 20 minutos. Son 24.000 órdenes, unas 20 por segundo, mientras 250.000 personas esperan en la cola mirando el mapa de sillas.
-> La exigencia es cero sillas vendidas dos veces y cero pagos perdidos, incluso si algo falla. Y el presupuesto no alcanza para pagar la capacidad del pico los 365 días.
+> "Mi sector fue el modelo de datos, la capacidad y la arquitectura, y empieza por entender cuánta carga tiene que aguantar la base.
+> El 80 % del año BoletaYa vende unas 8.000 boletas al día. Eso es casi nada: unos 3,5 WRU por segundo, algo que cualquier tabla atiende sin esfuerzo.
+> El problema son las preventas. Hay unas 25 al año, y en cada una se venden 60.000 boletas en 20 minutos. Son 24.000 órdenes, unas 20 por segundo, y cada orden consume entre 55 y 85 unidades de escritura según cuántos choques haya. Al mismo tiempo, 250.000 personas esperan en la cola mirando el mapa de sillas.
+> Para diseñar tomé el pico multiplicado por cinco, porque las compras no llegan parejas sino en ráfagas, y le sumé un margen del 25 %. De ahí sale el pico de diseño de 10.546 WRU por segundo que van a ver más adelante.
+> La exigencia del cliente es doble: cero sillas vendidas dos veces y cero pagos perdidos, incluso si algo falla. Y el presupuesto no alcanza para pagar la capacidad del pico los 365 días.
 > Todo lo que van a ver sale de esa tensión: diseñar para el pico sin pagarlo todo el año. Miguel les muestra los dos escenarios."
 
 ## 3. Dos escenarios — presenta **Miguel**
 **Sector: Jacobo (arquitectura) y Juan Pablo (escenario B)**
 
-> "La arquitectura de los dos escenarios la diseñó **Jacobo**, y la variante híbrida la desarrolló **Juan Pablo**.
-> Lo primero que hay que aclarar es que DynamoDB no se instala en un data center. DynamoDB Local es solo para desarrollo, y Outposts y Local Zones no lo ejecutan. Por eso, en los dos escenarios la base vive en AWS.
-> En el **escenario A** todo está en AWS: aplicación, cola, caché y base en us-east-1, con us-east-2 en espera. En el **escenario B**, la aplicación y la caché están en el data center de Bogotá y se conectan con la base en AWS por dos enlaces dedicados con VPN. En ambos, el estadio funciona de manera local.
+> "La arquitectura de los dos escenarios la diseñó **Jacobo**, y la variante híbrida, **Juan Pablo**.
+> DynamoDB no se instala en un data center: DynamoDB Local es solo para desarrollo, y Outposts y Local Zones no lo ejecutan. Por eso la base vive en AWS en los dos escenarios.
+> En el **escenario A**, todo está en AWS: aplicación, cola, caché y base en us-east-1, con us-east-2 en espera. En el **escenario B**, la aplicación y la caché están en Bogotá y llegan a la base por dos enlaces dedicados con VPN. En ambos, el estadio funciona local.
 > David les explica cómo organizó Jacobo los datos."
 
 ## 4. Ocho tablas, no una — presenta **David**
@@ -60,8 +64,10 @@ Jacobo presenta menos, pero su sector es el más grande: en las preguntas de dat
 ## 5. Sillas sin cuello de botella — presenta **Jacobo**
 **Sector: Jacobo (modelo de datos)**
 
-> "La clave de partición de las sillas fue la decisión más importante de mi sector. Cada partición aguanta como máximo 1.000 escrituras por segundo. En el pico multiplicado por cinco, las sillas reciben unas 2.214 WRU por segundo.
-> Si la clave fuera el evento, todo caería en una sola partición y no aguantaría. Si fuera la localidad, una localidad popular recibiría unas 885 WRU por segundo, sin margen. Por eso elegí **evento, localidad y fila**: son unas 900 claves y cada una recibe unas 2,5 WRU por segundo.
+> "La clave de partición de las sillas fue la decisión más importante de mi sector, porque de ella depende que la base aguante el pico.
+> En DynamoDB los datos se reparten en particiones según la clave, y cada partición aguanta como máximo 1.000 escrituras por segundo. No importa cuánta capacidad tenga la tabla: si todo cae en la misma partición, esa partición se satura. En el pico multiplicado por cinco, las sillas reciben unas 2.214 WRU por segundo.
+> Probé tres claves. Si la clave fuera el evento, todo caería en una sola partición y no aguantaría. Si fuera la localidad, una localidad popular como oriental general recibiría unas 885 WRU por segundo, sin margen. Por eso elegí **evento, localidad y fila**: son unas 900 claves y cada una recibe unas 2,5 WRU por segundo, muy lejos del límite.
+> El costo de esa decisión es que, para leer una localidad completa, hay que consultar fila por fila. Eso lo hace un solo proceso, el que construye el mapa, así que no pesa.
 > El caso extremo es una sola silla muy disputada. Eso lo contienen la cola virtual, el límite de 10 sillas por usuario y los reintentos con *backoff*.
 > Juan Pablo sigue con el contador."
 
@@ -79,7 +85,7 @@ Jacobo presenta menos, pero su sector es el más grande: en las preguntas de dat
 
 > "Este es mi sector: la concurrencia. Ana y Beto piden la silla S24 en el mismo milisegundo. Los dos mandan una transacción con la misma condición: bloquear la silla solo si está disponible o si su bloqueo ya venció.
 > DynamoDB serializa las transacciones, así que gana una. Ana bloquea la silla por 8 minutos. Beto recibe `ConditionalCheckFailed`, y **toda** su transacción se cancela: su orden no existe y su cupo no se descuenta.
-> Escribí 50 casos de prueba y los 50 pasan en un simulador local, moto. Aclaro que la garantía viene de la documentación de AWS; el simulador comprueba que nuestras condiciones están bien escritas.
+> Escribí 50 casos de prueba y los 50 pasan en un simulador local, moto. La garantía viene de AWS; el simulador comprueba que las condiciones están bien escritas.
 > El detalle está en el anexo de concurrencia. Samuel les cuenta qué pasa con los pagos."
 
 ## 8. Bloqueo de 8 minutos y pagos a medias — presenta **Samuel**
@@ -94,9 +100,8 @@ Jacobo presenta menos, pero su sector es el más grande: en las preguntas de dat
 ## 9. El mapa no toca la base — presenta **Miguel**
 **Sector: Jacobo (capacidad)**
 
-> "Este cálculo es de **Jacobo**. Si las 250.000 personas de la cola leyeran el mapa directo de la base cada 10 segundos, serían 687.500 RRU por segundo: **17,2 veces** la cuota de lectura de una tabla.
-> Por eso el mapa se sirve desde instantáneas en CloudFront. Un solo constructor lee la base, unas 450 RRU por segundo, y publica la copia. El mapa puede ir unos segundos atrasado, pero la copia nunca decide una silla: la compra siempre se valida con la transacción.
-> El profesor confirmó que acepta un mapa atrasado mientras la validación final sea contra la base.
+> "Este cálculo es de **Jacobo**. Si las 250.000 personas de la cola leyeran el mapa de la base cada 10 segundos, serían 687.500 RRU por segundo: **17,2 veces** la cuota de lectura de una tabla.
+> Por eso el mapa sale de instantáneas en CloudFront. Un solo constructor lee la base, unas 450 RRU por segundo, y publica la copia. El mapa puede ir unos segundos atrasado, pero nunca decide una silla: la compra siempre se valida con la transacción, y el profesor confirmó que eso es aceptable.
 > Juan Pablo les explica cómo pagamos la capacidad."
 
 ## 10. Capacidad sin pagar el pico todo el año — presenta **Juan Pablo**
@@ -119,16 +124,15 @@ Jacobo presenta menos, pero su sector es el más grande: en las preguntas de dat
 **Sector: David (alta disponibilidad) y Miguel (runbooks)**
 
 > "El estudio de conmutación es de **David**, y yo escribí los runbooks y el simulacro.
-> Solo una región escribe, porque con dos regiones escribiendo gana la última escritura, y eso podría vender una silla dos veces. Si cae us-east-1, seguimos estos pasos: cerramos la admisión, pasamos el tráfico a us-east-2, congelamos **solo** las sillas que tienen un pago en duda según el libro `bya_ledger` y reabrimos la venta por tramos.
-> El RTO estimado es de **4 a 11 minutos** desde que se declara el desastre; la meta es menos de 15. El RPO de los pagos es 0 gracias al libro y a la conciliación con Mercado Pago.
-> El RTO es estimado, no medido: se mide en el simulacro. David sigue con los respaldos."
+> Solo una región escribe: con dos regiones escribiendo gana la última escritura, y se podría vender una silla dos veces. Si cae us-east-1, se cierra la admisión, se pasa el tráfico a us-east-2, se congelan **solo** las sillas con un pago en duda según `bya_ledger` y se reabre la venta por tramos.
+> El RTO estimado es de **4 a 11 minutos**, con meta de menos de 15, y el RPO de los pagos es 0 gracias al libro y a la conciliación. El RTO es estimado: se mide en el simulacro. David sigue con los respaldos."
 
 ## 13. Respaldos que no frenan la preventa — presenta **David**
 **Sector: Miguel (recuperación y respaldos)**
 
 > "Esta parte es de **Miguel**. Son tres capas de respaldo, y ninguna frena la preventa.
 > La primera son las **tres zonas** de la región: si cae una zona, no se pierde nada y no hay que conmutar. La segunda es **PITR** de 35 días: ante un error humano o datos corruptos, se puede volver a cualquier segundo hasta 5 minutos antes del presente. La tercera es una **bóveda inmutable** con AWS Backup semanal y mensual, Vault Lock, en otra cuenta y otra región, para el caso de ransomware o borrado malicioso.
-> Miguel además congeló los cambios desde 24 horas antes hasta 3 horas después de cada preventa, y programó los respaldos de 1 a 5 de la mañana.
+> Además, no se hacen cambios desde 24 horas antes hasta 3 horas después de cada preventa.
 > Juan Pablo les cuenta qué pasa en el estadio."
 
 ## 14. El estadio sin internet — presenta **Juan Pablo**
@@ -143,9 +147,8 @@ Jacobo presenta menos, pero su sector es el más grande: en las preguntas de dat
 ## 15. Seguridad y cumplimiento — presenta **Miguel**
 **Sector: Samuel (seguridad y cumplimiento)**
 
-> "Este sector es de **Samuel**. Lo más importante es que la tarjeta nunca llega a nuestra base: Mercado Pago la tokeniza en el navegador y nosotros solo guardamos el id y el token. Eso reduce el alcance de PCI DSS; el adquirente confirma qué cuestionario aplica.
-> Hay un rol por función, y soporte ve los datos enmascarados. Para evitar fraude, el precio, el cupo y la silla cambian en la misma transacción que su registro de auditoría. Todo está cifrado con KMS.
-> En lo legal, Samuel revisó la Ley 1581 y la retención tributaria: 2 años de datos en línea y hasta 10 en S3 con Object Lock.
+> "Este sector es de **Samuel**. La tarjeta nunca llega a nuestra base: Mercado Pago la tokeniza en el navegador y solo guardamos el id y el token. Eso reduce el alcance de PCI DSS; el adquirente confirma qué cuestionario aplica.
+> Hay un rol por función, todo se cifra con KMS y cada cambio de precio o cupo queda auditado en la misma transacción. En lo legal, Samuel definió la retención: 2 años en línea y hasta 10 en S3 con Object Lock.
 > Ahora Samuel les presenta mi parte: las licencias."
 
 ## 16. Versiones y licencias — presenta **Samuel**
@@ -159,11 +162,10 @@ Jacobo presenta menos, pero su sector es el más grande: en las preguntas de dat
 ## 17. Costos por escenario — presenta **Miguel**
 **Sector: Juan Pablo (costos)**
 
-> "La hoja de costos es de **Juan Pablo**, y yo le pasé la lista de componentes de recuperación. Cada precio tiene su fuente, su fecha y su captura.
-> El **escenario A** cuesta 191,1 millones el año 1, contra un tope de 280, y le sobran 88,9. En cinco años son 469,7 millones de 800.
-> El **escenario B** cuesta 289,6 millones el año 1: se pasa 9,6 millones y solo cabe usando la reserva del 10 %. B suma dos servidores en Bogotá, la energía del data center, dos enlaces dedicados y la VPN. Para que cupiera, le quitamos la caché en espera de us-east-2.
-> El estadio cuesta unos 157 millones en los dos escenarios.
-> David les muestra qué pasa si el negocio crece."
+> "La hoja de costos es de **Juan Pablo**; cada precio tiene fuente, fecha y captura.
+> El **escenario A** cuesta 191,1 millones el año 1, contra un tope de 280: le sobran 88,9. En cinco años son 469,7 millones de 800.
+> El **escenario B** cuesta 289,6 millones el año 1: se pasa 9,6 y solo cabe con la reserva del 10 %. Suma dos servidores en Bogotá, energía, dos enlaces y la VPN, y aun así hubo que quitarle la caché en espera de us-east-2.
+> El estadio cuesta unos 157 millones en los dos. David les muestra qué pasa si el negocio crece."
 
 ## 18. Sensibilidad y TCO — presenta **David**
 **Sector: Juan Pablo (sensibilidad y TCO)**
@@ -187,10 +189,11 @@ Jacobo presenta menos, pero su sector es el más grande: en las preguntas de dat
 
 > **Samuel:** "Recomendamos el escenario A, todo en AWS."
 > **Juan Pablo (costos):** "Ahorra 227,4 millones en cinco años y no toca la reserva."
-> **Jacobo (arquitectura):** "Cada compra es unos 330 ms más rápida, y la base aguanta el pico sin pagarlo todo el año."
+> **Jacobo (arquitectura):** "Desde la arquitectura, A es más simple: la aplicación y la base están en la misma región, así que cada compra es unos 330 ms más rápida. Y la base aguanta el pico de preventa con on-demand, sin pagarlo todo el año."
 > **Miguel (recuperación):** "La venta no depende de un enlace ni de un data center sin planta, y se recupera en 4 a 11 minutos."
 > **David (concurrencia):** "En los dos escenarios hay cero dobles ventas y cero pagos perdidos. Lo que no pudimos medir, que son el RTO real, la latencia real y los conflictos, se valida en un simulacro antes de la preventa más grande."
-> **Samuel:** "No hay ningún año en que convenga cambiar. Solo lo revisaríamos si una norma exigiera los datos en Colombia o si AWS abriera allí una región con DynamoDB. Gracias; quedamos atentos a sus preguntas."
+> **Jacobo:** "No hay ningún año en que convenga cambiar. Solo lo revisaríamos si una norma exigiera los datos en Colombia o si AWS abriera allí una región con DynamoDB."
+> **Samuel:** "Gracias; quedamos atentos a sus preguntas."
 
 ---
 
